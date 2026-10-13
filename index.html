@@ -161,6 +161,9 @@ form.add input,form.add select{flex:1 1 140px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
 /* compact pass */
+table.tight td,table.tight th{padding:2px 7px}
+table.tight tr.brandrow td{padding:3px 8px}
+table.tight .num-in{height:22px}
 .num-in{padding:2px 6px}
 td .num-in{height:24px}
 .ag-sec h3{margin-bottom:0}
@@ -687,20 +690,31 @@ function video(){
    </div></section>`;
 }
 
+let growG="品牌";
 function growth(){
   const lineOf=(k,m)=>n(((S.lineM||{})[k]||{})[m]);
   const lm=revMonths(), lk=lm.slice(1).reverse().find(m=>LINE_ACCS.some(k=>lineOf(k,m)));
   const tot=m=>LINE_ACCS.reduce((a,k)=>a+lineOf(k,m),0);
   return `<section class="panel"><div><h2>成長</h2><p class="hint">兩個數字：營業額 +20%，以及 LINE 會員數。都是每月記一次，跟 10 月比。</p></div>
   <div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>LINE 會員數</h3><span class="note">LINE@ 目的：增加會員數、推活動｜每月月初記一次</span></div>
-   <div class="scroll"><table><thead><tr><th>帳號</th>${lm.map(m=>`<th class="c">${+m.slice(5)} 月${m==="2026-10"?"（基準）":""}</th>`).join("")}<th class="c">增加</th></tr></thead><tbody>
+   <div class="scroll"><table class="tight"><thead><tr><th>帳號</th>${lm.map(m=>`<th class="c">${+m.slice(5)} 月${m==="2026-10"?"（基準）":""}</th>`).join("")}<th class="c">增加</th></tr></thead><tbody>
    ${LINE_ACCS.map((k,i)=>{const b=lineOf(k,"2026-10"),c=lk?lineOf(k,lk):0,d=b&&c?c-b:null;return `<tr><td>${esc(k)}</td>${lm.map(m=>`<td class="c"><input id="lm-${i}-${m}" class="num-in" inputmode="numeric" placeholder="—" value="${esc(((S.lineM||{})[k]||{})[m]||"")}" data-lm="${esc(k)}|${m}"></td>`).join("")}<td class="c tabnum">${d==null?'<span class="note">—</span>':`<span class="pill ${d>0?"p-ok":"p-warn"}">${d>0?"+":""}${d}</span>`}</td></tr>`}).join("")}
    </tbody><tfoot><tr><td>合計</td>${lm.map(m=>`<td class="c">${tot(m)||"—"}</td>`).join("")}<td class="c">${lk&&tot("2026-10")?((tot(lk)-tot("2026-10"))>0?"+":"")+(tot(lk)-tot("2026-10")):"—"}</td></tr></tfoot></table></div>
-   <p class="note" style="margin-top:6px">10 月是 10/14 從 LINE 後台帳號列表抄的。好友數在 manager.line.biz 帳號列表就看得到。</p></div>
-  <div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>營業額</h3><span class="note">10 月＝基準；每月月初填上個月</span></div>
-  <div class="scroll"><table><thead><tr><th>門市</th>${revMonths().map(k=>`<th class="c">${+k.slice(5)} 月${k==="2026-10"?"（基準）":""}</th>`).join("")}<th class="c">最新 vs 10 月</th></tr></thead><tbody>
-  ${S.stores.map((s,i)=>{const b=revOf(s.id,"2026-10"),lk=revMonths().slice(1).reverse().find(k=>revOf(s.id,k)),c=lk?revOf(s.id,lk):0;const g=b&&c?(c/b-1)*100:null;const cls=g==null?"":g>=20?"p-ok":g>=0?"p-warn":"p-bad";
-   return `<tr><td style="white-space:nowrap">${esc(s.brand.replace("滷味","").replace("麻辣拌","").replace("關東煮",""))} ${esc(s.branch.replace("店",""))}</td>${revMonths().map(k=>`<td class="c"><input id="rv-${i}-${k}" class="num-in" inputmode="numeric" placeholder="—" value="${esc(((S.rev||{})[s.id]||{})[k]||"")}" data-rv="${esc(s.id)}|${k}"></td>`).join("")}<td class="c">${g==null?'<span class="note">—</span>':`<span class="pill ${cls}">${(g>=0?"+":"")+g.toFixed(1)}%</span>`}</td></tr>`}).join("")}
+   <p class="note" style="margin-top:4px">10 月是 10/14 從 LINE 後台帳號列表抄的。</p></div>
+  <div class="card"><div class="brandhead" style="margin:0 0 6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center"><h3>營業額</h3><span class="note">10 月＝基準；每月月初填上個月</span><span style="display:inline-flex;gap:6px;align-items:center;margin-left:auto"><span class="note">分組</span>${["品牌","區域","狀態"].map(v=>`<button class="chip ${growG===v?"":"off2"}" data-gg="${v}">${v}</button>`).join("")}</span></div>
+  <div class="scroll"><table class="tight"><thead><tr><th>門市</th>${revMonths().map(k=>`<th class="c">${+k.slice(5)} 月${k==="2026-10"?"（基準）":""}</th>`).join("")}<th class="c">最新 vs 10 月</th></tr></thead><tbody>
+  ${(()=>{const lkOf=s=>revMonths().slice(1).reverse().find(k=>revOf(s.id,k));
+    const gOf=s=>{const b=revOf(s.id,"2026-10"),lk=lkOf(s),c=lk?revOf(s.id,lk):0;return b&&c?(c/b-1)*100:null};
+    const stat=s=>{const g=gOf(s);return g==null?"還沒資料":g>=20?"達標 +20%":g>=0?"成長中":"衰退"};
+    const kf=growG==="品牌"?s=>s.brand:growG==="區域"?region:stat;
+    const ord=growG==="品牌"?BRANDS.map(g=>g.b):growG==="區域"?REGIONS:["衰退","成長中","達標 +20%","還沒資料"];
+    const pill=g=>g==null?'<span class="note">—</span>':`<span class="pill ${g>=20?"p-ok":g>=0?"p-warn":"p-bad"}">${(g>=0?"+":"")+g.toFixed(1)}%</span>`;
+    return ord.map(k=>{const list=S.stores.filter(s=>kf(s)===k);if(!list.length)return "";
+      const sumB=list.reduce((a,s)=>a+revOf(s.id,"2026-10"),0),both=list.filter(s=>revOf(s.id,"2026-10")&&lkOf(s));
+      const gg=both.length?(both.reduce((a,s)=>a+revOf(s.id,lkOf(s)),0)/both.reduce((a,s)=>a+revOf(s.id,"2026-10"),0)-1)*100:null;
+      return `<tr class="brandrow"><td colspan="${revMonths().length+1}">${esc(k)}${sumB?` <span class="note" style="font-weight:400">10 月合計 ${sumB.toLocaleString()}</span>`:""}</td><td class="c">${list.length>1?pill(gg):""}</td></tr>`+
+      list.map(s=>{const i=S.stores.indexOf(s);const nm=growG==="品牌"?s.branch.replace("店",""):s.brand.replace("滷味","").replace("麻辣拌","").replace("關東煮","")+" "+s.branch.replace("店","");
+        return `<tr><td style="white-space:nowrap">${esc(nm)}</td>${revMonths().map(k2=>`<td class="c"><input id="rv-${i}-${k2}" class="num-in" inputmode="numeric" placeholder="—" value="${esc(((S.rev||{})[s.id]||{})[k2]||"")}" data-rv="${esc(s.id)}|${k2}"></td>`).join("")}<td class="c">${pill(gOf(s))}</td></tr>`}).join("")}).join("")})()}
   </tbody></table></div>
   <p class="note" style="margin-top:6px">每個月都會留一欄，前面的月份會一直保存。飲料冬天會淡，也可以跟哥哥要去年同月份的數字，比較公平。</p></div>
   </section>`;
@@ -750,6 +764,7 @@ function bind(){
   document.querySelectorAll("[data-infofix]").forEach(i=>i.onchange=()=>{S.info=S.info||{};(S.info[i.dataset.infofix]=S.info[i.dataset.infofix]||{}).fix=i.value.trim();save()});
   document.querySelectorAll("[data-infocopy]").forEach(b=>b.onclick=()=>{const t=infoText(b.dataset.infocopy.split(","));navigator.clipboard.writeText(t).then(()=>{b.textContent="已複製"},()=>{b.textContent="複製失敗"})});
   document.querySelectorAll("[data-ig]").forEach(b=>b.onclick=()=>{infoG=b.dataset.ig;render()});
+  document.querySelectorAll("[data-gg]").forEach(b=>b.onclick=()=>{growG=b.dataset.gg;render()});
   document.querySelectorAll("[data-tc]").forEach(b=>b.onclick=()=>{todoCat=b.dataset.tc;render()});
   document.querySelectorAll("[data-tg]").forEach(b=>b.onclick=()=>{todoGroup=b.dataset.tg;render()});
   const tdd=$("#tdDone");if(tdd)tdd.onclick=()=>{todoDone=!todoDone;render()};
