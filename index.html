@@ -102,14 +102,14 @@ tr.brandrow td{background:var(--tea-soft);color:var(--tea);font-weight:700;font-
 .agenda{display:grid;gap:14px}
 .ag-sec h3{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:4px}
 .ag-sec h3 .note{font-weight:400}
-.ag-item{display:grid;grid-template-columns:22px 1fr;gap:4px 10px;padding:9px 0;border-top:1px solid var(--line)}
+.ag-item{display:grid;grid-template-columns:22px minmax(0,1fr) minmax(0,1fr);gap:2px 10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
 .ag-item:first-of-type{border-top:0}
 .ag-item input[type=checkbox]{width:20px;height:20px;margin-top:2px;accent-color:var(--ok)}
 .ag-item label{font-weight:500;cursor:pointer}
 .ag-item.done label{color:var(--muted);text-decoration:line-through}
 .ag-item.done .ag-note{border-color:var(--ok)}
 .ag-item .sub{font-size:.8rem;color:var(--muted);font-weight:400}
-.ag-item .ag-note{grid-column:2;width:100%;font-size:.88rem;padding:5px 8px}
+.ag-item .ag-note{grid-column:3;width:100%;font-size:.88rem;padding:5px 8px}
 .progress{font-family:var(--mono);font-size:.85rem;color:var(--tea)}
 a.lnk{color:var(--tea);font-weight:700;text-decoration:none;border-bottom:1px solid var(--tea)}
 a.lnk:hover{opacity:.8}
@@ -159,6 +159,56 @@ form.add input,form.add select{flex:1 1 140px}
 .flow span.step{background:var(--tea-soft);color:var(--tea);padding:4px 10px;border-radius:6px;font-weight:500}
 .note{font-size:.8rem;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* compact pass */
+.num-in{padding:2px 6px}
+td .num-in{height:24px}
+.ag-sec h3{margin-bottom:0}
+.gtab td.nx{font-size:.74rem}
+body{font-size:14px;line-height:1.45}
+.wrap{padding-block:10px 32px}
+header.top{gap:10px;align-items:center}
+.brand h1{font-size:1.25rem}
+.brand p{font-size:.78rem}
+.goal{padding:6px 12px;flex-basis:300px}
+.goal .num{font-size:1.05rem}
+.goal .note{font-size:.72rem}
+.bar{height:6px;margin-top:3px}
+nav.tabs{margin-top:8px}
+nav.tabs button{padding:7px 10px;font-size:.92rem}
+section.panel{margin-top:10px;gap:10px}
+h2{font-size:1.02rem}
+h3{font-size:.88rem;margin-bottom:4px}
+.hint{font-size:.78rem}
+.card{padding:10px 12px;border-radius:8px}
+.grid2,.grid3{gap:10px}
+.today li{padding:4px 0;font-size:.85rem}
+table{font-size:.82rem}
+th,td{padding:4px 7px}
+th{font-size:.7rem}
+.cell{min-width:28px;height:24px;font-size:.74rem;padding:0 4px}
+input,select,textarea{padding:4px 7px;font-size:.85rem}
+.num-in{width:80px}
+.btn{padding:5px 11px;font-size:.85rem}
+.btn.ghost{padding:2px 8px;font-size:.76rem}
+.chip{padding:2px 9px;font-size:.74rem}
+.pill{font-size:.68rem;padding:1px 7px}
+.seg button{padding:5px 11px;font-size:.84rem}
+.kpi .v{font-size:1.15rem}
+.formula{padding:6px 10px;font-size:.85rem}
+.camp{padding:7px 0;gap:4px}
+.todo li{padding:3px 0;font-size:.82rem}
+.ag-item{padding:5px 0}
+.ag-item .ag-note{padding:3px 7px;font-size:.8rem}
+.brandhead{margin:2px 0 -2px}
+tr.brandrow td{padding:4px 8px;font-size:.8rem}
+.legend{gap:6px;font-size:.75rem}
+.linkbar{gap:6px}
+a.lbtn{padding:4px 10px;font-size:.78rem}
+.flow{font-size:.8rem}
+.flow span.step{padding:2px 8px}
+form.add{gap:6px}
+.store-name span{font-size:.72rem}
 </style>
 
 <div class="wrap">
@@ -190,9 +240,9 @@ const BRANDS=[
  {b:"韓殿炒泡麵",s:["寶山店"]},
 ];
 const GROUPS=[
- {g:"Google",items:[["g_admin","管理權限"],["g_info","時間地址電話"],["g_menu","菜單"],["g_photo","照片"]]},
- {g:"LINE",items:[["l_admin","管理權限"],["l_oa","官方帳號"],["l_menu","歡迎訊息／選單"],["l_qr","加好友立牌"]]},
- {g:"行銷／現場",items:[["m_order","點餐連結"],["m_pay","LINE Pay 立牌"],["m_pop","活動物料"]]}];
+ {g:"Google",items:[["g_admin","權限"],["g_info","資訊"],["g_menu","菜單"],["g_photo","照片"]]},
+ {g:"LINE",items:[["l_admin","權限"],["l_oa","帳號"],["l_menu","選單"],["l_qr","QR"]]},
+ {g:"現場",items:[["m_order","點餐"],["m_pay","Pay"],["m_pop","物料"]]}];
 const CHECKS=GROUPS.flatMap(x=>x.items);
 const ST=["待確認","待處理","完成","不適用"], STS=["?","待","✓","—"];
 const TODO_CATS=["Google","LINE","行銷"];
@@ -468,6 +518,7 @@ function stores(){
   ${storeView==="handover"?handover():storeView==="todo"?storeTodos():accounts()}</section>`;
 }
 function infoText(ids){return ids.map(id=>{const x=INFO[id];return `【${x.name}】\n地址：${x.addr}\n電話：${x.phone}\n營業時間：${x.hours}${x.svc?`\n服務：${x.svc}`:""}\n價位：${x.price}${x.web?`\n網站：${x.web}`:""}`}).join("\n\n")+"\n\n以上是 Google 地圖上目前寫的資料，麻煩幫我看哪裡要改，回我正確的就好，謝謝！"}
+let infoG="品牌";
 function info(){
   S.info=S.info||{};
   const ids=S.stores.map(s=>s.id).filter(id=>INFO[id]), miss=S.stores.filter(s=>!INFO[s.id]);
@@ -475,19 +526,19 @@ function info(){
   const cnt=INFO_ST.map(t=>ids.filter(id=>stOf(id)===t).length);
   const cls={"待確認":"p-warn","正確":"p-ok","要改":"p-bad"};
   return `<section class="panel"><div><h2>店家資料</h2><p class="hint">Google 地圖上目前寫的資料。點狀態切換：待確認 → 正確 → 要改。</p></div>
-  <div class="card" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px">${INFO_ST.map((t,i)=>`<span class="pill ${cls[t]}">${t} ${cnt[i]}</span>`).join("")}<span class="note">還沒有：${miss.map(s=>esc(s.brand.replace("滷味","").replace("麻辣拌","")+" "+s.branch)).join("、")}</span></div>
+  <div class="card" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px">${INFO_ST.map((t,i)=>`<span class="pill ${cls[t]}">${t} ${cnt[i]}</span>`).join("")}<span style="display:inline-flex;gap:6px;align-items:center;margin-left:auto"><span class="note">分組</span>${["品牌","區域","狀態"].map(v=>`<button class="chip ${infoG===v?"":"off2"}" data-ig="${v}">${v}</button>`).join("")}</span><span class="note" style="flex-basis:100%">還沒有：${miss.map(s=>esc(s.brand.replace("滷味","").replace("麻辣拌","")+" "+s.branch)).join("、")}</span></div>
   <div class="card scroll" style="padding:6px 10px"><table class="info-t"><thead><tr><th>門市</th><th>電話</th><th>營業時間</th><th>地址</th><th class="c">狀態</th></tr></thead><tbody>
-  ${BRANDS.map(g=>{const list=ids.filter(id=>id.startsWith(g.b+"-"));if(!list.length)return "";return `<tr class="brandrow"><td colspan="5">${g.b} <button class="btn ghost" style="margin-left:8px;font-weight:500" data-infocopy="${esc(list.join(","))}">複製給店長</button></td></tr>
-   ${list.map(id=>{const x=INFO[id],m=S.info[id]||{},st=stOf(id);return `<tr><td><b>${esc(id.split("-")[1])}</b>${x.flag?`<div class="iflag">⚠ ${esc(x.flag)}</div>`:""}${st==="要改"?`<input id="if-${esc(id)}" class="ask-in" style="margin-top:4px;font-size:.78rem;padding:3px 6px" data-infofix="${esc(id)}" placeholder="要改成什麼" value="${esc(m.fix||"")}">`:""}</td><td class="tabnum" style="white-space:nowrap">${esc(x.phone)}</td><td>${esc(x.hours)}</td><td>${esc(x.addr.replace("桃園區",""))}</td><td class="c"><button class="infost" data-infost="${esc(id)}"><span class="pill ${cls[st]}">${st}</span></button></td></tr>`}).join("")}`}).join("")}
+  ${(()=>{const st=id=>S.stores.find(x=>x.id===id);const kf=infoG==="品牌"?id=>st(id).brand:infoG==="區域"?id=>region(st(id)):stOf;const ord=infoG==="品牌"?BRANDS.map(g=>g.b):infoG==="區域"?REGIONS:INFO_ST;return ord.map(k=>({b:k,list:ids.filter(id=>kf(id)===k)}))})().map(g=>{const list=g.list;if(!list.length)return "";return `<tr class="brandrow"><td colspan="5">${g.b} <button class="btn ghost" style="margin-left:8px;font-weight:500" data-infocopy="${esc(list.join(","))}">複製給店長</button></td></tr>
+   ${list.map(id=>{const x=INFO[id],m=S.info[id]||{},st=stOf(id);const sn=infoG==="品牌"?id.split("-")[1]:(()=>{const t=S.stores.find(y=>y.id===id);return t.brand.replace("滷味","").replace("麻辣拌","").replace("關東煮","")+" "+t.branch})();return `<tr><td><b>${esc(sn)}</b>${x.flag?`<div class="iflag">⚠ ${esc(x.flag)}</div>`:""}${st==="要改"?`<input id="if-${esc(id)}" class="ask-in" style="margin-top:4px;font-size:.78rem;padding:3px 6px" data-infofix="${esc(id)}" placeholder="要改成什麼" value="${esc(m.fix||"")}">`:""}</td><td class="tabnum" style="white-space:nowrap">${esc(x.phone)}</td><td>${esc(x.hours)}</td><td>${esc(x.addr.replace("桃園區",""))}</td><td class="c"><button class="infost" data-infost="${esc(id)}"><span class="pill ${cls[st]}">${st}</span></button></td></tr>`}).join("")}`}).join("")}
   </tbody></table></div>
   <p class="note">服務、價位、網站按「複製給店長」時會一起帶進訊息。</p>
   </section>`;
 }
 function accounts(){
   const sw=(list,cur,attr)=>`<div class="row" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0 8px"><span class="note">排列</span>${list.map(v=>`<button class="chip ${cur===v?"":"off2"}" data-${attr}="${v}" aria-pressed="${cur===v}">${v}</button>`).join("")}</div>`;
-  return `<div class="card">${linkBar}</div>
-  <div class="card"><h3>Google 商家</h3>${sw(["品牌","區域","狀態"],accG,"ag2")}${gTable()}</div>
-  <div class="card"><h3>LINE 官方帳號</h3><p class="note" style="margin:0">目的：增加會員數、推活動。</p>${sw(["品牌","區域","LINE 帳號","待辦"],accL,"al2")}${lTable()}</div>`;
+  const vt=`<div class="seg" role="group">${["Google","LINE"].map(v=>`<button data-av="${v}" aria-pressed="${accV===v}">${v==="Google"?"Google 商家":"LINE 官方帳號"}</button>`).join("")}</div>`;
+  return `<div class="card" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between">${vt}${linkBar}</div>
+  ${accV==="Google"?`<div class="card">${sw(["品牌","區域","狀態"],accG,"ag2")}${gTable()}</div>`:`<div class="card"><p class="note" style="margin:0">目的：增加會員數、推活動。</p>${sw(["品牌","區域","LINE 帳號","待辦"],accL,"al2")}${lTable()}</div>`}`;
 }
 function handover(){
   const c=[0,0,0,0];S.stores.forEach(s=>CHECKS.forEach(([k])=>c[s.st[k]||0]++));
@@ -497,9 +548,9 @@ function handover(){
   <div class="card scroll"><table><thead>
    <tr><th rowspan="2">門市</th><th rowspan="2" class="c">完成</th>${GROUPS.map(g=>`<th class="grp sep" colspan="${g.items.length}">${g.g}</th>`).join("")}<th rowspan="2" class="sep">要問的事／備註</th></tr>
    <tr>${GROUPS.map(g=>g.items.map(([,l],j)=>`<th class="c ${j===0?"sep":""}">${l}</th>`).join("")).join("")}</tr></thead><tbody>
-  ${S.stores.map((s,i)=>`${i===0||S.stores[i-1].brand!==s.brand?`<tr class="brandrow"><td colspan="${CHECKS.length+3}">${esc(s.brand)}</td></tr>`:""}<tr><td class="store-name"><b>${esc(s.branch)}</b><span>${[s.note,s.addr].filter(Boolean).map(esc).join("・")}${GBP[s.id]?.v?` <span class="pill ${GBP[s.id].v==="已驗證"?"p-ok":GBP[s.id].v==="沒有"?"p-bad":"p-warn"}">G ${GBP[s.id].v}</span>`:""}</span></td><td class="c cnt">${CHECKS.filter(([k])=>s.st[k]===2).length}/${CHECKS.filter(([k])=>s.st[k]!==3).length}</td>
+  ${S.stores.map((s,i)=>`${i===0||S.stores[i-1].brand!==s.brand?`<tr class="brandrow"><td colspan="${CHECKS.length+3}">${esc(s.brand)}</td></tr>`:""}<tr><td style="white-space:nowrap"><b>${esc(s.branch)}</b></td><td class="c cnt">${CHECKS.filter(([k])=>s.st[k]===2).length}/${CHECKS.filter(([k])=>s.st[k]!==3).length}</td>
    ${GROUPS.map(g=>g.items.map(([k,l],j)=>{const v=s.st[k]||0;return `<td class="c ${j===0?"sep":""}"><button class="cell s${v}" title="${ST[v]}" aria-label="${esc(s.brand+s.branch+" "+g.g+" "+l+"："+ST[v])}" data-i="${i}" data-k="${k}">${STS[v]}</button></td>`}).join("")).join("")}
-   <td class="sep"><input id="ask-${i}" class="ask-in" placeholder="例：這家有沒有 LINE？" value="${esc(s.ask)}" data-ask="${i}"></td></tr>`).join("")}
+   <td class="sep"><input id="ask-${i}" class="ask-in" placeholder="備註" value="${esc(s.ask)}" data-ask="${i}"></td></tr>`).join("")}
   </tbody><tfoot><tr><td>已完成</td><td class="c">${S.stores.reduce((a,s)=>a+CHECKS.filter(([k])=>s.st[k]===2).length,0)}/${S.stores.reduce((a,s)=>a+CHECKS.filter(([k])=>s.st[k]!==3).length,0)}</td>${GROUPS.map(g=>g.items.map(([k],j)=>{const ok=S.stores.filter(s=>s.st[k]===2).length,n=S.stores.filter(s=>s.st[k]!==3).length;return `<td class="c ${j===0?"sep":""}">${ok}/${n}</td>`}).join("")).join("")}<td class="sep"></td></tr></tfoot></table></div>`;
 }
 let todoCat="全部",todoGroup="品牌",todoDone=false;
@@ -532,7 +583,7 @@ const brandOpts=`<option value="">選品牌</option>`+BRANDS.map(g=>`<option>${g
 const statusBtn=(type,id,s)=>`<button class="status" data-type="${type}" data-id="${id}" title="點一下換下一個狀態">${pill(s)}</button>`;
 const delBtn=(type,id)=>`<button class="btn ghost" data-del="${type}" data-id="${id}">刪除</button>`;
 
-let accG="品牌",accL="品牌";
+let accG="品牌",accL="品牌",accV="Google";
 const gDone=s=>(GBP[s.id]||{}).v==="已驗證"&&s.st.g_admin===2;
 const lTodo=s=>(s.todos||[]).some(t=>t.cat==="LINE"&&!t.done);
 const mapUrl=s=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(s.brand.replace("滷味","")+" 桃園 "+s.branch);
@@ -564,14 +615,14 @@ function lTable(){
   const kf=accL==="品牌"?s=>s.brand:accL==="區域"?region:accL==="LINE 帳號"?s=>(LINEOA[s.id]||{}).acc||"（沒有）":s=>lTodo(s)?"有待辦":"沒有待辦";
   const ord=accL==="品牌"?BRANDS.map(g=>g.b):accL==="區域"?REGIONS:accL==="LINE 帳號"?[...new Set(S.stores.map(s=>(LINEOA[s.id]||{}).acc||"（沒有）"))]:["有待辦","沒有待辦"];
   return grouped(kf,ord,s=>{const l=LINEOA[s.id]||{};const ol=ORDER_LINKS[s.id];
-   return `<tr><td>${esc(accL==="品牌"?s.branch:s.brand.replace("滷味","").replace("麻辣拌","")+" "+s.branch)}</td><td>${accL==="LINE 帳號"?"":esc(l.acc||"—")}</td><td>${l.role?`<span class="pill ${l.role==="管理員"?"p-ok":"p-warn"}">${esc(l.role)}</span>`:"—"}</td><td class="nx">${ol?`<button class="btn ghost" data-copy="${esc(ol)}">複製訂餐連結</button>${ORDER_LABEL[s.id]?`<br>${esc(ORDER_LABEL[s.id])}`:""}`:"—"}</td><td class="nx">${esc(l.flag||"")}</td></tr>`},
+   return `<tr><td>${esc(accL==="品牌"?s.branch:s.brand.replace("滷味","").replace("麻辣拌","")+" "+s.branch)}</td><td>${accL==="LINE 帳號"?"":esc(l.acc||"—")}</td><td>${l.role?`<span class="pill ${l.role==="管理員"?"p-ok":"p-warn"}">${esc(l.role)}</span>`:"—"}</td><td class="nx">${ol?`<button class="btn ghost" data-copy="${esc(ol)}">複製</button>${ORDER_LABEL[s.id]?`<br>${esc(ORDER_LABEL[s.id])}`:""}`:"—"}</td><td class="nx">${esc(l.flag||"")}</td></tr>`},
    `<th>門市</th><th>LINE 帳號</th><th>角色</th><th>肚肚訂餐</th><th>注意</th>`)+`<p class="note" style="margin-top:6px">非門市帳號：石小妹👶馥瑋fuwei（個人）。訂餐連結可以放進 LINE 圖文選單的「點餐」按鈕。</p>`;
 }
 function meeting(){
   const all=AGENDA.flatMap(x=>x.items), done=all.filter(([k])=>S.meeting[k]?.done).length;
   return `<section class="panel"><div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-end"><div><h2>開會紀錄</h2><p class="hint">目標 → 權限 → 先做什麼 → 怎麼合作。打勾，答案寫在旁邊。</p></div><span class="progress">${done} / ${all.length}</span></div>
   <div class="agenda">${AGENDA.map((x,si)=>`<div class="card ag-sec"><h3>${si+1}. ${x.sec}<span class="note">${x.why}</span></h3>
-   ${x.items.map(([k,t,sub])=>{const m=S.meeting[k]||{};return `<div class="ag-item ${m.done?"done":""}"><input type="checkbox" id="ag-${k}" ${m.done?"checked":""} data-ag="${k}"><label for="ag-${k}">${esc(t)}${sub?` <span class="sub">${esc(sub)}</span>`:""}${k==="p1"?` <a class="lnk sub" href="${LINKS.gbp}" target="_blank" rel="noopener">打開清單 ↗</a>`:k==="p2"?` <a class="lnk sub" href="${LINKS.line}" target="_blank" rel="noopener">打開後台 ↗</a>`:""}</label><input class="ag-note" id="agn-${k}" data-agn="${k}" placeholder="答案" value="${esc(m.note||"")}">${k==="p1"||k==="p2"?`<span class="sub" style="grid-column:2">進度表在「門市 → 帳號對照」</span>`:""}</div>`}).join("")}</div>`).join("")}
+   ${x.items.map(([k,t,sub])=>{const m=S.meeting[k]||{};return `<div class="ag-item ${m.done?"done":""}"><input type="checkbox" id="ag-${k}" ${m.done?"checked":""} data-ag="${k}"><label for="ag-${k}">${esc(t)}${sub?` <span class="sub">${esc(sub)}</span>`:""}${k==="p1"?` <a class="lnk sub" href="${LINKS.gbp}" target="_blank" rel="noopener">打開清單 ↗</a>`:k==="p2"?` <a class="lnk sub" href="${LINKS.line}" target="_blank" rel="noopener">打開後台 ↗</a>`:""}</label><input class="ag-note" id="agn-${k}" data-agn="${k}" placeholder="答案" value="${esc(m.note||"")}"></div>`}).join("")}</div>`).join("")}
    <div class="card"><h3>其他補充</h3><textarea id="ag-extra" data-agx="1" style="width:100%;min-height:70px" placeholder="哥哥額外交代的事">${esc(S.meeting._extra||"")}</textarea>
     <div style="margin-top:10px"><button class="btn ghost" id="agReset">清空，下次開會用</button> <span id="agConfirm"></span></div></div>
   </div></section>`;
@@ -588,19 +639,19 @@ function campaign(){
     <div><p class="note" style="margin:0 0 4px">① 每月 1 號：<a class="lnk" href="${LINKS.dudoo}" target="_blank" rel="noopener">肚肚後台 ↗</a> 改成「${cur[0]} $${cur[1]}」（${+mk.slice(5)} 月）</p><ul class="todo">${RT_STORES.map(id=>`<li class="${M.order[id]?"done":""}"><input type="checkbox" id="mo-${esc(id)}" data-mo="${esc(id)}" ${M.order[id]?"checked":""}><span class="tx">${esc(lab(id))}</span></li>`).join("")}</ul></div>
     <div><p class="note" style="margin:0 0 4px">② 每月最後一天：LINE 群發 ${+nk.slice(5)} 月活動「${nx[0]} $${nx[1]}」</p><ul class="todo">${MONTH_PUSH.map(([a,l])=>`<li class="${NM.push[a]?"done":""}"><input type="checkbox" id="mp-${esc(l)}" data-mp="${esc(a)}" ${NM.push[a]?"checked":""}><span class="tx">${esc(l)}<span class="note">｜${esc(a)}</span></span></li>`).join("")}</ul></div>
    </div>
-   <h3 style="margin-top:14px">群發文案（${+nk.slice(5)} 月）</h3><p class="note" style="margin:0 0 6px">依 LINE 帳號分開，每則附上該區的店名和訂餐連結。</p>
-   ${MONTH_PUSH.map(([acc,l],i)=>`<div style="margin-top:10px"><b>${esc(l)}</b><span class="note">｜${esc(acc)}</span>
-   <textarea id="rt-msg-${i}" data-msgacc="${esc(acc)}" style="width:100%;min-height:200px;font-size:.88rem;margin-top:4px">${esc((NM.msgs||{})[acc]||rtMsg(nk,acc))}</textarea>
-   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button class="btn" data-copymsg="${i}">複製文案</button><button class="btn ghost" data-resetmsg="${esc(acc)}">恢復預設</button><span id="copyOk-${i}" class="note"></span></div></div>`).join("")}
+   <h3 style="margin-top:8px">群發文案（${+nk.slice(5)} 月）<span class="note" style="font-weight:400">・依 LINE 帳號分開，附該區店名和訂餐連結</span></h3>
+   ${MONTH_PUSH.map(([acc,l],i)=>`<div style="margin-top:6px"><b>${esc(l)}</b><span class="note">｜${esc(acc)}</span>
+   <details style="margin-top:4px"><summary class="note" style="cursor:pointer">看／改文案</summary><textarea id="rt-msg-${i}" data-msgacc="${esc(acc)}" style="width:100%;min-height:200px;font-size:.82rem;margin-top:4px">${esc((NM.msgs||{})[acc]||rtMsg(nk,acc))}</textarea></details>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px"><button class="btn" data-copymsg="${i}">複製文案</button><button class="btn ghost" data-resetmsg="${esc(acc)}">恢復預設</button><span id="copyOk-${i}" class="note"></span></div></div>`).join("")}
    <p class="note" style="margin-top:8px">「紅茶大苑-壽昌、國鼎店」好友 947 人，群發一次約用 947 則；10/11 已用 1,470 / 3,000。</p></div>`;
   return `<section class="panel"><div><h2>活動</h2><p class="hint">品牌 → 活動 → 門市。紅茶大苑的每月輪替在最上面，其他活動在下面新增。</p></div>
   ${monthly}
-  <div class="card">${form}</div>
+  <details class="card"><summary style="cursor:pointer;font-weight:700">新增活動</summary><div style="margin-top:8px">${form}</div></details>
   ${groups.length?groups.map(([b,list])=>`<div class="card"><div class="brandhead" style="margin:0 0 4px"><h3>${esc(b)}</h3><span class="note">${list.length} 個活動</span></div>
    ${list.map(c=>{const ex=c.exclude||[];return `<div class="camp"><div class="row"><b style="flex:1;min-width:180px">${esc(c.title)}</b>${statusBtn("campaigns",c.id,c.status)}<button class="btn ghost" data-dup="${c.id}">複製</button>${delBtn("campaigns",c.id)}</div>
     <div class="row note tabnum">期間 ${fmtD(c.start)}–${fmtD(c.end)}｜LINE 推播 ${fmtD(c.push)}</div>
     <div class="row">${storesOf(c.brand).map(s=>`<button class="chip ${ex.includes(s.id)?"off":""}" data-cid="${c.id}" data-sid="${esc(s.id)}" aria-pressed="${!ex.includes(s.id)}">${esc(c.brand==="全品牌"?s.brand+" "+s.branch:s.branch)}</button>`).join("")}</div>
-    <div class="row"><input id="cn-${c.id}" class="ask-in" placeholder="微調備註（例：寶山店改送滷蛋）" value="${esc(c.tweak||"")}" data-tweak="${c.id}"></div></div>`}).join("")}</div>`).join(""):`<div class="card"><p class="empty">還沒有活動，從上方新增第一個。</p></div>`}
+    <div class="row"><input id="cn-${c.id}" class="ask-in" style="font-size:.78rem;padding:2px 6px" placeholder="微調備註（例：寶山店改送滷蛋）" value="${esc(c.tweak||"")}" data-tweak="${c.id}"></div></div>`}).join("")}</div>`).join(""):`<div class="card"><p class="empty">還沒有活動，從上方新增第一個。</p></div>`}
   </section>`;
 }
 function menuCard(){return Object.entries(MENUS).map(([b,m])=>`<div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>${b} 菜單</h3><span class="note">${m.note}</span></div>
@@ -649,7 +700,7 @@ function growth(){
   <div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>營業額</h3><span class="note">10 月＝基準；每月月初填上個月</span></div>
   <div class="scroll"><table><thead><tr><th>門市</th>${revMonths().map(k=>`<th class="c">${+k.slice(5)} 月${k==="2026-10"?"（基準）":""}</th>`).join("")}<th class="c">最新 vs 10 月</th></tr></thead><tbody>
   ${S.stores.map((s,i)=>{const b=revOf(s.id,"2026-10"),lk=revMonths().slice(1).reverse().find(k=>revOf(s.id,k)),c=lk?revOf(s.id,lk):0;const g=b&&c?(c/b-1)*100:null;const cls=g==null?"":g>=20?"p-ok":g>=0?"p-warn":"p-bad";
-   return `<tr><td class="store-name"><b>${esc(s.brand)}</b><span>${esc(s.branch)}</span></td>${revMonths().map(k=>`<td class="c"><input id="rv-${i}-${k}" class="num-in" inputmode="numeric" placeholder="—" value="${esc(((S.rev||{})[s.id]||{})[k]||"")}" data-rv="${esc(s.id)}|${k}"></td>`).join("")}<td class="c">${g==null?'<span class="note">—</span>':`<span class="pill ${cls}">${(g>=0?"+":"")+g.toFixed(1)}%</span>`}</td></tr>`}).join("")}
+   return `<tr><td style="white-space:nowrap">${esc(s.brand.replace("滷味","").replace("麻辣拌","").replace("關東煮",""))} ${esc(s.branch.replace("店",""))}</td>${revMonths().map(k=>`<td class="c"><input id="rv-${i}-${k}" class="num-in" inputmode="numeric" placeholder="—" value="${esc(((S.rev||{})[s.id]||{})[k]||"")}" data-rv="${esc(s.id)}|${k}"></td>`).join("")}<td class="c">${g==null?'<span class="note">—</span>':`<span class="pill ${cls}">${(g>=0?"+":"")+g.toFixed(1)}%</span>`}</td></tr>`}).join("")}
   </tbody></table></div>
   <p class="note" style="margin-top:6px">每個月都會留一欄，前面的月份會一直保存。飲料冬天會淡，也可以跟哥哥要去年同月份的數字，比較公平。</p></div>
   </section>`;
@@ -698,9 +749,11 @@ function bind(){
   document.querySelectorAll("[data-infost]").forEach(b=>b.onclick=()=>{S.info=S.info||{};const m=S.info[b.dataset.infost]=S.info[b.dataset.infost]||{};m.st=INFO_ST[(INFO_ST.indexOf(m.st||"待確認")+1)%3];save();render()});
   document.querySelectorAll("[data-infofix]").forEach(i=>i.onchange=()=>{S.info=S.info||{};(S.info[i.dataset.infofix]=S.info[i.dataset.infofix]||{}).fix=i.value.trim();save()});
   document.querySelectorAll("[data-infocopy]").forEach(b=>b.onclick=()=>{const t=infoText(b.dataset.infocopy.split(","));navigator.clipboard.writeText(t).then(()=>{b.textContent="已複製"},()=>{b.textContent="複製失敗"})});
+  document.querySelectorAll("[data-ig]").forEach(b=>b.onclick=()=>{infoG=b.dataset.ig;render()});
   document.querySelectorAll("[data-tc]").forEach(b=>b.onclick=()=>{todoCat=b.dataset.tc;render()});
   document.querySelectorAll("[data-tg]").forEach(b=>b.onclick=()=>{todoGroup=b.dataset.tg;render()});
   const tdd=$("#tdDone");if(tdd)tdd.onclick=()=>{todoDone=!todoDone;render()};
+  document.querySelectorAll("[data-av]").forEach(b=>b.onclick=()=>{accV=b.dataset.av;render()});
   document.querySelectorAll("[data-ag2]").forEach(b=>b.onclick=()=>{accG=b.dataset.ag2;render()});
   document.querySelectorAll("[data-al2]").forEach(b=>b.onclick=()=>{accL=b.dataset.al2;render()});
   document.querySelectorAll("[data-rv]").forEach(i=>i.onchange=()=>{const [id,k]=i.dataset.rv.split("|");S.rev=S.rev||{};(S.rev[id]=S.rev[id]||{})[k]=i.value.trim();save();render()});
