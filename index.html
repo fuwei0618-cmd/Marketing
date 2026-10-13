@@ -416,6 +416,11 @@ function home(){
    const oleft=RT_STORES.filter(id=>!m.order[id]).length, pleft=MONTH_PUSH.filter(([a])=>!nm.push[a]).length;
    if(oleft&&day<=10)items.unshift({tag:"每月",cls:day>3?"p-bad":"p-warn",text:`肚肚後台改成 ${+k.slice(5)} 月活動「${rotFor(k)[0]} $${rotFor(k)[1]}」：還有 <b>${oleft}</b> 家`});
    if(pleft&&day>=ld-2)items.unshift({tag:"每月",cls:day===ld?"p-bad":"p-warn",text:`${day===ld?"今天":ld+" 號"}群發 LINE：${+nk.slice(5)} 月活動「${rotFor(nk)[0]} $${rotFor(nk)[1]}」，還有 <b>${pleft}</b> 個帳號（文案在活動頁）`});}
+  {const day=new Date().getDate(),k=ym(),pk=(()=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-1);return ym(d)})();
+   const lineMiss=LINE_ACCS.filter(a=>!(((S.lineM||{})[a]||{})[k])).length;
+   if(day<=7&&lineMiss)items.unshift({tag:"每月",cls:day>3?"p-bad":"p-warn",text:`記 ${+k.slice(5)} 月 LINE 好友數：還有 <b>${lineMiss}</b> 個帳號沒填（成長頁；manager.line.biz 帳號列表看得到）`});
+   const revMiss=pk>="2026-11"?S.stores.filter(st=>!(((S.rev||{})[st.id]||{})[pk])).length:0;
+   if(day<=10&&revMiss)items.unshift({tag:"每月",cls:day>5?"p-bad":"p-warn",text:`填 ${+pk.slice(5)} 月營業額：還有 <b>${revMiss}</b> 家（成長頁）`});}
   const cnt=v=>S.stores.reduce((a,s)=>a+CHECKS.filter(([k])=>(s.st[k]||0)===v).length,0);
   const ask=cnt(0), todo=cnt(1), open=S.stores.reduce((a,s)=>a+s.todos.filter(t=>!t.done).length,0);
   if(ask)items.push({tag:"門市",cls:"p-warn",text:`還有 <b>${ask}</b> 項要跟哥哥確認`});
@@ -523,7 +528,9 @@ const INFO={ // 2026-10-14 Google 地圖公開頁截圖
  "三顧茅廬滷味-中平店":{name:"三顧茅廬桃園中平店",addr:"桃園區中山里中山路773號",phone:"03 228 8998",hours:"每天 16:00–02:00",svc:"內用、外帶｜只收現金｜不接受訂位",price:"$1–400",web:"facebook.com"},
  "三顧茅廬滷味-寶山店":{name:"三顧茅廬桃園寶山店",addr:"桃園區寶山里寶山街208號",phone:"03 358 0982",hours:"每天 11:00–02:00",svc:"內用、外帶｜沒有外送",price:"$1–200",web:""},
  "拾串關東煮-龍安店":{name:"拾串-關東煮（龍安店）",addr:"桃園區龍鳳里龍安街38-6號",phone:"0905 473 518",hours:"每天 17:30–00:00",svc:"內用、外帶",price:"$1–200",web:""},
- "拾串關東煮-寶山店":{name:"拾串-日式關東煮（寶山店）",addr:"桃園區寶山街250號",phone:"（沒有）",hours:"（沒有）",svc:"",price:"$1–400",web:"",flag:"沒有營業時間和電話，要補"}};
+ "拾串關東煮-寶山店":{name:"拾串-日式關東煮（寶山店）",addr:"桃園區寶山街250號",phone:"（沒有）",hours:"（沒有）",svc:"",price:"$1–400",web:"",flag:"沒有營業時間和電話，要補"},
+ "韓式豆腐鍋-壽昌店":{name:"李氏韓式豆腐鍋-壽昌店",addr:"桃園區中平里壽昌街20巷37號",phone:"0901 016 138",hours:"每天 11:00–20:30",svc:"內用、店外取貨、外送｜線上點餐",price:"$1–200",web:""},
+ "東北少帥麻辣拌-龍安店":{name:"哨帥東北麻辣拌-麻辣、滷味、小吃",addr:"桃園區龍鳳里龍安街38-3號",phone:"（截圖沒拍到）",hours:"每天 17:00–00:00",svc:"內用、外帶、外送｜線上點餐",price:"$1–200",web:"",flag:"地址跟紅茶大苑龍安店一樣（38-3 號），確認是不是同一個店面；店名寫「哨帥」不是「少帥」"}};
 const INFO_ST=["待確認","正確","要改"];
 const REGIONS=["國鼎","壽昌","龍安","中平","寶山"];
 function gTable(){
