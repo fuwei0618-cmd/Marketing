@@ -630,6 +630,21 @@ function meeting(){
     <div style="margin-top:10px"><button class="btn ghost" id="agReset">清空，下次開會用</button> <span id="agConfirm"></span></div></div>
   </div></section>`;
 }
+let campV="now",campG="品牌";
+function campAll(){
+  const months=(()=>{const out=[];const d=new Date();d.setDate(1);for(let i=0;i<4;i++){out.push(ym(d));d.setMonth(d.getMonth()+1)}return out})();
+  const actIn=(st,m)=>{const ms=m+"-01",me=m+"-"+String(lastDay(m)).padStart(2,"0");const out=[];
+    if(RT_STORES.includes(st.id)){const [nm,pr]=rotFor(m);out.push({t:`${nm} $${pr}`,cls:"p-tea"})}
+    S.campaigns.forEach(c=>{if(c.start<=me&&c.end>=ms&&(c.brand==="全品牌"||c.brand===st.brand)&&!(c.exclude||[]).includes(st.id))out.push({t:c.title,cls:c.status==="進行中"?"p-acc":c.status==="已結束"?"p-ok":"p-warn"})});return out};
+  const kf=campG==="品牌"?s=>s.brand:campG==="區域"?region:s=>actIn(s,months[0]).length?"本月有活動":"本月沒有活動";
+  const ord=campG==="品牌"?BRANDS.map(g=>g.b):campG==="區域"?REGIONS:["本月沒有活動","本月有活動"];
+  const sn=s=>campG==="品牌"?s.branch.replace("店",""):s.brand.replace("滷味","").replace("麻辣拌","").replace("關東煮","")+" "+s.branch.replace("店","");
+  return `<div class="card" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 12px"><span class="note">分組</span>${["品牌","區域","狀態"].map(v=>`<button class="chip ${campG===v?"":"off2"}" data-cg="${v}">${v}</button>`).join("")}<span class="note" style="margin-left:auto">綠＝紅茶輪替｜黃＝規劃中｜橘＝進行中｜空白＝還沒有活動</span></div>
+  <div class="card scroll" style="padding:6px 10px"><table class="tight"><thead><tr><th>門市</th>${months.map(m=>`<th>${+m.slice(5)} 月</th>`).join("")}</tr></thead><tbody>
+  ${ord.map(k=>{const list=S.stores.filter(s=>kf(s)===k);if(!list.length)return "";return `<tr class="brandrow"><td colspan="${months.length+1}">${esc(k)}</td></tr>`+list.map(s=>`<tr><td style="white-space:nowrap">${esc(sn(s))}</td>${months.map(m=>{const a=actIn(s,m);return `<td>${a.length?a.map(x=>`<span class="pill ${x.cls}" style="margin:1px 2px 1px 0;white-space:normal">${esc(x.t)}</span>`).join(""):'<span class="note">—</span>'}</td>`}).join("")}</tr>`).join("")}).join("")}
+  </tbody></table></div>
+  <p class="note">新增活動在「本月」分頁最下面；選品牌會自動套到該品牌每家店，不參加的店點掉就好。</p>`;
+}
 function campaign(){
   const form=`<form class="add" data-form="campaigns"><input id="c-title" name="title" placeholder="活動名稱（例：滿百送折價券）" required><select id="c-brand" name="brand" required>${brandOpts}</select><input id="c-start" name="start" type="date" required aria-label="開始"><input id="c-end" name="end" type="date" required aria-label="結束"><input id="c-push" name="push" type="date" required aria-label="推播日"><button class="btn" type="submit">新增</button></form>
    <p class="note" style="margin-top:6px">活動建在品牌底下，自動套用該品牌所有門市。某家店不參加就點掉它，有微調寫在備註。</p>`;
@@ -647,7 +662,10 @@ function campaign(){
    <details style="margin-top:4px"><summary class="note" style="cursor:pointer">看／改文案</summary><textarea id="rt-msg-${i}" data-msgacc="${esc(acc)}" style="width:100%;min-height:200px;font-size:.82rem;margin-top:4px">${esc((NM.msgs||{})[acc]||rtMsg(nk,acc))}</textarea></details>
    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px"><button class="btn" data-copymsg="${i}">複製文案</button><button class="btn ghost" data-resetmsg="${esc(acc)}">恢復預設</button><span id="copyOk-${i}" class="note"></span></div></div>`).join("")}
    <p class="note" style="margin-top:8px">「紅茶大苑-壽昌、國鼎店」好友 947 人，群發一次約用 947 則；10/11 已用 1,470 / 3,000。</p></div>`;
-  return `<section class="panel"><div><h2>活動</h2><p class="hint">品牌 → 活動 → 門市。紅茶大苑的每月輪替在最上面，其他活動在下面新增。</p></div>
+  const cseg=`<div class="seg" role="group">${[["now","本月"],["all","活動總覽"]].map(([k,l])=>`<button data-cv="${k}" aria-pressed="${campV===k}">${l}</button>`).join("")}</div>`;
+  const head=`<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:flex-end"><div><h2>活動</h2><p class="hint">${campV==="now"?"紅茶大苑每月輪替在最上面，其他活動在下面。":"每家店未來 4 個月的活動，一眼看出哪家店還沒有活動。"}</p></div>${cseg}</div>`;
+  if(campV==="all")return `<section class="panel">${head}${campAll()}</section>`;
+  return `<section class="panel">${head}
   ${monthly}
   <details class="card"><summary style="cursor:pointer;font-weight:700">新增活動</summary><div style="margin-top:8px">${form}</div></details>
   ${groups.length?groups.map(([b,list])=>`<div class="card"><div class="brandhead" style="margin:0 0 4px"><h3>${esc(b)}</h3><span class="note">${list.length} 個活動</span></div>
@@ -765,6 +783,8 @@ function bind(){
   document.querySelectorAll("[data-infocopy]").forEach(b=>b.onclick=()=>{const t=infoText(b.dataset.infocopy.split(","));navigator.clipboard.writeText(t).then(()=>{b.textContent="已複製"},()=>{b.textContent="複製失敗"})});
   document.querySelectorAll("[data-ig]").forEach(b=>b.onclick=()=>{infoG=b.dataset.ig;render()});
   document.querySelectorAll("[data-gg]").forEach(b=>b.onclick=()=>{growG=b.dataset.gg;render()});
+  document.querySelectorAll("[data-cv]").forEach(b=>b.onclick=()=>{campV=b.dataset.cv;render()});
+  document.querySelectorAll("[data-cg]").forEach(b=>b.onclick=()=>{campG=b.dataset.cg;render()});
   document.querySelectorAll("[data-tc]").forEach(b=>b.onclick=()=>{todoCat=b.dataset.tc;render()});
   document.querySelectorAll("[data-tg]").forEach(b=>b.onclick=()=>{todoGroup=b.dataset.tg;render()});
   const tdd=$("#tdDone");if(tdd)tdd.onclick=()=>{todoDone=!todoDone;render()};
