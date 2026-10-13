@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>門市行銷中控台</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="行銷中控台">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f3f5f4">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;-webkit-text-size-adjust:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: top bar with goal meter, horizontal tab rail, one working panel per module */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --line:#dfe5e2; --fg:#1c2622; --muted:#5f6d67;
+  --accent:#9a4a12; --accent-soft:#f6e7da; --tea:#2f5d4f; --tea-soft:#e2eeea;
+  --ok:#2e7d4f; --warn:#b7791f; --bad:#b4372f; --ok-soft:#e3f2e8; --warn-soft:#fbf0dc; --bad-soft:#f8e3e1;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141a18; --surface:#1c2421; --line:#2c3632; --fg:#e6ece9; --muted:#9aa8a2;
+  --accent:#e09356; --accent-soft:#3a2a1d; --tea:#7fbfa9; --tea-soft:#1f322c;
+  --ok:#6cc391; --warn:#e3b35a; --bad:#ec7b72; --ok-soft:#1d3326; --warn-soft:#382e1a; --bad-soft:#3a2220; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141a18; --surface:#1c2421; --line:#2c3632; --fg:#e6ece9; --muted:#9aa8a2;
+  --accent:#e09356; --accent-soft:#3a2a1d; --tea:#7fbfa9; --tea-soft:#1f322c;
+  --ok:#6cc391; --warn:#e3b35a; --bad:#ec7b72; --ok-soft:#1d3326; --warn-soft:#382e1a; --bad-soft:#3a2220; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.55}
+.wrap{max-width:1100px;margin:0 auto;padding-inline:16px;padding-block:18px 48px}
+header.top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+.brand h1{margin:0;font-size:1.6rem;font-weight:900;letter-spacing:.02em;text-wrap:balance}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:.85rem}
+.goal{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:0;flex:0 1 340px}
+.goal .lbl{font-size:.75rem;color:var(--muted);letter-spacing:.06em}
+.goal .num{font-family:var(--mono);font-size:1.4rem;font-weight:600;color:var(--accent)}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .4s}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;margin-top:18px;border-bottom:1px solid var(--line);scrollbar-width:none}
+nav.tabs button{flex:0 0 auto;background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;font:inherit;font-weight:500;color:var(--muted);cursor:pointer}
+nav.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent);font-weight:700}
+nav.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section.panel{margin-top:20px;display:grid;gap:18px}
+h2{font-size:1.15rem;margin:0;font-weight:700}
+h3{font-size:.95rem;margin:0 0 8px;font-weight:700}
+.hint{color:var(--muted);font-size:.85rem;margin:2px 0 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.today li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line)}
+.today li:first-child{border-top:0}
+ul{list-style:none;margin:0;padding:0}
+.pill{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.p-ok{background:var(--ok-soft);color:var(--ok)}.p-warn{background:var(--warn-soft);color:var(--warn)}.p-bad{background:var(--bad-soft);color:var(--bad)}
+.p-tea{background:var(--tea-soft);color:var(--tea)}.p-acc{background:var(--accent-soft);color:var(--accent)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-size:.75rem;color:var(--muted);font-weight:700;letter-spacing:.04em;white-space:nowrap}
+td.c,th.c{text-align:center}
+.chk{width:30px;height:30px;border-radius:7px;border:1.5px solid var(--line);background:var(--surface);cursor:pointer;font-weight:900;color:var(--surface)}
+.chk.on{background:var(--ok);border-color:var(--ok)}
+.chk.on::after{content:"✓"}
+.cell{min-width:34px;height:30px;border-radius:7px;border:1.5px solid var(--line);background:var(--surface);cursor:pointer;font:inherit;font-weight:700;font-size:.8rem;padding:0 6px}
+.cell.s0{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.cell.s1{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.cell.s2{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.cell.s3{color:var(--muted)}
+th.grp{text-align:center;border-bottom:2px solid var(--tea);color:var(--tea);font-size:.8rem}
+th.sep,td.sep{border-left:1px solid var(--line)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:inherit;background:var(--surface);color:var(--muted);border:0;padding:7px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--tea);color:var(--surface);font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:8px;font-size:.8rem;align-items:center}
+.storecards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.todo li{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-size:.88rem}
+.todo li:first-child{border-top:0}
+.todo li.done span.tx{text-decoration:line-through;color:var(--muted)}
+.todo input[type=checkbox]{width:18px;height:18px;flex:0 0 auto;accent-color:var(--ok)}
+.todo .tx{flex:1;min-width:0}
+.ask li{padding:6px 0;border-top:1px solid var(--line);font-size:.88rem}
+.ask li:first-child{border-top:0}
+tr.brandrow td{background:var(--tea-soft);color:var(--tea);font-weight:700;font-size:.85rem;padding:6px 10px}
+.brandhead{display:flex;align-items:baseline;gap:10px;margin:6px 0 -4px}
+.brandhead h3{margin:0;color:var(--tea)}
+.chip{font:inherit;font-size:.78rem;border-radius:999px;padding:3px 10px;cursor:pointer;border:1px solid var(--tea);background:var(--tea-soft);color:var(--tea)}
+.chip.off{background:none;border-color:var(--line);color:var(--muted);text-decoration:line-through}
+.camp{display:grid;gap:8px;padding:12px 0;border-top:1px solid var(--line)}
+.camp:first-of-type{border-top:0}
+.camp .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ask-in{width:100%;min-width:160px}
+.agenda{display:grid;gap:14px}
+.ag-sec h3{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:4px}
+.ag-sec h3 .note{font-weight:400}
+.ag-item{display:grid;grid-template-columns:22px 1fr;gap:4px 10px;padding:9px 0;border-top:1px solid var(--line)}
+.ag-item:first-of-type{border-top:0}
+.ag-item input[type=checkbox]{width:20px;height:20px;margin-top:2px;accent-color:var(--ok)}
+.ag-item label{font-weight:500;cursor:pointer}
+.ag-item.done label{color:var(--muted);text-decoration:line-through}
+.ag-item.done .ag-note{border-color:var(--ok)}
+.ag-item .sub{font-size:.8rem;color:var(--muted);font-weight:400}
+.ag-item .ag-note{grid-column:2;width:100%;font-size:.88rem;padding:5px 8px}
+.progress{font-family:var(--mono);font-size:.85rem;color:var(--tea)}
+a.lnk{color:var(--tea);font-weight:700;text-decoration:none;border-bottom:1px solid var(--tea)}
+a.lnk:hover{opacity:.8}
+.linkbar{display:flex;flex-wrap:wrap;gap:8px}
+a.lbtn{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weight:700;color:var(--tea);background:var(--tea-soft);border-radius:7px;padding:6px 12px;text-decoration:none}
+.gtab{grid-column:1/-1;margin-top:6px}
+.gtab table{font-size:.75rem}
+.gtab th,.gtab td{padding:4px 6px}
+.gtab td.nx{color:var(--muted)}
+tfoot td{font-size:.75rem;font-weight:700;color:var(--tea);background:var(--tea-soft);border-bottom:0}
+td.cnt{font-family:var(--mono);font-size:.78rem;color:var(--muted);white-space:nowrap}
+.store-name b{display:block}
+.store-name span{font-size:.78rem;color:var(--muted)}
+.num-in{width:96px;font-family:var(--mono);text-align:right}
+input,select,textarea{font:inherit;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:7px 9px;min-width:0}
+form.add{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+form.add input,form.add select{flex:1 1 140px}
+.btn{font:inherit;font-weight:700;background:var(--tea);color:var(--surface);border:0;border-radius:7px;padding:8px 14px;cursor:pointer}
+.btn.ghost{white-space:nowrap;background:none;color:var(--muted);border:1px solid var(--line);font-weight:500;padding:4px 10px;font-size:.8rem}
+.status{cursor:pointer;border:0;font:inherit}
+.week{display:grid;grid-template-columns:repeat(7,minmax(118px,1fr));gap:8px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+.day.is-today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.day .d{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.day .b{font-weight:700;margin:4px 0 2px;font-size:.92rem}
+.day .t{font-size:.8rem;color:var(--muted);min-height:2.4em}
+.formula{font-family:var(--mono);font-size:.95rem;background:var(--tea-soft);color:var(--tea);padding:10px 12px;border-radius:8px}
+.kpi{display:flex;flex-direction:column;gap:2px}
+.kpi .v{font-family:var(--mono);font-size:1.5rem;font-weight:600}
+.kpi .k{font-size:.78rem;color:var(--muted)}
+.tabnum{font-variant-numeric:tabular-nums;font-family:var(--mono)}
+.empty{color:var(--muted);font-size:.88rem;padding:10px 0}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.88rem}
+.flow span.step{background:var(--tea-soft);color:var(--tea);padding:4px 10px;border-radius:6px;font-weight:500}
+.note{font-size:.8rem;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>門市行銷中控台</h1>
+      <p>7 個品牌・11 家門市｜LINE 會員、Google 商家、活動、物料、短影音</p>
+    </div>
+    <div class="goal" aria-live="polite">
+      <div class="lbl">營業額成長目標 +20%</div>
+      <div class="num" id="goalNum">—</div>
+      <div class="bar"><i id="goalBar" style="width:0%"></i></div>
+      <div class="note" id="goalNote">到「成長」填入各店基準營業額後開始計算</div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+  <main id="main"></main>
+</div>
+
+<script>
+const BRANDS=[
+ {b:"紅茶大苑",s:["國鼎店","壽昌店","龍安店"]},
+ {b:"三顧茅廬滷味",s:["中平店","寶山店"]},
+ {b:"東北少帥麻辣拌",s:["龍安店"]},
+ {b:"拾串關東煮",s:["龍安店","寶山店"]},
+ {b:"一口煎餃",s:["龍安店"],note:"最晚 10/31 開幕"},
+ {b:"韓式豆腐鍋",s:["壽昌店"]},
+ {b:"韓式炒泡麵",s:["寶山店"]},
+];
+const GROUPS=[
+ {g:"Google",items:[["g_admin","管理權限"],["g_info","時間地址電話"],["g_menu","菜單"],["g_photo","照片"]]},
+ {g:"LINE",items:[["l_admin","管理權限"],["l_oa","官方帳號"],["l_menu","歡迎訊息／選單"],["l_qr","加好友立牌"]]},
+ {g:"行銷／現場",items:[["m_order","點餐連結"],["m_pay","LINE Pay 立牌"],["m_pop","活動物料"]]}];
+const CHECKS=GROUPS.flatMap(x=>x.items);
+const ST=["待確認","待處理","完成","不適用"], STS=["?","待","✓","—"];
+const TODO_CATS=["Google","LINE","行銷"];
+const GBP={ // 2026-10-11 Google 商家清單
+ "紅茶大苑-國鼎店":{addr:"國鼎一街14號",v:"已驗證"},
+ "紅茶大苑-壽昌店":{addr:"壽昌街20巷48號",v:"已驗證"},
+ "紅茶大苑-龍安店":{addr:"龍鳳里龍安街38-3號",v:"須驗證",ask:"Google 須驗證：哥哥也不清楚，待查"},
+ "三顧茅廬滷味-中平店":{addr:"中山路773號",v:"已驗證"},
+ "三顧茅廬滷味-寶山店":{addr:"寶山街208號",v:"已驗證"},
+ "拾串關東煮-龍安店":{addr:"龍安街38-6號",v:"已驗證"},
+ "拾串關東煮-寶山店":{addr:"寶山街250號",v:"已驗證"},
+ "東北少帥麻辣拌-龍安店":{v:"待認領"},
+ "韓式豆腐鍋-壽昌店":{v:"待授權"},
+ "韓式炒泡麵-寶山店":{addr:"寶山街250號",v:"已驗證"},
+ "一口煎餃-龍安店":{v:"沒有"}};
+const LINEOA={ // 2026-10-11 LINE 官方帳號一覽
+ "紅茶大苑-國鼎店":{acc:"紅茶大苑-壽昌、國鼎店",role:"管理員"},
+ "紅茶大苑-壽昌店":{acc:"紅茶大苑-壽昌、國鼎店",role:"管理員",flag:"好友 947｜3,000 則/月"},
+ "紅茶大苑-龍安店":{acc:"龍安美食（拾串、少帥、紅茶大苑、哨帥）",role:"管理員"},
+ "三顧茅廬滷味-中平店":{acc:"三顧茅廬-桃園中平店",role:"管理員"},
+ "三顧茅廬滷味-寶山店":{acc:"三顧茅廬 桃園寶山店",role:"管理員"},
+ "拾串關東煮-龍安店":{acc:"龍安美食（拾串、少帥、紅茶大苑、哨帥）",role:"管理員"},
+ "拾串關東煮-寶山店":{acc:"韓殿炒泡麵、拾串關東煮（寶山店）",role:"管理員"},
+ "東北少帥麻辣拌-龍安店":{acc:"龍安美食（拾串、少帥、紅茶大苑、哨帥）",role:"管理員"},
+ "一口煎餃-龍安店":{acc:"龍安美食（開幕後加入）",role:"",flag:"帳號名稱、選單加上煎餃"},
+ "韓式豆腐鍋-壽昌店":{acc:"李氏韓式豆腐鍋-桃園壽昌",role:"管理員",flag:"好友 86｜免費 200 則/月"},
+ "韓式炒泡麵-寶山店":{acc:"韓殿炒泡麵、拾串關東煮（寶山店）",role:"管理員"}};
+const POS_STORES=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅茶大苑-龍安店","拾串關東煮-寶山店","韓式豆腐鍋-壽昌店"];
+const RT_STORES=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅茶大苑-龍安店"];
+const MONTH_PUSH=[["紅茶大苑-壽昌、國鼎店","紅茶 壽昌、國鼎"],["龍安美食（拾串、少帥、紅茶大苑、哨帥）","紅茶 龍安"]];
+const ym=(d=new Date())=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+const nextYm=()=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+1);return ym(d)};
+function monthState(k){S.monthly=S.monthly||{};S.monthly[k]=S.monthly[k]||{order:{},push:{},plan:""};return S.monthly[k]}
+const storesOf=b=>S.stores.filter(s=>b==='全品牌'||s.brand===b);
+const AGENDA=[
+ {sec:"目標",why:"先知道要達成什麼",items:[
+  ["t1","20% 怎麼算？","合計或各店／跟哪個月比／多久"],
+  ["t2","基準營業額給我","各店上個月數字，之後每月找誰拿"],
+  ["t3","短影音發哪裡？","平台、用哪個帳號"]]},
+ {sec:"權限",why:"拿到才能開始做",items:[
+  ["p1","Google 商家加我管理員","每封邀請信都點接受，清單要有 11 家"],
+  ["p2","LINE 官方帳號加我管理員","一店一個還是一品牌一個？"],
+  ["p3","點餐系統、LINE Pay 帳號",""]]},
+ {sec:"先做什麼",why:"排出前兩週的順序",items:[
+  ["w1","一口煎餃開幕","日期、優惠、物料"],
+  ["w2","紅茶大苑活動清單","下一檔日期"],
+  ["w3","交接確認表逐店過","門市總覽分頁"]]},
+ {sec:"怎麼合作",why:"之後不用每件事都問",items:[
+  ["c1","我可以自己決定什麼？","文案、推播、小額物料"],
+  ["c2","多久回報一次？",""],
+  ["c3","下次檢討時間",""]]}];
+const LINKS={gbp:"https://business.google.com/locations",line:"https://manager.line.biz/",dudoo:"https://admin.dudooeat.com"};
+const RT_ROT=[["多多綠",39],["紅茶鮮奶",39],["微檸檬冬瓜",35],["梅子綠",29],["青檸多多",39],["基茶月",25]];
+const rotFor=k=>{const [y,m]=k.split("-").map(Number);const d=(y-2026)*12+(m-11);return RT_ROT[((4+d)%6+6)%6]}; // 2026-11 = 青檸多多
+const lastDay=k=>{const [y,m]=k.split("-").map(Number);return new Date(y,m,0).getDate()};
+const ORDER_LINKS={"紅茶大苑-國鼎店":"line://app/1607331440-2dNpzWeB?type=order&id=42a731a2b7204bd2b36b15b215b8a455"};
+function rtMsg(k){const [n,p]=rotFor(k),mo=+k.slice(5),links=Object.values(ORDER_LINKS);
+ return `📣 今天是本月活動最後一天！\n\n${mo}/1–${mo}/${lastDay(k)} 新活動\n🍹 ${n} $${p}\n\n雲端訂餐滿 $100 送 $30 折價券 🎉\n全系列飲料買五送一 🥤\n（贈送 6 杯中最低價品項，不含優惠活動飲料）\n\n＊各項優惠不可合併使用\n\n👉 點我訂餐\n${links.join("\n")}`}
+const linkBar=`<div class="linkbar"><a class="lbtn" href="${LINKS.dudoo}" target="_blank" rel="noopener">肚肚後台（點餐）↗</a><a class="lbtn" href="${LINKS.gbp}" target="_blank" rel="noopener">Google 商家 全部門市 ↗</a><a class="lbtn" href="${LINKS.line}" target="_blank" rel="noopener">LINE 官方帳號後台 ↗</a></div>`;
+const LEADER="曹大哥（店長）";
+const TABS=[["home","今日"],["stores","門市"],["campaign","活動"],["material","物料"],["video","短影音"],["growth","成長"],["more","更多"]];
+const LINE_ACCS=["紅茶大苑-壽昌、國鼎店","龍安美食（拾串、少帥、紅茶大苑、哨帥）","韓殿炒泡麵、拾串關東煮（寶山店）","李氏韓式豆腐鍋-桃園壽昌","三顧茅廬 桃園寶山店","三顧茅廬-桃園中平店"];
+const MENUS={"一口煎餃":{note:"菜單牌：作法、材質、尺寸待確認",rows:[["豬肉","$60 / 12 顆","$80 / 16 顆"],["牛肉","$90 / 10 顆","$120 / 14 顆"],["蝦仁","$90 / 10 顆","$120 / 14 顆"]]}};
+const WEEK_PLAN=[ // 0=Sun
+ {brand:"韓式炒泡麵",fmt:"甩麵近鏡＋起司牽絲"},
+ {brand:"紅茶大苑",fmt:"本週活動＋手搖製程"},
+ {brand:"三顧茅廬滷味",fmt:"夾料到上桌 15 秒"},
+ {brand:"東北少帥麻辣拌",fmt:"拌醬特寫＋辣度挑戰"},
+ {brand:"拾串關東煮",fmt:"冷天熱湯、蘿蔔近鏡"},
+ {brand:"一口煎餃",fmt:"煎到金黃、咬下酥脆聲"},
+ {brand:"韓式豆腐鍋",fmt:"滾鍋上桌＋打蛋"},
+];
+
+const KEY="storeops-v1";
+function seed(){
+  const stores=[];BRANDS.forEach(g=>g.s.forEach(s=>stores.push({id:g.b+"-"+s,brand:g.b,branch:s,note:g.note||"",st:{},todos:[],ask:"",friends:"",base:"",now:""})));
+  return {stores,
+    campaigns:[
+      {id:1,title:"範例｜紅茶大苑 月活動推播",brand:"紅茶大苑",start:"2026-10-12",end:"2026-10-25",push:"2026-10-12",status:"規劃中"},
+      {id:2,title:"範例｜一口煎餃 開幕優惠",brand:"一口煎餃",start:"2026-10-30",end:"2026-11-08",push:"2026-10-27",status:"規劃中"},
+      {id:3,title:"範例｜滷味 冬季高麗菜加購",brand:"三顧茅廬滷味",start:"2026-11-15",end:"2026-12-31",push:"2026-11-14",status:"規劃中"}],
+    materials:[
+      {id:1,item:"範例｜國鼎店 LINE Pay 立牌重印",store:"紅茶大苑-國鼎店",size:"A5 壓克力",vendor:"待定",due:"2026-10-17",status:"待下單"},
+      {id:2,item:"範例｜一口煎餃 開幕布條",store:"一口煎餃-龍安店",size:"90×300 cm",vendor:"待定",due:"2026-10-24",status:"待下單"}],
+    service:[],
+    videos:{},
+    meeting:{}
+  };
+}
+let S;try{S=JSON.parse(localStorage.getItem(KEY))||seed()}catch(e){S=seed()}
+const OLD={gbp:"g_info",menu:"g_menu",line:"l_oa",qr:"l_qr",order:"m_order",pay:"m_pay"};
+if(!S.meeting)S.meeting={};if(!S.monthly)S.monthly={};
+S.stores.forEach(s=>{if(s.brand==="關東煮")s.brand="拾串關東煮";if(s.id.startsWith("關東煮-")){const o=s.id;s.id="拾串"+o;(S.materials||[]).forEach(m=>{if(m.store===o)m.store=s.id})}});(S.campaigns||[]).forEach(c=>{if(c.brand==="關東煮")c.brand="拾串關東煮"});
+S.stores.forEach(s=>{if(s.id==="三顧茅廬滷味-龍安店"){s.id="三顧茅廬滷味-中平店";s.branch="中平店";s.ask=""}});
+(S.materials||[]).forEach(m=>{if(m.store==="三顧茅廬滷味-龍安店")m.store="三顧茅廬滷味-中平店"});
+if(S.gbp1011!==2){S.stores.forEach(s=>{s.ask=(s.ask||"").split("；").filter(x=>!/^(Google |開幕前要建)/.test(x)).join("；")});S.gbp1011=0}
+S.stores.forEach(s=>{if(s.id==="東北少帥麻辣拌-壽昌店"){s.id="東北少帥麻辣拌-龍安店";s.branch="龍安店"}});
+(S.materials||[]).forEach(m=>{if(m.store==="東北少帥麻辣拌-壽昌店")m.store="東北少帥麻辣拌-龍安店"});
+if(!S.v1011e){S.stores.forEach(s=>{
+  if(s.id==="東北少帥麻辣拌-龍安店"||s.id==="韓式豆腐鍋-壽昌店"){s.ask=(s.ask||"").split("；").filter(x=>!/^Google /.test(x)).join("；");s.st=s.st||{};s.st.g_admin=1}
+  if(s.id==="韓式豆腐鍋-壽昌店"){(s.todos||[]).forEach(t=>{if(t.text.startsWith("Google 清單沒有"))t.text="等主管設定 Google 權限，收到邀請就點接受"})}});
+ const m=S.meeting.p1;if(m&&m.note)m.note=m.note.replace("龍安少帥（我申請業主→轉哥哥→設我管理員）、煎餃（新建）、豆腐鍋（待確認）","少帥龍安（我申請業主→轉哥哥→設我管理員）、豆腐鍋壽昌（等主管設權限）、煎餃（新建）");
+ S.v1011e=1}
+if(!S.v1011f){const f=id=>S.stores.find(x=>x.id===id);const td=(id,text)=>{const k=f(id);if(k){k.todos=k.todos||[];if(!k.todos.some(t=>t.text===text))k.todos.push({cat:"LINE",text,done:false})}};
+ Object.entries(LINEOA).forEach(([id,v])=>{const k=f(id);if(!k)return;k.st=k.st||{};if(v.acc){k.st.l_oa=2;k.st.l_admin=v.role==="管理員"?2:1}});
+ td("紅茶大苑-國鼎店","「國鼎-紅茶大苑、拾串關東煮」和「紅茶大苑-壽昌、國鼎店」重疊：比好友數，問哥哥留哪個");
+ td("東北少帥麻辣拌-龍安店","「哨帥-東北麻辣拌（龍安、壽昌、寶山）」：壽昌、寶山已經沒有少帥，比好友數，問哥哥要不要停用");
+ td("三顧茅廬滷味-中平店","LINE 只有「操作人員」：請哥哥改成管理員");
+ td("一口煎餃-龍安店","LINE：開幕後併入「龍安美食」還是另開帳號？");
+ S.v1011f=1}
+if(!S.v1011g){const POS=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅茶大苑-龍安店","拾串關東煮-寶山店"];
+ S.stores.forEach(s=>{s.st=s.st||{};if(!POS.includes(s.id)&&!s.st.m_order)s.st.m_order=3;
+  (s.todos||[]).forEach(t=>{
+   if(t.text.startsWith("「國鼎-紅茶大苑、拾串關東煮」和"))t.text="退出重複帳號「國鼎-紅茶大苑、拾串關東煮」（只退出自己，不要刪帳號）";
+   if(t.text.startsWith("LINE：開幕後併入"))t.text="LINE：開幕後併入「龍安美食」，帳號名稱、圖文選單加上煎餃";});
+  if(s.id==="一口煎餃-龍安店"){s.st.l_oa=1}});
+ S.v1011g=1}
+if(!S.v1011h){S.stores.forEach(s=>{s.st=s.st||{};
+  if(s.id==="三顧茅廬滷味-中平店")s.st.l_admin=2;
+  (s.todos||[]).forEach(t=>{if(t.text.startsWith("LINE 只有「操作人員」")||t.text.startsWith("退出重複帳號"))t.done=true})});
+ const m=S.meeting.p2||{};S.meeting.p2={...m,note:(m.note?m.note+"；":"")+"三顧中平已改管理員；已退出重複的「國鼎-紅茶大苑、拾串關東煮」"};
+ S.v1011h=1}
+if(!S.v1011i){S.stores.forEach(s=>{s.st=s.st||{};
+  if(s.id==="韓式豆腐鍋-壽昌店"&&s.st.m_order===3)s.st.m_order=0;
+  if(s.id==="一口煎餃-龍安店")s.note="最晚 10/31 開幕";
+  (s.todos||[]).forEach(t=>{if(t.text.startsWith("「哨帥-東北麻辣拌"))t.done=true})});
+ (S.campaigns||[]).forEach(c=>{if(c.title==="範例｜一口煎餃 開幕優惠"){c.title="一口煎餃 開幕（最晚 10/31）";c.start="2026-10-31";c.end="2026-11-09";c.push="2026-10-29"}});
+ const m=S.meeting.p2||{};S.meeting.p2={...m,note:(m.note?m.note+"；":"")+"已退出重複的「哨帥-東北麻辣拌」"};
+ S.v1011i=1}
+if(!S.v1011j){S.stores.forEach(s=>{s.st=s.st||{};s.st.m_order=POS_STORES.includes(s.id)?2:3});
+ S.campaigns=(S.campaigns||[]).filter(c=>c.title!=="範例｜紅茶大苑 月活動推播");
+ S.materials=(S.materials||[]).filter(m=>m.item!=="範例｜國鼎店 LINE Pay 立牌重印");
+ if(!S.materials.some(m=>m.item.startsWith("LINE Pay QR Code")))S.materials.unshift({id:Date.now(),item:"LINE Pay QR Code 影印，發到各店（等老闆給檔案）",store:"全部門市",size:"",vendor:"自己影印",due:"2026-10-18",status:"待下單"});
+ S.v1011j=1}
+if(!S.v1013){S.line=S.line||{};LINE_ACCS.forEach(a=>{S.line[a]=S.line[a]||{base:"",now:""}});
+ S.line["紅茶大苑-壽昌、國鼎店"].base=S.line["紅茶大苑-壽昌、國鼎店"].base||"947";S.line["李氏韓式豆腐鍋-桃園壽昌"].base=S.line["李氏韓式豆腐鍋-桃園壽昌"].base||"86";
+ (S.materials||[]).forEach(m=>{if(m.item.startsWith("LINE Pay QR Code")){m.item="LINE Pay QR Code 影印（等老闆給檔案）";m.store="獨資 5 間：紅茶 3、拾串 1、煎餃 1";m.size=m.size||"待確認"}});
+ if(!S.materials.some(m=>m.item.startsWith("一口煎餃 菜單牌")))S.materials.push({id:Date.now()+1,item:"一口煎餃 菜單牌（作法、材質待確認）",store:"一口煎餃-龍安店",size:"待確認",vendor:"待定",due:"2026-10-24",status:"待下單"});
+ S.v1013=1}
+if(!S.todo1011){const add=(id,text)=>{const st=S.stores.find(x=>x.id===id);if(st){st.todos=st.todos||[];st.todos.push({cat:"Google",text,done:false})}};
+ add("東北少帥麻辣拌-龍安店","龍安少帥：① 我申請業主 ② 把主要擁有者轉給哥哥 ③ 哥哥把我設成管理員");
+ add("韓式炒泡麵-寶山店","原「寶山少帥」改名炒泡麵沒生效：查審核狀態；名稱、類別、菜單、照片都要改");
+ S.todo1011=1}
+if(!S.v1011c){const f=id=>S.stores.find(x=>x.id===id);
+ const k=f("韓式炒泡麵-寶山店");if(k){k.st.g_admin=2;k.addr="寶山街250號";k.ask=(k.ask||"").split("；").filter(x=>!/^Google /.test(x)).join("；");
+  const t=(k.todos||[]).find(t=>t.text.startsWith("原「寶山少帥」"));if(t)t.text="後台已改成「韓殿韓式炒泡麵」，地圖上還是少帥：等審核，約一週後在地圖確認";}
+ const j=f("一口煎餃-龍安店");if(j){j.ask=(j.ask||"").split("；").filter(x=>!/^開幕前要建/.test(x)).join("；");j.todos=j.todos||[];j.todos.push({cat:"Google",text:"新增商家檔案（可設開幕日期），招牌裝好後再驗證",done:false})}
+ S.v1011c=1}
+if(!S.v1011d){const f=id=>S.stores.find(x=>x.id===id);const td=(id,text)=>{const k=f(id);if(k){k.todos=k.todos||[];if(!k.todos.some(t=>t.text===text))k.todos.push({cat:"Google",text,done:false})}};
+ td("紅茶大苑-龍安店","Google 須驗證：查驗證方式，完成驗證");
+ td("韓式豆腐鍋-壽昌店","等主管設定 Google 權限，收到邀請就點接受");
+ ["三顧茅廬滷味-中平店","三顧茅廬滷味-寶山店","拾串關東煮-龍安店","紅茶大苑-國鼎店","紅茶大苑-壽昌店","韓式炒泡麵-寶山店"].forEach(id=>td(id,"編輯鉛筆有紅點：點進去看修改建議"));
+ const add=(k,note,done)=>{const m=S.meeting[k]||{};S.meeting[k]={...m,done:done??m.done,note:m.note?(m.note.includes(note)?m.note:m.note+"；"+note):note}};
+ add("p1","已加 8 家：紅茶 3、三顧 2（中平、寶山）、拾串 2、炒泡麵 1。未完成：少帥龍安（我申請業主→轉哥哥→設我管理員）、豆腐鍋壽昌（等主管設權限）、煎餃（新建）",true);
+ add("t2","");
+ const ex="【Google 10/11】紅茶龍安須驗證，哥哥也不清楚方式；寶山少帥已改名韓殿韓式炒泡麵，地圖尚未更新，一週後確認；三顧原清單的龍安店＝中平店";
+ S.meeting._extra=S.meeting._extra?(S.meeting._extra.includes("Google 10/11")?S.meeting._extra:S.meeting._extra+"\n"+ex):ex;
+ if(S.meeting.t2&&!S.meeting.t2.note)delete S.meeting.t2.note;
+ S.v1011d=1}
+if(!S.gbp1011){S.stores.forEach(s=>{const g=GBP[s.id];if(!g)return;s.st=s.st||{};if(g.addr){s.addr=g.addr}
+  if(g.v==="已驗證"){s.st.g_admin=2}else if(g.v==="須驗證"){s.st.g_admin=1}else{s.st.g_admin=0}
+  if(g.ask&&!(s.ask||"").includes(g.ask))s.ask=(s.ask?s.ask+"；":"")+g.ask});S.gbp1011=2;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+S.stores.forEach(s=>{if(!s.st){s.st={};Object.entries(s.checks||{}).forEach(([k,v])=>{if(v&&OLD[k])s.st[OLD[k]]=2})}if(!s.todos)s.todos=[];if(s.ask==null)s.ask=""});
+let moreView="meeting";try{moreView=localStorage.getItem(KEY+"-mv")||"meeting"}catch(e){}
+let storeView="handover";try{storeView=localStorage.getItem(KEY+"-sv")||"handover"}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}renderGoal()}
+const $=s=>document.querySelector(s);
+const esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const today=()=>iso(new Date());
+const fmtD=d=>{const x=new Date(d+"T00:00");return (x.getMonth()+1)+"/"+x.getDate()};
+const daysTo=d=>Math.round((new Date(d+"T00:00")-new Date(today()+"T00:00"))/864e5);
+const storeLabel=id=>id.replace("-"," ");
+const n=v=>Number(String(v).replace(/,/g,""))||0;
+
+let tab="home";try{tab=localStorage.getItem(KEY+"-tab")||"home"}catch(e){}
+function renderTabs(){
+  $("#tabs").innerHTML=TABS.map(([k,l])=>`<button role="tab" id="tab-${k}" aria-selected="${k===tab}" data-t="${k}">${l}</button>`).join("");
+  $("#tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;try{localStorage.setItem(KEY+"-tab",tab)}catch(e){}renderTabs();render()});
+}
+
+function renderGoal(){
+  const base=S.stores.reduce((a,s)=>a+n(s.base),0), now=S.stores.reduce((a,s)=>a+n(s.now),0);
+  if(!base){$("#goalNum").textContent="尚未設定基準";$("#goalBar").style.width="0%";$("#goalNote").textContent="到「成長」填入各店基準營業額後開始計算";return}
+  const g=(now/base-1)*100, pct=Math.max(0,Math.min(100,g/20*100));
+  $("#goalNum").textContent=(g>=0?"+":"")+g.toFixed(1)+"%";
+  $("#goalBar").style.width=pct+"%";
+  $("#goalNote").textContent=`目標 +20%｜已完成 ${pct.toFixed(0)}%｜基準 ${base.toLocaleString()} → 本月 ${now.toLocaleString()}`;
+}
+
+const statusCls={"規劃中":"p-tea","進行中":"p-acc","已結束":"p-ok","待下單":"p-warn","製作中":"p-acc","已送達":"p-tea","已張貼":"p-ok","待門市回覆":"p-warn","已轉門市":"p-acc","我已代回":"p-tea","已結案":"p-ok","未拍":"p-bad","已拍":"p-warn","已剪":"p-acc","已發":"p-ok"};
+const FLOW={campaign:["規劃中","進行中","已結束"],material:["待下單","製作中","已送達","已張貼"],service:["待門市回覆","已轉門市","我已代回","已結案"],video:["未拍","已拍","已剪","已發"]};
+const next=(type,cur)=>{const f=FLOW[type];return f[(f.indexOf(cur)+1)%f.length]};
+const pill=s=>`<span class="pill ${statusCls[s]||"p-tea"}">${esc(s)}</span>`;
+
+function videoFor(date){const dow=new Date(date+"T00:00").getDay();const p=WEEK_PLAN[dow];const v=S.videos[date]||{};return {brand:v.brand||p.brand,topic:v.topic||p.fmt,status:v.status||"未拍"}}
+
+function home(){
+  const t=today(), v=videoFor(t);
+  const items=[];
+  items.push({tag:"短影音",cls:"p-acc",text:`今天發：<b>${esc(v.brand)}</b>｜${esc(v.topic)}`,s:v.status});
+  S.campaigns.filter(c=>c.status!=="已結束").forEach(c=>{const d=daysTo(c.push);if(d>=0&&d<=3)items.push({tag:"推播",cls:"p-tea",text:`${esc(c.title)}：LINE 推播 ${fmtD(c.push)}（${d===0?"今天":d+" 天後"}）`})});
+  S.materials.filter(m=>m.status!=="已張貼").forEach(m=>{const d=daysTo(m.due);if(d<=5)items.push({tag:"物料",cls:d<0?"p-bad":"p-warn",text:`${esc(m.item)}：${d<0?"已逾期 "+(-d)+" 天":"交期 "+fmtD(m.due)}`})});
+  S.service.filter(x=>x.status!=="已結案").forEach(x=>items.push({tag:"客服",cls:"p-bad",text:`${esc(storeLabel(x.store))}：${esc(x.msg)}（${esc(x.status)}）`}));
+  {const k=ym(),m=monthState(k),day=new Date().getDate(),nk=nextYm(),nm=monthState(nk),ld=lastDay(k);
+   const oleft=RT_STORES.filter(id=>!m.order[id]).length, pleft=MONTH_PUSH.filter(([a])=>!nm.push[a]).length;
+   if(oleft&&day<=10)items.unshift({tag:"每月",cls:day>3?"p-bad":"p-warn",text:`肚肚後台改成 ${+k.slice(5)} 月活動「${rotFor(k)[0]} $${rotFor(k)[1]}」：還有 <b>${oleft}</b> 家`});
+   if(pleft&&day>=ld-2)items.unshift({tag:"每月",cls:day===ld?"p-bad":"p-warn",text:`${day===ld?"今天":ld+" 號"}群發 LINE：${+nk.slice(5)} 月活動「${rotFor(nk)[0]} $${rotFor(nk)[1]}」，還有 <b>${pleft}</b> 個帳號（文案在活動頁）`});}
+  const cnt=v=>S.stores.reduce((a,s)=>a+CHECKS.filter(([k])=>(s.st[k]||0)===v).length,0);
+  const ask=cnt(0), todo=cnt(1), open=S.stores.reduce((a,s)=>a+s.todos.filter(t=>!t.done).length,0);
+  if(ask)items.push({tag:"門市",cls:"p-warn",text:`還有 <b>${ask}</b> 項要跟哥哥確認`});
+  if(todo)items.push({tag:"門市",cls:"p-bad",text:`基礎建置 <b>${todo}</b> 項待處理`});
+  if(open)items.push({tag:"門市",cls:"p-tea",text:`各店日常待辦 <b>${open}</b> 項`});
+  const friends=LINE_ACCS.reduce((a,k)=>a+n((S.line[k]||{}).now||(S.line[k]||{}).base),0);
+  return `<section class="panel">
+   <div class="grid2">
+    <div class="card"><h2>今天要做的事</h2><p class="hint">${t}・自動從各模組彙整</p>
+     <ul class="today" style="margin-top:8px">${items.map(i=>`<li><span class="pill ${i.cls}">${i.tag}</span><span>${i.text}</span></li>`).join("")}</ul></div>
+    <div class="card"><h2>成長公式</h2><p class="hint">20% 不用只靠一個槓桿，拆開來各推一點</p>
+     <div class="formula" style="margin-top:10px">營業額 ＝ 來客數 × 客單價</div>
+     <p style="margin:10px 0 4px">例如來客 <b>+10%</b>、客單 <b>+9%</b>，1.10 × 1.09 ≈ <b>+20%</b></p>
+     <div class="grid3" style="margin-top:10px">
+      <div class="kpi"><span class="v">${friends||"—"}</span><span class="k">LINE 會員總數（帶來回流客）</span></div>
+      <div class="kpi"><span class="v">${S.campaigns.filter(c=>c.status==="進行中").length}</span><span class="k">進行中活動（拉客單價）</span></div>
+      <div class="kpi"><span class="v">${Object.values(S.videos).filter(x=>x.status==="已發").length}</span><span class="k">已發短影音（帶新客）</span></div>
+     </div></div>
+   </div>
+   <div class="card"><h3>客訊處理流程</h3>
+    <div class="flow"><span class="step">顧客 LINE 留言</span>→<span class="step">門市沒回</span>→<span class="step">聯絡門市處理</span>→<span class="step">聯絡不到</span>→<span class="step">我代回＋LINE 通知曹大哥（店長）</span></div></div>
+  </section>`;
+}
+
+function stores(){
+  const seg=`<div class="seg" role="group" aria-label="切換"><button data-sv="handover" aria-pressed="${storeView==="handover"}">交接確認表</button><button data-sv="todo" aria-pressed="${storeView==="todo"}">各店待辦</button><button data-sv="acc" aria-pressed="${storeView==="acc"}">帳號對照</button></div>`;
+  return `<section class="panel"><div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-end"><div><h2>門市</h2><p class="hint">${storeView==="handover"?"每家店的建置進度，點格子切換狀態。":storeView==="todo"?"每家店的 Google、LINE、行銷待辦。":"Google 商家和 LINE 官方帳號，各店對應哪個帳號。"}</p></div>${seg}</div>
+  ${storeView==="handover"?handover():storeView==="todo"?storeTodos():accounts()}</section>`;
+}
+function accounts(){
+  return `<div class="card">${linkBar}</div>
+  <div class="card"><h3>Google 商家</h3>${gTable()}</div>
+  <div class="card"><h3>LINE 官方帳號</h3><p class="note" style="margin:0 0 6px">目的：增加會員數、推活動。</p>${lTable()}</div>`;
+}
+function handover(){
+  const c=[0,0,0,0];S.stores.forEach(s=>CHECKS.forEach(([k])=>c[s.st[k]||0]++));
+  const legend=`<div class="legend">${ST.map((t,i)=>`<span class="cell s${i}" style="display:inline-flex;align-items:center;height:24px;cursor:default">${STS[i]}</span><span>${t} ${c[i]}</span>`).join("")}<span class="note">點格子切換狀態</span></div>`;
+  const asks=S.stores.map(s=>{const q=CHECKS.filter(([k])=>(s.st[k]||0)===0).map(([,l])=>l);return {s,q}}).filter(x=>x.q.length||x.s.ask);
+  return `<div class="card" style="display:grid;gap:10px">${linkBar}${legend}</div>
+  <div class="card scroll"><table><thead>
+   <tr><th rowspan="2">門市</th><th rowspan="2" class="c">完成</th>${GROUPS.map(g=>`<th class="grp sep" colspan="${g.items.length}">${g.g}</th>`).join("")}<th rowspan="2" class="sep">要問的事／備註</th></tr>
+   <tr>${GROUPS.map(g=>g.items.map(([,l],j)=>`<th class="c ${j===0?"sep":""}">${l}</th>`).join("")).join("")}</tr></thead><tbody>
+  ${S.stores.map((s,i)=>`${i===0||S.stores[i-1].brand!==s.brand?`<tr class="brandrow"><td colspan="${CHECKS.length+3}">${esc(s.brand)}</td></tr>`:""}<tr><td class="store-name"><b>${esc(s.branch)}</b><span>${[s.note,s.addr].filter(Boolean).map(esc).join("・")}${GBP[s.id]?.v?` <span class="pill ${GBP[s.id].v==="已驗證"?"p-ok":GBP[s.id].v==="沒有"?"p-bad":"p-warn"}">G ${GBP[s.id].v}</span>`:""}</span></td><td class="c cnt">${CHECKS.filter(([k])=>s.st[k]===2).length}/${CHECKS.filter(([k])=>s.st[k]!==3).length}</td>
+   ${GROUPS.map(g=>g.items.map(([k,l],j)=>{const v=s.st[k]||0;return `<td class="c ${j===0?"sep":""}"><button class="cell s${v}" title="${ST[v]}" aria-label="${esc(s.brand+s.branch+" "+g.g+" "+l+"："+ST[v])}" data-i="${i}" data-k="${k}">${STS[v]}</button></td>`}).join("")).join("")}
+   <td class="sep"><input id="ask-${i}" class="ask-in" placeholder="例：這家有沒有 LINE？" value="${esc(s.ask)}" data-ask="${i}"></td></tr>`).join("")}
+  </tbody><tfoot><tr><td>已完成</td><td class="c">${S.stores.reduce((a,s)=>a+CHECKS.filter(([k])=>s.st[k]===2).length,0)}/${S.stores.reduce((a,s)=>a+CHECKS.filter(([k])=>s.st[k]!==3).length,0)}</td>${GROUPS.map(g=>g.items.map(([k],j)=>{const ok=S.stores.filter(s=>s.st[k]===2).length,n=S.stores.filter(s=>s.st[k]!==3).length;return `<td class="c ${j===0?"sep":""}">${ok}/${n}</td>`}).join("")).join("")}<td class="sep"></td></tr></tfoot></table></div>
+  <div class="card"><h3>要問哥哥的</h3><p class="hint" style="margin-bottom:8px">表格裡還是「?」的項目會自動列在這裡，旁邊可以補充自己的問題。</p>
+   <ul class="ask">${asks.length?asks.map(({s,q})=>`<li><b>${esc(s.brand)} ${esc(s.branch)}</b>${q.length?`：${q.map(esc).join("、")}`:""}${s.ask?`<br><span class="note">備註：${esc(s.ask)}</span>`:""}</li>`).join(""):`<li class="note">都確認完了。</li>`}</ul>
+   <h3 style="margin-top:14px">共同問題</h3>
+   <ul class="ask"><li>LINE 官方帳號是一店一個，還是一個品牌一個？</li><li>Google 商家能不能做成一個「商家群組」，一次把我加成管理員？</li><li>雲端點餐、LINE Pay 後台各是誰的帳號？</li><li>開始前一個月各店營業額（成長 20% 的基準）</li></ul></div>`;
+}
+function storeTodos(){
+  const opts=S.stores.map((s,i)=>`<option value="${i}">${esc(s.brand+" "+s.branch)}</option>`).join("");
+  const catCls={Google:"p-tea",LINE:"p-ok",行銷:"p-acc"};
+  return `<div class="card"><form class="add" data-form="todo"><select id="t-store" name="store" required><option value="">選門市</option><option value="all">全部 11 家</option>${opts}</select><select id="t-cat" name="cat">${TODO_CATS.map(c=>`<option>${c}</option>`).join("")}</select><input id="t-text" name="text" placeholder="待辦（例：換上冬季菜單照片）" required><button class="btn" type="submit">新增</button></form>
+   <p class="note" style="margin-top:6px">選「全部 11 家」會一次加到每家店，適合統一換營業時間、推同一個活動。</p></div>
+  ${BRANDS.map(g=>`<div class="brandhead"><h3>${g.b}</h3><span class="note">${g.s.length} 家</span></div><div class="storecards">${S.stores.map((s,i)=>s.brand!==g.b?"":(()=>{const open=s.todos.filter(t=>!t.done);const by=TODO_CATS.map(c=>[c,open.filter(t=>t.cat===c).length]);
+   return `<div class="card"><div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><div class="store-name"><b>${esc(s.brand)}</b><span>${esc(s.branch)}</span></div><span class="note tabnum">${open.length} 項未完成</span></div>
+    <div class="legend" style="margin:8px 0">${by.map(([c,k])=>`<span class="pill ${catCls[c]}">${c} ${k}</span>`).join("")}</div>
+    <ul class="todo">${s.todos.length?s.todos.map((t,j)=>`<li class="${t.done?"done":""}"><input type="checkbox" id="td-${i}-${j}" ${t.done?"checked":""} data-ti="${i}" data-tj="${j}"><span class="pill ${catCls[t.cat]}">${t.cat}</span><span class="tx">${esc(t.text)}</span><button class="btn ghost" data-tdel="${i}" data-tj="${j}" aria-label="刪除">×</button></li>`).join(""):`<li class="note">沒有待辦</li>`}</ul></div>`})()).join("")}</div>`).join("")}`;
+}
+
+function listModule(type,title,hint,rows,cols,formHtml){
+  return `<section class="panel"><div><h2>${title}</h2><p class="hint">${hint}</p></div>${type==="materials"?menuCard():""}
+  <div class="card"><form class="add" data-form="${type}">${formHtml}<button class="btn" type="submit">新增</button></form></div>
+  <div class="card scroll">${rows.length?`<table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join("")}<th>狀態</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table>`:`<p class="empty">還沒有紀錄，從上方新增第一筆。</p>`}</div></section>`;
+}
+const storeOpts=`<option value="">選門市</option><option value="全部門市">全部門市</option>`+S.stores.map(s=>`<option value="${esc(s.id)}">${esc(s.brand+" "+s.branch)}</option>`).join("");
+const brandOpts=`<option value="">選品牌</option>`+BRANDS.map(g=>`<option>${g.b}</option>`).join("")+`<option>全品牌</option>`;
+const statusBtn=(type,id,s)=>`<button class="status" data-type="${type}" data-id="${id}" title="點一下換下一個狀態">${pill(s)}</button>`;
+const delBtn=(type,id)=>`<button class="btn ghost" data-del="${type}" data-id="${id}">刪除</button>`;
+
+function gTable(){
+  const lab=["?","待","✓","—"];
+  return `<div class="gtab scroll"><table><thead><tr><th>門市</th><th>Google 狀態</th><th class="c">我的權限</th><th>下一步</th></tr></thead><tbody>${S.stores.map(s=>{const g=GBP[s.id]||{};const v=g.v||"未知";const nx=(s.todos||[]).find(t=>t.cat==="Google"&&!t.done&&!t.text.startsWith("編輯鉛筆"));
+   return `<tr><td>${esc(s.brand.replace("滷味","").replace("麻辣拌",""))} ${esc(s.branch)}</td><td><span class="pill ${v==="已驗證"?"p-ok":v==="沒有"?"p-bad":"p-warn"}">${esc(v==="沒有"?"清單沒有":v)}</span></td><td class="c">${lab[s.st?.g_admin||0]}</td><td class="nx">${nx?esc(nx.text):"—"}</td></tr>`}).join("")}</tbody></table></div>`;
+}
+function lTable(){
+  return `<div class="gtab scroll"><table><thead><tr><th>門市</th><th>LINE 帳號</th><th>我的角色</th><th>注意</th></tr></thead><tbody>${S.stores.map(s=>{const l=LINEOA[s.id]||{};
+   return `<tr><td>${esc(s.brand.replace("滷味","").replace("麻辣拌",""))} ${esc(s.branch)}</td><td>${esc(l.acc||"—")}</td><td>${l.role?`<span class="pill ${l.role==="管理員"?"p-ok":"p-warn"}">${esc(l.role)}</span>`:"—"}</td><td class="nx">${esc(l.flag||"")}</td></tr>`}).join("")}</tbody></table>
+   <p class="note" style="margin-top:6px">非門市帳號：石小妹👶馥瑋fuwei（個人）。雲端點餐（肚肚）5 家：紅茶 3 家、拾串寶山、豆腐鍋壽昌。</p></div>`;
+}
+function meeting(){
+  const all=AGENDA.flatMap(x=>x.items), done=all.filter(([k])=>S.meeting[k]?.done).length;
+  return `<section class="panel"><div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-end"><div><h2>開會紀錄</h2><p class="hint">目標 → 權限 → 先做什麼 → 怎麼合作。打勾，答案寫在旁邊。</p></div><span class="progress">${done} / ${all.length}</span></div>
+  <div class="agenda">${AGENDA.map((x,si)=>`<div class="card ag-sec"><h3>${si+1}. ${x.sec}<span class="note">${x.why}</span></h3>
+   ${x.items.map(([k,t,sub])=>{const m=S.meeting[k]||{};return `<div class="ag-item ${m.done?"done":""}"><input type="checkbox" id="ag-${k}" ${m.done?"checked":""} data-ag="${k}"><label for="ag-${k}">${esc(t)}${sub?` <span class="sub">${esc(sub)}</span>`:""}${k==="p1"?` <a class="lnk sub" href="${LINKS.gbp}" target="_blank" rel="noopener">打開清單 ↗</a>`:k==="p2"?` <a class="lnk sub" href="${LINKS.line}" target="_blank" rel="noopener">打開後台 ↗</a>`:""}</label><input class="ag-note" id="agn-${k}" data-agn="${k}" placeholder="答案" value="${esc(m.note||"")}">${k==="p1"||k==="p2"?`<span class="sub" style="grid-column:2">進度表在「門市 → 帳號對照」</span>`:""}</div>`}).join("")}</div>`).join("")}
+   <div class="card"><h3>其他補充</h3><textarea id="ag-extra" data-agx="1" style="width:100%;min-height:70px" placeholder="哥哥額外交代的事">${esc(S.meeting._extra||"")}</textarea>
+    <div style="margin-top:10px"><button class="btn ghost" id="agReset">清空，下次開會用</button> <span id="agConfirm"></span></div></div>
+  </div></section>`;
+}
+function campaign(){
+  const form=`<form class="add" data-form="campaigns"><input id="c-title" name="title" placeholder="活動名稱（例：滿百送折價券）" required><select id="c-brand" name="brand" required>${brandOpts}</select><input id="c-start" name="start" type="date" required aria-label="開始"><input id="c-end" name="end" type="date" required aria-label="結束"><input id="c-push" name="push" type="date" required aria-label="推播日"><button class="btn" type="submit">新增</button></form>
+   <p class="note" style="margin-top:6px">活動建在品牌底下，自動套用該品牌所有門市。某家店不參加就點掉它，有微調寫在備註。</p>`;
+  const groups=[...BRANDS.map(g=>g.b),"全品牌"].map(b=>[b,S.campaigns.filter(c=>c.brand===b).sort((x,y)=>x.start.localeCompare(y.start))]).filter(([,l])=>l.length);
+  const mk=ym(),M=monthState(mk),nk=nextYm(),NM=monthState(nk),lab=s=>{const x=S.stores.find(y=>y.id===s);return x?x.brand.replace("關東煮","")+" "+x.branch:s};
+  const cur=rotFor(mk),nx=rotFor(nk);
+  const rot=`<div class="linkbar" style="margin:6px 0 10px">${RT_ROT.map(([n,p],i)=>{const isC=cur[0]===n,isN=nx[0]===n;return `<span class="pill ${isN?"p-acc":isC?"p-tea":""}" style="${isN||isC?"":"border:1px solid var(--line);color:var(--muted)"}">${i+1}. ${n} $${p}${isC?"・本月":isN?"・下月":""}</span>`}).join("")}</div>`;
+  const monthly=`<div class="card"><div class="brandhead" style="margin:0 0 4px"><h3>紅茶大苑 每月輪替活動</h3><span class="note">3 家同一個活動</span></div>${rot}<p class="note" style="margin:-4px 0 10px">固定優惠：雲端訂餐滿 $100 送 $30 折價券｜全系列飲料買五送一（贈送 6 杯中最低價，不含優惠活動飲料）｜活動不可合併使用</p>
+   <div class="grid2" style="gap:12px">
+    <div><p class="note" style="margin:0 0 4px">① 每月 1 號：<a class="lnk" href="${LINKS.dudoo}" target="_blank" rel="noopener">肚肚後台 ↗</a> 改成「${cur[0]} $${cur[1]}」（${+mk.slice(5)} 月）</p><ul class="todo">${RT_STORES.map(id=>`<li class="${M.order[id]?"done":""}"><input type="checkbox" id="mo-${esc(id)}" data-mo="${esc(id)}" ${M.order[id]?"checked":""}><span class="tx">${esc(lab(id))}</span></li>`).join("")}</ul></div>
+    <div><p class="note" style="margin:0 0 4px">② 每月最後一天：LINE 群發 ${+nk.slice(5)} 月活動「${nx[0]} $${nx[1]}」</p><ul class="todo">${MONTH_PUSH.map(([a,l])=>`<li class="${NM.push[a]?"done":""}"><input type="checkbox" id="mp-${esc(l)}" data-mp="${esc(a)}" ${NM.push[a]?"checked":""}><span class="tx">${esc(l)}<span class="note">｜${esc(a)}</span></span></li>`).join("")}</ul></div>
+   </div>
+   <h3 style="margin-top:14px">群發文案（${+nk.slice(5)} 月）</h3>
+   <textarea id="rt-msg" style="width:100%;min-height:190px;font-size:.88rem">${esc(NM.msg||rtMsg(nk))}</textarea>
+   <div class="row" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button class="btn" id="copyMsg">複製文案</button><button class="btn ghost" id="resetMsg">恢復預設</button><span id="copyOk" class="note"></span></div>
+   <p class="note" style="margin-top:8px">⚠️ 訂餐連結目前只有國鼎店的。壽昌、龍安的連結到肚肚後台「O2O 管理 → 線上點餐設定」切換門市後複製，再貼給我。<br>「紅茶大苑-壽昌、國鼎店」好友 947 人，群發一次約用 947 則；10/11 已用 1,470 / 3,000。</p></div>`;
+  return `<section class="panel"><div><h2>活動</h2><p class="hint">品牌 → 活動 → 門市。紅茶大苑的每月輪替在最上面，其他活動在下面新增。</p></div>
+  ${monthly}
+  <div class="card">${form}</div>
+  ${groups.length?groups.map(([b,list])=>`<div class="card"><div class="brandhead" style="margin:0 0 4px"><h3>${esc(b)}</h3><span class="note">${list.length} 個活動</span></div>
+   ${list.map(c=>{const ex=c.exclude||[];return `<div class="camp"><div class="row"><b style="flex:1;min-width:180px">${esc(c.title)}</b>${statusBtn("campaigns",c.id,c.status)}<button class="btn ghost" data-dup="${c.id}">複製</button>${delBtn("campaigns",c.id)}</div>
+    <div class="row note tabnum">期間 ${fmtD(c.start)}–${fmtD(c.end)}｜LINE 推播 ${fmtD(c.push)}</div>
+    <div class="row">${storesOf(c.brand).map(s=>`<button class="chip ${ex.includes(s.id)?"off":""}" data-cid="${c.id}" data-sid="${esc(s.id)}" aria-pressed="${!ex.includes(s.id)}">${esc(c.brand==="全品牌"?s.brand+" "+s.branch:s.branch)}</button>`).join("")}</div>
+    <div class="row"><input id="cn-${c.id}" class="ask-in" placeholder="微調備註（例：寶山店改送滷蛋）" value="${esc(c.tweak||"")}" data-tweak="${c.id}"></div></div>`}).join("")}</div>`).join(""):`<div class="card"><p class="empty">還沒有活動，從上方新增第一個。</p></div>`}
+  </section>`;
+}
+function menuCard(){return Object.entries(MENUS).map(([b,m])=>`<div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>${b} 菜單</h3><span class="note">${m.note}</span></div>
+  <div class="scroll"><table><thead><tr><th>口味</th><th>小份</th><th>大份</th></tr></thead><tbody>${m.rows.map(r=>`<tr><td><b>${r[0]}</b></td><td class="tabnum">${r[1]}</td><td class="tabnum">${r[2]}</td></tr>`).join("")}</tbody></table></div>
+  <p class="note" style="margin-top:6px">參考：別家的直立菜單卡，白底、藍字品項、紅字價格，一眼看得到份量和價錢。</p></div>`).join("")}
+function material(){
+  const rows=[...S.materials].sort((a,b)=>a.due.localeCompare(b.due)).map(m=>{const d=daysTo(m.due);const late=d<0&&m.status!=="已張貼";return `<tr><td><b>${esc(m.item)}</b></td><td>${esc(storeLabel(m.store))}</td><td>${esc(m.size)}</td><td>${esc(m.vendor)}</td><td class="tabnum">${fmtD(m.due)}${late?` <span class="pill p-bad">逾期</span>`:""}</td><td>${statusBtn("materials",m.id,m.status)}</td><td>${delBtn("materials",m.id)}</td></tr>`});
+  return listModule("materials","物料","布條、海報、菜單牌、QR 立牌。從下單一路追到門市貼好。",rows,["品項","送到","尺寸","廠商","交期"],
+   `<input id="m-item" name="item" placeholder="品項（例：牆面海報）" required><select id="m-store" name="store" required>${storeOpts}</select><input id="m-size" name="size" placeholder="尺寸"><input id="m-vendor" name="vendor" placeholder="廠商"><input id="m-due" name="due" type="date" required aria-label="交期">`);
+}
+function service(){
+  const rows=[...S.service].reverse().map(x=>`<tr><td class="tabnum">${esc(x.date)}</td><td>${esc(storeLabel(x.store))}</td><td>${esc(x.msg)}</td><td>${statusBtn("service",x.id,x.status)}</td><td>${delBtn("service",x.id)}</td></tr>`);
+  return listModule("service","客服紀錄","只記門市沒即時回覆的訊息。有紀錄，事後問起來查得到。",rows,["日期","門市","訊息摘要"],
+   `<select id="s-store" name="store" required>${storeOpts}</select><input id="s-msg" name="msg" placeholder="顧客問了什麼" required>`);
+}
+
+function video(){
+  const t=new Date(today()+"T00:00");const start=new Date(t);start.setDate(t.getDate()-t.getDay()+1);if(t.getDay()===0)start.setDate(start.getDate()-7);
+  const weeks=[0,1].map(w=>[...Array(7)].map((_,i)=>{const d=new Date(start);d.setDate(start.getDate()+w*7+i);return iso(d)}));
+  const posted=Object.values(S.videos).filter(x=>x.status==="已發").length;
+  const day=d=>{const v=videoFor(d);const wd="日一二三四五六"[new Date(d+"T00:00").getDay()];return `<div class="day ${d===today()?"is-today":""}"><div class="d">週${wd}・${fmtD(d)}</div><div class="b">${esc(v.brand)}</div><div class="t">${esc(v.topic)}</div>${statusBtn("video",d,v.status)}</div>`};
+  return `<section class="panel"><div><h2>短影音專區</h2><p class="hint">一天一支：7 個品牌剛好一週輪一輪。已發 ${posted} 支。點狀態切換：未拍 → 已拍 → 已剪 → 已發。</p></div>
+   <div class="card"><h3>本週與下週</h3><div class="scroll"><div class="week">${weeks[0].map(day).join("")}</div></div>
+   <div class="scroll" style="margin-top:8px"><div class="week">${weeks[1].map(day).join("")}</div></div></div>
+   <div class="grid2">
+    <div class="card"><h3>批次拍攝，不要每天拍</h3><ul class="today">
+     <li><span class="pill p-tea">跑店日</span><span>同一區一次拍完：龍安（紅茶、拾串、少帥、煎餃）、寶山（滷味、拾串、炒泡麵）、中平（滷味）、壽昌（紅茶、豆腐鍋）</span></li>
+     <li><span class="pill p-tea">每店</span><span>一次拍 4–6 段素材：製程、近鏡、上桌、門面、活動 POP</span></li>
+     <li><span class="pill p-tea">發片</span><span>同一支片發 IG Reels、TikTok、YouTube Shorts，再用 LINE 推一次</span></li></ul></div>
+    <div class="card"><h3>修改某一天的主題</h3><form class="add" data-form="videoEdit">
+     <input id="v-date" name="date" type="date" required aria-label="日期"><select id="v-brand" name="brand">${brandOpts}</select><input id="v-topic" name="topic" placeholder="主題（例：開幕倒數）"><button class="btn" type="submit">更新</button></form>
+     <p class="note" style="margin-top:8px">預設輪替：週一紅茶、週二滷味、週三麻辣拌、週四拾串關東煮、週五煎餃、週六豆腐鍋、週日炒泡麵。</p></div>
+   </div></section>`;
+}
+
+function growth(){
+  const lt=LINE_ACCS.map(k=>{const v=S.line[k]||{};const b=n(v.base),c=n(v.now);return {k,v,b,c,d:b&&c?c-b:null}});
+  const tb=lt.reduce((a,x)=>a+x.b,0),tc=lt.reduce((a,x)=>a+(x.c||x.b),0);
+  return `<section class="panel"><div><h2>成長</h2><p class="hint">兩個數字：營業額 +20%，以及 LINE 會員數。</p></div>
+  <div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>LINE 會員數</h3><span class="note">LINE@ 目的：增加會員數、推活動</span></div>
+   <div class="scroll"><table><thead><tr><th>帳號</th><th class="c">起始好友</th><th class="c">目前好友</th><th class="c">增加</th></tr></thead><tbody>
+   ${lt.map((x,i)=>`<tr><td>${esc(x.k)}</td><td class="c"><input id="lb-${i}" class="num-in" inputmode="numeric" placeholder="—" value="${esc(x.v.base)}" data-lb="${esc(x.k)}"></td><td class="c"><input id="ln-${i}" class="num-in" inputmode="numeric" placeholder="—" value="${esc(x.v.now)}" data-ln="${esc(x.k)}"></td><td class="c tabnum">${x.d==null?'<span class="note">—</span>':`<span class="pill ${x.d>0?"p-ok":"p-warn"}">${x.d>0?"+":""}${x.d}</span>`}</td></tr>`).join("")}
+   </tbody><tfoot><tr><td>合計</td><td class="c">${tb||"—"}</td><td class="c">${tc||"—"}</td><td class="c">${tb&&tc?(tc-tb>0?"+":"")+(tc-tb):"—"}</td></tr></tfoot></table></div>
+   <p class="note" style="margin-top:6px">每週看一次 LINE 後台的好友數填進「目前好友」。增加最快的方法：加好友送折價券＋桌上 QR 立牌。</p></div>
+  <div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>營業額</h3><span class="note">基準＝開始前一個月；每月月底填本月</span></div>
+  <div class="scroll"><table><thead><tr><th>門市</th><th class="c">基準月</th><th class="c">本月</th><th class="c">成長</th></tr></thead><tbody>
+  ${S.stores.map((s,i)=>{const b=n(s.base),c=n(s.now);const g=b&&c?(c/b-1)*100:null;const cls=g==null?"":g>=20?"p-ok":g>=0?"p-warn":"p-bad";
+   return `<tr><td class="store-name"><b>${esc(s.brand)}</b><span>${esc(s.branch)}</span></td><td class="c"><input id="b-${i}" class="num-in" inputmode="numeric" placeholder="—" value="${esc(s.base)}" data-base="${i}"></td><td class="c"><input id="n-${i}" class="num-in" inputmode="numeric" placeholder="—" value="${esc(s.now)}" data-now="${i}"></td><td class="c">${g==null?'<span class="note">—</span>':`<span class="pill ${cls}">${(g>=0?"+":"")+g.toFixed(1)}%</span>`}</td></tr>`}).join("")}
+  </tbody></table></div></div>
+  </section>`;
+}
+
+function vault(){
+  return `<div class="grid3">${[["Google 商家",`<a class="lnk" href="${LINKS.gbp}" target="_blank" rel="noopener">business.google.com/locations</a>`,"全部門市清單；看不到就切「要求桌面版網站」"],["LINE 官方帳號",`<a class="lnk" href="${LINKS.line}" target="_blank" rel="noopener">manager.line.biz</a>`,"各店 OA 後台"],["肚肚後台（雲端點餐）",`<a class="lnk" href="${LINKS.dudoo}" target="_blank" rel="noopener">admin.dudooeat.com</a>`,"O2O 管理 → 線上點餐設定。帳密放密碼管理器"],["LINE Pay QR Code","老闆提供檔案","獨資 5 間：紅茶 3、拾串 1、煎餃 1"],["店長 曹大哥","已加 LINE","門市聯絡不到時通報"],["印刷廠商","待確認","布條、海報、菜單牌、立牌"]].map(([a,b,c])=>`<div class="card"><h3>${a}</h3><div class="tabnum" style="font-size:.85rem">${b}</div><p class="note">${c}</p></div>`).join("")}</div>
+  <p class="note">密碼不要寫在這裡，放 iPad「密碼」App 或密碼管理器。</p>`;
+}
+function backup(){
+  return `<div class="card"><h3>匯出</h3><p class="note">資料存在這台裝置的瀏覽器裡。換裝置、換網址前，先複製這段備份碼，貼到新的地方「匯入」。</p>
+   <textarea id="bk-out" readonly style="width:100%;min-height:90px;font-size:.75rem">${esc(JSON.stringify(S))}</textarea>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button class="btn" id="bkCopy">複製備份碼</button><span id="bkOk" class="note"></span></div></div>
+  <div class="card"><h3>匯入</h3><p class="note">貼上備份碼後按匯入，會取代這台裝置目前的資料。</p>
+   <textarea id="bk-in" style="width:100%;min-height:90px;font-size:.75rem" placeholder="貼上備份碼"></textarea>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button class="btn" id="bkImport">匯入</button><span id="bkMsg" class="note"></span></div></div>
+  <div class="card"><h3>重設</h3><button class="btn ghost" id="reset">清空並回到預設資料</button> <span id="resetConfirm"></span></div>`;
+}
+function more(){
+  const opts=[["meeting","開會紀錄"],["service","客服紀錄"],["vault","帳號連結"],["backup","備份"]];
+  const seg=`<div class="seg" role="group" aria-label="切換">${opts.map(([k,l])=>`<button data-mv="${k}" aria-pressed="${moreView===k}">${l}</button>`).join("")}</div>`;
+  const body=moreView==="meeting"?meeting():moreView==="service"?service():moreView==="vault"?`<section class="panel"><div><h2>帳號連結</h2></div>${vault()}</section>`:`<section class="panel"><div><h2>備份</h2></div>${backup()}</section>`;
+  return `<div style="margin-top:20px">${seg}</div>${body}`;
+}
+
+const VIEWS={home,stores,campaign,material,video,growth,more};
+function render(){$("#main").innerHTML=VIEWS[tab]();bind()}
+function bind(){
+  document.querySelectorAll(".cell[data-k]").forEach(b=>b.onclick=()=>{const s=S.stores[b.dataset.i];s.st[b.dataset.k]=((s.st[b.dataset.k]||0)+1)%4;save();render()});
+  document.querySelectorAll("[data-ask]").forEach(i=>i.onchange=()=>{S.stores[i.dataset.ask].ask=i.value.trim();save();render()});
+  document.querySelectorAll("[data-cid]").forEach(b=>b.onclick=()=>{const c=S.campaigns.find(x=>String(x.id)===b.dataset.cid);c.exclude=c.exclude||[];const k=b.dataset.sid;c.exclude=c.exclude.includes(k)?c.exclude.filter(x=>x!==k):[...c.exclude,k];save();render()});
+  document.querySelectorAll("[data-tweak]").forEach(i=>i.onchange=()=>{S.campaigns.find(x=>String(x.id)===i.dataset.tweak).tweak=i.value.trim();save()});
+  document.querySelectorAll("[data-dup]").forEach(b=>b.onclick=()=>{const c=S.campaigns.find(x=>String(x.id)===b.dataset.dup);S.campaigns.push({...c,id:Date.now(),title:c.title+"（複製）",status:"規劃中",exclude:[...(c.exclude||[])]});save();render()});
+  document.querySelectorAll("[data-ag]").forEach(c=>c.onchange=()=>{const k=c.dataset.ag;S.meeting[k]={...(S.meeting[k]||{}),done:c.checked};save();render()});
+  document.querySelectorAll("[data-agn]").forEach(t=>t.onchange=()=>{const k=t.dataset.agn;S.meeting[k]={...(S.meeting[k]||{}),note:t.value};save()});
+  const ax=document.querySelector("[data-agx]");if(ax)ax.onchange=()=>{S.meeting._extra=ax.value;save()};
+  const ar=$("#agReset");if(ar)ar.onclick=()=>{$("#agConfirm").innerHTML=`確定清空？ <button class="btn ghost" id="agYes">確定</button>`;$("#agYes").onclick=()=>{S.meeting={};save();render()}};
+  document.querySelectorAll("[data-mo]").forEach(c=>c.onchange=()=>{monthState(ym()).order[c.dataset.mo]=c.checked;save();render()});
+  document.querySelectorAll("[data-mp]").forEach(c=>c.onchange=()=>{monthState(nextYm()).push[c.dataset.mp]=c.checked;save();render()});
+  const rm=$("#rt-msg");if(rm)rm.onchange=()=>{monthState(nextYm()).msg=rm.value;save()};
+  const cm=$("#copyMsg");if(cm)cm.onclick=()=>{const t=$("#rt-msg").value;navigator.clipboard.writeText(t).then(()=>{$("#copyOk").textContent="已複製"},()=>{$("#rt-msg").select();$("#copyOk").textContent="已選取，請長按複製"})};
+  const rs=$("#resetMsg");if(rs)rs.onclick=()=>{delete monthState(nextYm()).msg;save();render()};
+  document.querySelectorAll("[data-mplan]").forEach(i=>i.onchange=()=>{monthState(i.dataset.mplan).plan=i.value.trim();save()});
+  document.querySelectorAll("[data-sv]").forEach(b=>b.onclick=()=>{storeView=b.dataset.sv;try{localStorage.setItem(KEY+"-sv",storeView)}catch(e){}render()});
+  document.querySelectorAll("[data-ti]").forEach(c=>c.onchange=()=>{S.stores[c.dataset.ti].todos[c.dataset.tj].done=c.checked;save();render()});
+  document.querySelectorAll("[data-tdel]").forEach(b=>b.onclick=()=>{S.stores[b.dataset.tdel].todos.splice(b.dataset.tj,1);save();render()});
+  document.querySelectorAll("[data-lb]").forEach(i=>i.onchange=()=>{(S.line[i.dataset.lb]=S.line[i.dataset.lb]||{}).base=i.value.trim();save();render()});
+  document.querySelectorAll("[data-ln]").forEach(i=>i.onchange=()=>{(S.line[i.dataset.ln]=S.line[i.dataset.ln]||{}).now=i.value.trim();save();render()});
+  document.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{moreView=b.dataset.mv;try{localStorage.setItem(KEY+"-mv",moreView)}catch(e){}render()});
+  const bc=$("#bkCopy");if(bc)bc.onclick=()=>{const t=$("#bk-out").value;navigator.clipboard.writeText(t).then(()=>{$("#bkOk").textContent="已複製"},()=>{$("#bk-out").select();$("#bkOk").textContent="已選取，請長按複製"})};
+  const bi=$("#bkImport");if(bi)bi.onclick=()=>{try{const d=JSON.parse($("#bk-in").value);if(!d.stores)throw 0;S=d;save();$("#bkMsg").textContent="已匯入";render()}catch(e){$("#bkMsg").textContent="備份碼格式不對，請重新複製完整的一段"}};
+  document.querySelectorAll("[data-base]").forEach(i=>i.onchange=()=>{S.stores[i.dataset.base].base=i.value.trim();save();render()});
+  document.querySelectorAll("[data-now]").forEach(i=>i.onchange=()=>{S.stores[i.dataset.now].now=i.value.trim();save();render()});
+  document.querySelectorAll(".status").forEach(b=>b.onclick=()=>{const {type,id}=b.dataset;
+    if(type==="video"){const v=videoFor(id);S.videos[id]={...(S.videos[id]||{}),status:next("video",v.status)}}
+    else{const it=S[type].find(x=>String(x.id)===id);it.status=next(type==="campaigns"?"campaign":type==="materials"?"material":"service",it.status)}
+    save();render()});
+  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{S[b.dataset.del]=S[b.dataset.del].filter(x=>String(x.id)!==b.dataset.id);save();render()});
+  document.querySelectorAll("form[data-form]").forEach(f=>f.onsubmit=e=>{e.preventDefault();const d=Object.fromEntries(new FormData(f));const id=Date.now();
+    if(f.dataset.form==="campaigns")S.campaigns.push({id,...d,status:"規劃中"});
+    if(f.dataset.form==="materials")S.materials.push({id,...d,status:"待下單"});
+    if(f.dataset.form==="service")S.service.push({id,...d,date:today(),status:"待門市回覆"});
+    if(f.dataset.form==="todo"){const t={cat:d.cat,text:d.text,done:false};(d.store==="all"?S.stores:[S.stores[d.store]]).forEach(s=>s.todos.push({...t}))}
+    if(f.dataset.form==="videoEdit"){const cur=S.videos[d.date]||{};S.videos[d.date]={...cur,...(d.brand&&d.brand!=="全品牌"?{brand:d.brand}:{}),...(d.topic?{topic:d.topic}:{})}}
+    save();render()});
+  const r=$("#reset");if(r)r.onclick=()=>{$("#resetConfirm").innerHTML=`確定清空？ <button class="btn ghost" id="yes">確定</button>`;$("#yes").onclick=()=>{S=seed();save();render()}};
+}
+renderTabs();render();renderGoal();
+</script>
+
+</body>
+</html>
