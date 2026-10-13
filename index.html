@@ -253,7 +253,7 @@ function rtMsg(k,acc){const [n,p]=rotFor(k),mo=+k.slice(5);
  return `📣 今天是本月活動最後一天！\n\n${mo}/1–${mo}/${lastDay(k)} 新活動\n🍹 ${n} $${p}\n\n雲端訂餐滿 $100 送 $30 折價券 🎉\n全系列飲料買五送一 🥤\n（贈送 6 杯中最低價品項，不含優惠活動飲料）\n\n＊各項優惠不可合併使用\n\n👉 點我訂餐\n${links}`}
 const linkBar=`<div class="linkbar"><a class="lbtn" href="${LINKS.dudoo}" target="_blank" rel="noopener">肚肚後台（點餐）↗</a><a class="lbtn" href="${LINKS.gbp}" target="_blank" rel="noopener">Google 商家 全部門市 ↗</a><a class="lbtn" href="${LINKS.line}" target="_blank" rel="noopener">LINE 官方帳號後台 ↗</a></div>`;
 const LEADER="曹大哥（店長）";
-const TABS=[["home","今日"],["stores","門市"],["campaign","活動"],["material","物料"],["growth","成長"],["more","更多"]];
+const TABS=[["home","今日"],["stores","門市"],["info","店家資料"],["campaign","活動"],["material","物料"],["growth","成長"],["more","更多"]];
 const LINE_ACCS=["紅茶大苑-壽昌、國鼎店","龍安美食（拾串、少帥、紅茶大苑、哨帥）","韓殿炒泡麵、拾串關東煮（寶山店）","李氏韓式豆腐鍋-桃園壽昌","三顧茅廬 桃園寶山店","三顧茅廬-桃園中平店"];
 const MENUS={"一口煎餃":{note:"菜單牌：作法、材質、尺寸待確認",rows:[["豬肉","$60 / 12 顆","$80 / 16 顆"],["牛肉","$90 / 10 顆","$120 / 14 顆"],["蝦仁","$90 / 10 顆","$120 / 14 顆"]]}};
 const WEEK_PLAN=[ // 0=Sun
@@ -340,6 +340,8 @@ if(!S.v1013b){
  add("p3","雲端點餐（肚肚）是哥哥的帳號；LINE Pay 後台不清楚");
  S.rev=S.rev||{};S.stores.forEach(st=>{if(st.base){(S.rev[st.id]=S.rev[st.id]||{})["2026-10"]=st.base}});
  S.v1013b=1}
+if(!S.v1014){S.lineM=S.lineM||{};const O={"韓殿炒泡麵、拾串關東煮（寶山店）":"1","龍安美食（拾串、少帥、紅茶大苑、哨帥）":"345","紅茶大苑-壽昌、國鼎店":"947","李氏韓式豆腐鍋-桃園壽昌":"86","三顧茅廬 桃園寶山店":"1","三顧茅廬-桃園中平店":"528"};
+ Object.entries(O).forEach(([k,v])=>{(S.lineM[k]=S.lineM[k]||{})["2026-10"]=S.lineM[k]["2026-10"]||v});S.v1014=1}
 if(!S.todo1011){const add=(id,text)=>{const st=S.stores.find(x=>x.id===id);if(st){st.todos=st.todos||[];st.todos.push({cat:"Google",text,done:false})}};
  add("東北少帥麻辣拌-龍安店","龍安少帥：① 我申請業主 ② 把主要擁有者轉給哥哥 ③ 哥哥把我設成管理員");
  add("韓式炒泡麵-寶山店","原「寶山少帥」改名炒泡麵沒生效：查審核狀態；名稱、類別、菜單、照片都要改");
@@ -419,12 +421,12 @@ function home(){
   if(ask)items.push({tag:"門市",cls:"p-warn",text:`還有 <b>${ask}</b> 項要跟哥哥確認`});
   if(todo)items.push({tag:"門市",cls:"p-bad",text:`基礎建置 <b>${todo}</b> 項待處理`});
   if(open)items.push({tag:"門市",cls:"p-tea",text:`各店日常待辦 <b>${open}</b> 項`});
-  const friends=LINE_ACCS.reduce((a,k)=>a+n((S.line[k]||{}).now||(S.line[k]||{}).base),0);
+  const friends=(()=>{const lm=revMonths().slice().reverse().find(m=>LINE_ACCS.some(k=>n(((S.lineM||{})[k]||{})[m])));return lm?LINE_ACCS.reduce((a,k)=>a+n(((S.lineM||{})[k]||{})[m=lm]),0):0;var m})();
   return `<section class="panel">
    <div class="grid2">
     <div class="card"><h2>今天要做的事</h2><p class="hint">${t}・自動從各模組彙整</p>
      <ul class="today" style="margin-top:8px">${items.map(i=>`<li><span class="pill ${i.cls}">${i.tag}</span><span>${i.text}</span></li>`).join("")}</ul></div>
-    <div class="card"><h2>成長公式</h2><p class="hint">20% 不用只靠一個槓桿，拆開來各推一點。LINE 會員數＝「成長」頁各帳號好友數加總。</p>
+    <div class="card"><h2>成長公式</h2><p class="hint">20% 不用只靠一個槓桿，拆開來各推一點。LINE 會員數＝「成長」頁最新一個月各帳號好友數加總。</p>
      <div class="formula" style="margin-top:10px">營業額 ＝ 來客數 × 客單價</div>
      <p style="margin:10px 0 4px">例如來客 <b>+10%</b>、客單 <b>+9%</b>，1.10 × 1.09 ≈ <b>+20%</b></p>
      <div class="grid3" style="margin-top:10px">
@@ -442,6 +444,21 @@ function stores(){
   const seg=`<div class="seg" role="group" aria-label="切換"><button data-sv="handover" aria-pressed="${storeView==="handover"}">交接確認表</button><button data-sv="todo" aria-pressed="${storeView==="todo"}">各店待辦</button><button data-sv="acc" aria-pressed="${storeView==="acc"}">帳號對照</button></div>`;
   return `<section class="panel"><div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-end"><div><h2>門市</h2><p class="hint">${storeView==="handover"?"每家店的建置進度，點格子切換狀態。":storeView==="todo"?"每家店的 Google、LINE、行銷待辦。":"Google 商家和 LINE 官方帳號，各店對應哪個帳號。"}</p></div>${seg}</div>
   ${storeView==="handover"?handover():storeView==="todo"?storeTodos():accounts()}</section>`;
+}
+function infoText(ids){return ids.map(id=>{const x=INFO[id];return `【${x.name}】\n地址：${x.addr}\n電話：${x.phone}\n營業時間：${x.hours}${x.svc?`\n服務：${x.svc}`:""}\n價位：${x.price}${x.web?`\n網站：${x.web}`:""}`}).join("\n\n")+"\n\n以上是 Google 地圖上目前寫的資料，麻煩幫我看哪裡要改，回我正確的就好，謝謝！"}
+function info(){
+  S.info=S.info||{};
+  const ids=S.stores.map(s=>s.id).filter(id=>INFO[id]), miss=S.stores.filter(s=>!INFO[s.id]);
+  const cnt=INFO_ST.map(t=>ids.filter(id=>(S.info[id]||{}).st===t||(!(S.info[id]||{}).st&&t==="待確認")).length);
+  const cls={"待確認":"p-warn","正確":"p-ok","要改":"p-bad"};
+  return `<section class="panel"><div><h2>店家資料</h2><p class="hint">Google 地圖上目前寫的資料。給店長確認後，點狀態切換：待確認 → 正確 → 要改。</p></div>
+  <div class="card" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">${INFO_ST.map((t,i)=>`<span class="pill ${cls[t]}">${t} ${cnt[i]}</span>`).join("")}<span class="note">還沒截圖：${miss.map(s=>esc(s.brand.replace("滷味","").replace("麻辣拌","")+" "+s.branch)).join("、")}</span></div>
+  ${BRANDS.map(g=>{const list=ids.filter(id=>id.startsWith(g.b+"-"));if(!list.length)return "";return `<div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>${g.b}</h3><button class="btn ghost" data-infocopy="${esc(list.join(","))}">複製給店長確認</button><span class="note" id="ic-${esc(g.b)}"></span></div>
+   ${list.map(id=>{const x=INFO[id],m=S.info[id]||{},st=m.st||"待確認";return `<div class="camp"><div class="row"><b style="flex:1;min-width:160px">${esc(x.name)}</b><button class="status" data-infost="${esc(id)}">${`<span class="pill ${cls[st]}">${st}</span>`}</button></div>
+    <div class="scroll"><table style="font-size:.82rem"><tbody>${[["地址",x.addr],["電話",x.phone],["營業時間",x.hours],["服務",x.svc],["價位",x.price],["網站",x.web]].filter(r=>r[1]).map(([k,v])=>`<tr><th style="width:5.5em">${k}</th><td>${esc(v)}</td></tr>`).join("")}</tbody></table></div>
+    ${x.flag?`<p class="note" style="margin:0;color:var(--bad)">⚠ ${esc(x.flag)}</p>`:""}
+    <input id="if-${esc(id)}" class="ask-in" data-infofix="${esc(id)}" placeholder="店長回覆／要改成什麼" value="${esc(m.fix||"")}"></div>`}).join("")}</div>`}).join("")}
+  </section>`;
 }
 function accounts(){
   const sw=(list,cur,attr)=>`<div class="row" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0 8px"><span class="note">排列</span>${list.map(v=>`<button class="chip ${cur===v?"":"off2"}" data-${attr}="${v}" aria-pressed="${cur===v}">${v}</button>`).join("")}</div>`;
@@ -499,14 +516,23 @@ function grouped(keyFn,order,rowFn,cols){
   const keys=order.filter(k=>S.stores.some(s=>keyFn(s)===k));
   return `<div class="gtab scroll"><table><thead><tr>${cols}</tr></thead><tbody>${keys.map(k=>`<tr class="brandrow"><td colspan="6">${esc(k)}</td></tr>${S.stores.filter(s=>keyFn(s)===k).map(rowFn).join("")}`).join("")}</tbody></table></div>`;
 }
+const INFO={ // 2026-10-14 Google 地圖公開頁截圖
+ "紅茶大苑-國鼎店":{name:"紅茶大苑-國鼎店",addr:"桃園區中聖里國鼎一街14號",phone:"0916 014 100",hours:"三、六、日、一、二 11:00–21:00｜四 11:00–00:00｜五 00:00–09:00、11:00–21:00",svc:"",price:"$1–200",web:"（沒有）",flag:"週四、週五時間怪，可能設錯；網站沒放訂餐連結（壽昌、龍安有）"},
+ "紅茶大苑-壽昌店":{name:"紅茶大苑-壽昌店",addr:"桃園區中平里壽昌街20巷48號",phone:"0900 570 870",hours:"每天 11:00–21:00",svc:"",price:"$1–200",web:"store.dudooeat.com"},
+ "紅茶大苑-龍安店":{name:"紅茶大苑-龍安店",addr:"桃園區龍鳳里龍安街38-3號",phone:"0905 473 518",hours:"每天 11:00–01:00",svc:"線上點餐",price:"$1–200",web:"store.dudooeat.com",flag:"電話跟拾串龍安店一樣，確認是不是共用"},
+ "三顧茅廬滷味-中平店":{name:"三顧茅廬桃園中平店",addr:"桃園區中山里中山路773號",phone:"03 228 8998",hours:"每天 16:00–02:00",svc:"內用、外帶｜只收現金｜不接受訂位",price:"$1–400",web:"facebook.com"},
+ "三顧茅廬滷味-寶山店":{name:"三顧茅廬桃園寶山店",addr:"桃園區寶山里寶山街208號",phone:"03 358 0982",hours:"每天 11:00–02:00",svc:"內用、外帶｜沒有外送",price:"$1–200",web:""},
+ "拾串關東煮-龍安店":{name:"拾串-關東煮（龍安店）",addr:"桃園區龍鳳里龍安街38-6號",phone:"0905 473 518",hours:"每天 17:30–00:00",svc:"內用、外帶",price:"$1–200",web:""},
+ "拾串關東煮-寶山店":{name:"拾串-日式關東煮（寶山店）",addr:"桃園區寶山街250號",phone:"（沒有）",hours:"（沒有）",svc:"",price:"$1–400",web:"",flag:"沒有營業時間和電話，要補"}};
+const INFO_ST=["待確認","正確","要改"];
 const REGIONS=["國鼎","壽昌","龍安","中平","寶山"];
 function gTable(){
   const lab=["?","待","✓","—"];
   const kf=accG==="品牌"?s=>s.brand:accG==="區域"?region:s=>gDone(s)?"已完成":"未完成";
   const ord=accG==="品牌"?BRANDS.map(g=>g.b):accG==="區域"?REGIONS:["未完成","已完成"];
   return grouped(kf,ord,s=>{const g=GBP[s.id]||{};const v=g.v||"未知";const nx=(s.todos||[]).find(t=>t.cat==="Google"&&!t.done&&!t.text.startsWith("編輯鉛筆"));
-   return `<tr><td>${esc(accG==="品牌"?s.branch:s.brand.replace("滷味","").replace("麻辣拌","")+" "+s.branch)}<br><a class="lnk note" style="white-space:nowrap" href="${mapUrl(s)}" target="_blank" rel="noopener">地圖↗</a></td><td><span class="pill ${v==="已驗證"?"p-ok":v==="沒有"?"p-bad":"p-warn"}">${esc(v==="沒有"?"清單沒有":v)}</span></td><td class="c">${lab[s.st?.g_admin||0]}</td><td class="nx">${[g.phone,g.hours,g.info].filter(Boolean).map(esc).join("<br>")||"—"}</td><td class="nx">${nx?esc(nx.text):"—"}</td></tr>`},
-   `<th>門市</th><th>Google 狀態</th><th class="c">權限</th><th>店家資訊</th><th>下一步</th>`);
+   return `<tr><td>${esc(accG==="品牌"?s.branch:s.brand.replace("滷味","").replace("麻辣拌","")+" "+s.branch)}</td><td><span class="pill ${v==="已驗證"?"p-ok":v==="沒有"?"p-bad":"p-warn"}">${esc(v==="沒有"?"清單沒有":v)}</span></td><td class="c">${lab[s.st?.g_admin||0]}</td><td class="nx">${nx?esc(nx.text):"—"}</td></tr>`},
+   `<th>門市</th><th>Google 狀態</th><th class="c">權限</th><th>下一步</th>`);
 }
 function lTable(){
   const kf=accL==="品牌"?s=>s.brand:accL==="區域"?region:accL==="LINE 帳號"?s=>(LINEOA[s.id]||{}).acc||"（沒有）":s=>lTodo(s)?"有待辦":"沒有待辦";
@@ -585,14 +611,15 @@ function video(){
 }
 
 function growth(){
-  const lt=LINE_ACCS.map(k=>{const v=S.line[k]||{};const b=n(v.base),c=n(v.now);return {k,v,b,c,d:b&&c?c-b:null}});
-  const tb=lt.reduce((a,x)=>a+x.b,0),tc=lt.reduce((a,x)=>a+(x.c||x.b),0);
-  return `<section class="panel"><div><h2>成長</h2><p class="hint">兩個數字：營業額 +20%，以及 LINE 會員數。</p></div>
-  <div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>LINE 會員數</h3><span class="note">LINE@ 目的：增加會員數、推活動</span></div>
-   <div class="scroll"><table><thead><tr><th>帳號</th><th class="c">起始好友</th><th class="c">目前好友</th><th class="c">增加</th></tr></thead><tbody>
-   ${lt.map((x,i)=>`<tr><td>${esc(x.k)}</td><td class="c"><input id="lb-${i}" class="num-in" inputmode="numeric" placeholder="—" value="${esc(x.v.base)}" data-lb="${esc(x.k)}"></td><td class="c"><input id="ln-${i}" class="num-in" inputmode="numeric" placeholder="—" value="${esc(x.v.now)}" data-ln="${esc(x.k)}"></td><td class="c tabnum">${x.d==null?'<span class="note">—</span>':`<span class="pill ${x.d>0?"p-ok":"p-warn"}">${x.d>0?"+":""}${x.d}</span>`}</td></tr>`).join("")}
-   </tbody><tfoot><tr><td>合計</td><td class="c">${tb||"—"}</td><td class="c">${tc||"—"}</td><td class="c">${tb&&tc?(tc-tb>0?"+":"")+(tc-tb):"—"}</td></tr></tfoot></table></div>
-   <p class="note" style="margin-top:6px">947、86 是從你截圖看到的，其他帳號請到 LINE 後台主頁看「目標好友數」填進來；之後每週填一次「目前好友」。增加最快的方法：加好友送折價券＋桌上 QR 立牌。</p></div>
+  const lineOf=(k,m)=>n(((S.lineM||{})[k]||{})[m]);
+  const lm=revMonths(), lk=lm.slice(1).reverse().find(m=>LINE_ACCS.some(k=>lineOf(k,m)));
+  const tot=m=>LINE_ACCS.reduce((a,k)=>a+lineOf(k,m),0);
+  return `<section class="panel"><div><h2>成長</h2><p class="hint">兩個數字：營業額 +20%，以及 LINE 會員數。都是每月記一次，跟 10 月比。</p></div>
+  <div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>LINE 會員數</h3><span class="note">LINE@ 目的：增加會員數、推活動｜每月月初記一次</span></div>
+   <div class="scroll"><table><thead><tr><th>帳號</th>${lm.map(m=>`<th class="c">${+m.slice(5)} 月${m==="2026-10"?"（基準）":""}</th>`).join("")}<th class="c">增加</th></tr></thead><tbody>
+   ${LINE_ACCS.map((k,i)=>{const b=lineOf(k,"2026-10"),c=lk?lineOf(k,lk):0,d=b&&c?c-b:null;return `<tr><td>${esc(k)}</td>${lm.map(m=>`<td class="c"><input id="lm-${i}-${m}" class="num-in" inputmode="numeric" placeholder="—" value="${esc(((S.lineM||{})[k]||{})[m]||"")}" data-lm="${esc(k)}|${m}"></td>`).join("")}<td class="c tabnum">${d==null?'<span class="note">—</span>':`<span class="pill ${d>0?"p-ok":"p-warn"}">${d>0?"+":""}${d}</span>`}</td></tr>`}).join("")}
+   </tbody><tfoot><tr><td>合計</td>${lm.map(m=>`<td class="c">${tot(m)||"—"}</td>`).join("")}<td class="c">${lk&&tot("2026-10")?((tot(lk)-tot("2026-10"))>0?"+":"")+(tot(lk)-tot("2026-10")):"—"}</td></tr></tfoot></table></div>
+   <p class="note" style="margin-top:6px">10 月是 10/14 從 LINE 後台帳號列表抄的。好友數在 manager.line.biz 帳號列表就看得到。</p></div>
   <div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>營業額</h3><span class="note">10 月＝基準；每月月初填上個月</span></div>
   <div class="scroll"><table><thead><tr><th>門市</th>${revMonths().map(k=>`<th class="c">${+k.slice(5)} 月${k==="2026-10"?"（基準）":""}</th>`).join("")}<th class="c">最新 vs 10 月</th></tr></thead><tbody>
   ${S.stores.map((s,i)=>{const b=revOf(s.id,"2026-10"),lk=revMonths().slice(1).reverse().find(k=>revOf(s.id,k)),c=lk?revOf(s.id,lk):0;const g=b&&c?(c/b-1)*100:null;const cls=g==null?"":g>=20?"p-ok":g>=0?"p-warn":"p-bad";
@@ -623,7 +650,7 @@ function more(){
   return `<div style="margin-top:20px">${seg}</div>${body}`;
 }
 
-const VIEWS={home,stores,campaign,material,video,growth,more};
+const VIEWS={home,stores,info,campaign,material,video,growth,more};
 function render(){$("#main").innerHTML=VIEWS[tab]();bind()}
 function bind(){
   document.querySelectorAll(".cell[data-k]").forEach(b=>b.onclick=()=>{const s=S.stores[b.dataset.i];s.st[b.dataset.k]=((s.st[b.dataset.k]||0)+1)%4;save();render()});
@@ -641,6 +668,10 @@ function bind(){
   document.querySelectorAll("[data-copymsg]").forEach(b=>b.onclick=()=>{const i=b.dataset.copymsg,t=$("#rt-msg-"+i);navigator.clipboard.writeText(t.value).then(()=>{$("#copyOk-"+i).textContent="已複製"},()=>{t.select();$("#copyOk-"+i).textContent="已選取，請長按複製"})});
   document.querySelectorAll("[data-resetmsg]").forEach(b=>b.onclick=()=>{const m=monthState(nextYm());if(m.msgs)delete m.msgs[b.dataset.resetmsg];save();render()});
   document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>{navigator.clipboard.writeText(b.dataset.copy).then(()=>{b.textContent="已複製"},()=>{b.textContent="複製失敗"})});
+  document.querySelectorAll("[data-lm]").forEach(i=>i.onchange=()=>{const [k,m]=i.dataset.lm.split("|");S.lineM=S.lineM||{};(S.lineM[k]=S.lineM[k]||{})[m]=i.value.trim();save();render()});
+  document.querySelectorAll("[data-infost]").forEach(b=>b.onclick=()=>{S.info=S.info||{};const m=S.info[b.dataset.infost]=S.info[b.dataset.infost]||{};m.st=INFO_ST[(INFO_ST.indexOf(m.st||"待確認")+1)%3];save();render()});
+  document.querySelectorAll("[data-infofix]").forEach(i=>i.onchange=()=>{S.info=S.info||{};(S.info[i.dataset.infofix]=S.info[i.dataset.infofix]||{}).fix=i.value.trim();save()});
+  document.querySelectorAll("[data-infocopy]").forEach(b=>b.onclick=()=>{const t=infoText(b.dataset.infocopy.split(","));navigator.clipboard.writeText(t).then(()=>{b.textContent="已複製"},()=>{b.textContent="複製失敗"})});
   document.querySelectorAll("[data-tc]").forEach(b=>b.onclick=()=>{todoCat=b.dataset.tc;render()});
   document.querySelectorAll("[data-tg]").forEach(b=>b.onclick=()=>{todoGroup=b.dataset.tg;render()});
   const tdd=$("#tdDone");if(tdd)tdd.onclick=()=>{todoDone=!todoDone;render()};
