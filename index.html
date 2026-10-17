@@ -435,6 +435,18 @@ if(!S.v1011d){const f=id=>S.stores.find(x=>x.id===id);const td=(id,text)=>{const
 if(!S.gbp1011){S.stores.forEach(s=>{const g=GBP[s.id];if(!g)return;s.st=s.st||{};if(g.addr){s.addr=g.addr}
   if(g.v==="已驗證"){s.st.g_admin=2}else if(g.v==="須驗證"){s.st.g_admin=1}else{s.st.g_admin=0}
   if(g.ask&&!(s.ask||"").includes(g.ask))s.ask=(s.ask?s.ask+"；":"")+g.ask});S.gbp1011=2;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+if(!S.v1017){const f=id=>S.stores.find(x=>x.id===id);
+ const set=(id,pre,text,done)=>{const k=f(id);if(!k)return;k.todos=k.todos||[];const t=k.todos.find(t=>t.text.startsWith(pre));if(t){t.text=text;if(done!=null)t.done=done}else if(text)k.todos.push({cat:"Google",text,done:!!done})};
+ const add=(id,text)=>{const k=f(id);if(k){k.todos=k.todos||[];if(!k.todos.some(t=>t.text===text))k.todos.push({cat:"Google",text,done:false})}};
+ set("東北少帥麻辣拌-龍安店","龍安少帥：","10/17 已申請業主，等 Google 回覆｜之後：主要擁有者轉給哥哥 → 哥哥把我設成管理員");
+ set("韓式豆腐鍋-壽昌店","等主管設定 Google 權限","等小玉轉移 Google 權限，收到邀請就點接受");
+ set("一口煎餃-龍安店","新增商家檔案","新增 Google 商家檔案（10/17 已申請）",true);
+ add("一口煎餃-龍安店","等老闆完成 Google 驗證；店面完成後拍照補資料");
+ set("紅茶大苑-龍安店","Google 須驗證","等老闆拍 Google 驗證影片");
+ set("韓殿炒泡麵-寶山店","後台已改成","改名審核中，先別再改店名、別按黃框「確認」｜10/20 回看，沒改好附招牌照聯絡客服");
+ add("韓殿炒泡麵-寶山店","等老闆拍店面、菜單照片，換掉少帥舊資料（封面、標誌、電話、營業時間、開幕日、說明）");
+ add("韓殿炒泡麵-寶山店","回覆幾則近期少帥評論，說明已改名韓殿");
+ S.v1017=1;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 S.stores.forEach(s=>{if(!s.st){s.st={};Object.entries(s.checks||{}).forEach(([k,v])=>{if(v&&OLD[k])s.st[OLD[k]]=2})}if(!s.todos)s.todos=[];if(s.ask==null)s.ask=""});
 let moreView="meeting";try{moreView=localStorage.getItem(KEY+"-mv")||"meeting"}catch(e){}
 let storeView="handover";try{storeView=localStorage.getItem(KEY+"-sv")||"handover"}catch(e){}
