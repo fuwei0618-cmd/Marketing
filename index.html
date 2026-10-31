@@ -406,6 +406,7 @@ if(!S.v1013b){
  S.v1013b=1}
 if(!S.v1014){S.lineM=S.lineM||{};const O={"韓殿炒泡麵、拾串關東煮（寶山店）":"1","龍安美食（拾串、少帥、紅茶大苑、哨帥）":"345","紅茶大苑-壽昌、國鼎店":"947","李氏韓式豆腐鍋-桃園壽昌":"86","三顧茅廬 桃園寶山店":"1","三顧茅廬-桃園中平店":"528"};
  Object.entries(O).forEach(([k,v])=>{(S.lineM[k]=S.lineM[k]||{})["2026-10"]=S.lineM[k]["2026-10"]||v});S.v1014=1}
+if(!S.v1031){S.lineM=S.lineM||{};const k="龍安美食（拾串、少帥、紅茶大苑、哨帥）";(S.lineM[k]=S.lineM[k]||{})["2026-11"]=S.lineM[k]["2026-11"]||"343";S.v1031=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
