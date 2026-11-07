@@ -301,6 +301,73 @@ const LINKS={gbp:"https://business.google.com/locations",line:"https://manager.l
 const RT_ROT=[["多多綠",39],["紅茶鮮奶",39],["微檸檬冬瓜",35],["梅子綠",29],["青檸多多",39],["基茶月",25]];
 const rotFor=k=>{const [y,m]=k.split("-").map(Number);const d=(y-2026)*12+(m-11);return RT_ROT[((4+d)%6+6)%6]}; // 2026-11 = 青檸多多
 const lastDay=k=>{const [y,m]=k.split("-").map(Number);return new Date(y,m,0).getDate()};
+const RT_COPY=[
+`📢【紅茶大苑】
+{m}月好康優惠重磅來襲！🎉
+
+特價只要 $39 💥
+🟢 多多綠 XL 爽快大容量！
+原價 $55 （ 現省 $16！ ）
+
+⏰ 限時優惠：{m}/1 – {m}/{ld}
+👉 酸甜微甜超解膩・喜歡多多綠或想嚐鮮的朋友快衝！`,
+`📢【紅茶大苑】
+{m}月好康優惠重磅來襲！
+
+🎉特價只要 $39 💥
+🥤 紅茶鮮奶 XL 爽快大容量！
+原價 $55 （ 現省 $16！ ）🍹
+
+⏰ 限時優惠：{m}/1 – {m}/{ld}
+👉 濃香順口超解渴・喜歡奶茶或想嚐鮮的朋友快衝！`,
+`📢【紅茶大苑】
+{m}月好康優惠重磅來襲！
+
+🎉特價只要 $35 💥
+🍋 微檸檬冬瓜 XL 爽快大容量！
+原價 $45 （ 現省 $10！ ）🍹
+
+⏰ 限時優惠：{m}/1 – {m}/{ld}
+👉 酸甜解膩超好喝・喜歡微酸甜或想嚐鮮的朋友快衝！`,
+`📢【紅茶大苑】
+{m}月好康優惠重磅來襲！🎉
+
+💥特價只要 $29
+🍹梅子綠茶 XL 爽快大容量
+原價 $35 （ 現省 $6！ ）🟢
+
+⏰ 限時優惠：{m}/1 – {m}/{ld}
+👉 酸甜解膩超好喝・喜歡微酸甜或想嚐鮮的朋友快衝！`,
+`📢【紅茶大苑】
+{m}月好康優惠重磅來襲！🎉
+
+特價只要 $39 💥
+🍋 青檸多多 XL 爽快大容量！
+原價 $60 （ 現省 $21！ ）
+
+⏰ 限時優惠：{m}/1 – {m}/{ld}
+👉 酸甜解膩超好喝・想嚐鮮的朋友快衝`,
+`📢【紅茶大苑】
+{m}月好康優惠重磅來襲！🎉
+
+特價只要 $25 💥基茶月大放送！🍃
+全品項原價 $35 （ 現省 $10！ ）
+
+⏰ 限時優惠：{m}/1 – {m}/{ld}
+
+🥤 優惠品項包含：
+❤️ 古早味紅茶｜經典回甘古早味
+💚 蘭香綠茶｜清香順口不苦澀
+💛 四季青茶｜茶韻悠揚超回甘
+🌾 麥仔茶｜無咖啡因清爽解渴
+🤎 鐵觀音｜濃郁焙火沉香
+🍯 冬瓜茶｜甜蜜古早滋味
+🌿 仙草甘茶｜生津止渴超降火
+
+👉 想嚐鮮或想換換口味的朋友・千萬不要錯過・優惠只到 {m}/{ld} 止喔！`];
+const addYm=(k,n)=>{const [y,m]=k.split("-").map(Number);const d=new Date(y,m-1+n,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")};
+const rtSlot=(i,k)=>{for(let j=0;j<6;j++){const x=addYm(k,j);if(rotFor(x)[0]===RT_ROT[i][0])return x}return k};
+const rtCopy=(i,k)=>RT_COPY[i].replaceAll("{m}",String(+k.slice(5))).replaceAll("{ld}",String(lastDay(k)));
 const ORDER_LINKS={
  "紅茶大苑-國鼎店":"line://app/1607331440-2dNpzWeB?type=order&id=42a731a2b7204bd2b36b15b215b8a455",
  "紅茶大苑-壽昌店":"line://app/1607331440-2dNpzWeB?type=order&id=92d183788e8f4afa9b2ef249e09925a4",
@@ -670,6 +737,8 @@ function campaign(){
     <div><p class="note" style="margin:0 0 4px">① 每月 1 號：<a class="lnk" href="${LINKS.dudoo}" target="_blank" rel="noopener">肚肚後台 ↗</a> 改成「${cur[0]} $${cur[1]}」（${+mk.slice(5)} 月）</p><ul class="todo">${RT_STORES.map(id=>`<li class="${M.order[id]?"done":""}"><input type="checkbox" id="mo-${esc(id)}" data-mo="${esc(id)}" ${M.order[id]?"checked":""}><span class="tx">${esc(lab(id))}</span></li>`).join("")}</ul></div>
     <div><p class="note" style="margin:0 0 4px">② 每月最後一天：LINE 群發 ${+nk.slice(5)} 月活動「${nx[0]} $${nx[1]}」</p><ul class="todo">${MONTH_PUSH.map(([a,l])=>`<li class="${NM.push[a]?"done":""}"><input type="checkbox" id="mp-${esc(l)}" data-mp="${esc(a)}" ${NM.push[a]?"checked":""}><span class="tx">${esc(l)}<span class="note">｜${esc(a)}</span></span></li>`).join("")}</ul></div>
    </div>
+   <h3 style="margin-top:8px">每月素材｜圖＋LINE 文案<span class="note" style="font-weight:400">・點圖開大圖可存檔，月份日期自動換成那個月</span></h3>
+   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:6px 0 12px">${RT_ROT.map(([n,p],i)=>{const k=rtSlot(i,mk),isC=cur[0]===n,isN=nx[0]===n;return `<div style="border:${isN||isC?"2px solid #16416c":"1px solid var(--line)"};border-radius:10px;padding:6px;text-align:center"><a href="img/rot${i+1}.jpg" target="_blank" rel="noopener"><img src="img/rot${i+1}.jpg" alt="${esc(n)}" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px"></a><div style="font-size:.85rem;margin:4px 0"><b>${esc(n)} $${p}</b><br><span class="note">${+k.slice(5)} 月${isC?"・本月":isN?"・下月":""}</span></div><button class="btn ghost" data-copy="${esc(rtCopy(i,k))}">複製文案</button></div>`}).join("")}</div>
    <h3 style="margin-top:8px">群發文案（${+nk.slice(5)} 月）<span class="note" style="font-weight:400">・依 LINE 帳號分開，附該區店名和訂餐連結</span></h3>
    ${MONTH_PUSH.map(([acc,l],i)=>`<div style="margin-top:6px"><b>${esc(l)}</b><span class="note">｜${esc(acc)}</span>
    <details style="margin-top:4px"><summary class="note" style="cursor:pointer">看／改文案</summary><textarea id="rt-msg-${i}" data-msgacc="${esc(acc)}" style="width:100%;min-height:200px;font-size:.82rem;margin-top:4px">${esc((NM.msgs||{})[acc]||rtMsg(nk,acc))}</textarea></details>
