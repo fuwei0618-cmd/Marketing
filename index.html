@@ -474,6 +474,34 @@ if(!S.v1013b){
 if(!S.v1014){S.lineM=S.lineM||{};const O={"韓殿炒泡麵、拾串關東煮（寶山店）":"1","龍安美食（拾串、少帥、紅茶大苑、哨帥）":"345","紅茶大苑-壽昌、國鼎店":"947","李氏韓式豆腐鍋-桃園壽昌":"86","三顧茅廬 桃園寶山店":"1","三顧茅廬-桃園中平店":"528"};
  Object.entries(O).forEach(([k,v])=>{(S.lineM[k]=S.lineM[k]||{})["2026-10"]=S.lineM[k]["2026-10"]||v});S.v1014=1}
 if(!S.v1031){S.lineM=S.lineM||{};const k="龍安美食（拾串、少帥、紅茶大苑、哨帥）";(S.lineM[k]=S.lineM[k]||{})["2026-11"]=S.lineM[k]["2026-11"]||"343";S.v1031=1}
+if(!S.v1121){const RT=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅茶大苑-龍安店"],LA3=["拾串關東煮-龍安店","東北少帥麻辣拌-龍安店","一口煎餃-龍安店"],SG=["三顧茅廬滷味-中平店","三顧茅廬滷味-寶山店"];
+ const D=(st,sc,t)=>({id:Date.now()+Math.random(),st,sc,t,d:"2026-11-16"});
+ S.decisions=(S.decisions||[]).concat([
+  D("不要做",RT,"不另外做新活動，維持每月輪替"),
+  D("不要做",["韓殿炒泡麵-寶山店"],"不做活動"),
+  D("不要做",LA3,"加好友首次來店不送紅茶鮮奶（紅茶大苑已經在送）"),
+  D("不要做",["all"],"不用「給 Google 評論送東西」，違反 Google 規定"),
+  D("進行中",RT,"LINE 每月排程：月中推雲端點餐、月底推下月活動，發所有好友"),
+  D("進行中",["紅茶大苑-國鼎店","紅茶大苑-壽昌店"],"LINE 自動回應：加「我要喝紅茶鮮奶」、改掉「口令錯誤」"),
+  D("進行中",["一口煎餃-龍安店"],"Google 地圖二選一（二哥另建一個）"),
+  D("進行中",["韓式豆腐鍋-壽昌店"],"Google 等小玉轉權限"),
+  D("進行中",["東北少帥麻辣拌-龍安店"],"Google 等驗證明信片"),
+  D("進行中",["all"],"店家資料等店長確認"),
+  D("進行中",["紅茶大苑-壽昌店",...SG,"韓式豆腐鍋-壽昌店","韓殿炒泡麵-寶山店"],"補 11 月 LINE 好友數"),
+  D("可以進行",LA3,"「LINE 點餐，到店免等待」DM，加好友禮各店不同（缺 logo）"),
+  D("可以進行",LA3,"龍安串門券：任一家消費送券，下次去另兩家折 $10"),
+  D("可以進行",["一口煎餃-龍安店"],"開幕期加 LINE 好友送煎餃 2 顆"),
+  D("可以進行",["拾串關東煮-龍安店","拾串關東煮-寶山店"],"冬季滿 $150 加送 1 串，或寒流日加送"),
+  D("可以進行",SG,"集點卡改 LINE 集點、加好友送 1 點、淡日雙倍點"),
+  D("可以進行",["韓式豆腐鍋-壽昌店"],"雙人套餐，或平日午餐加 $10 升級"),
+  D("繼續討論",["all"],"每單折扣上限（定了才能定各店活動）"),
+  D("繼續討論",["all"],"10 月營業額基準，才能追 +20%"),
+  D("繼續討論",SG,"加盟合約能不能改集點卡、集滿換什麼"),
+  D("繼續討論",["all"],"LINE 自動回應整理成關鍵字對照表"),
+  D("繼續討論",["all"],"LINE 篩選推播：新好友提醒兌換、點過訊息的人推最後 10 天"),
+  D("繼續討論",["all"],"自媒體：人設、挑 3 支腳本、企劃費和預算、手術前素材"),
+  D("繼續討論",["all"],"分工：哪些我能自己決定、多久回報一次")]);
+ S.v1121=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
@@ -834,10 +862,31 @@ function backup(){
    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button class="btn" id="bkImport">匯入</button><span id="bkMsg" class="note"></span></div></div>
   <div class="card"><h3>重設</h3><button class="btn ghost" id="reset">清空並回到預設資料</button> <span id="resetConfirm"></span></div>`;
 }
+const DEC_ST=[["不要做","p-bad"],["進行中","p-warn"],["可以進行","p-ok"],["繼續討論",""]];
+let decG="品牌";try{decG=localStorage.getItem(KEY+"-dg")||"品牌"}catch(e){}
+function decide(){
+  S.decisions=S.decisions||[];
+  const short=s=>s.brand.replace("滷味","").replace("麻辣拌","").replace("關東煮","").replace("炒泡麵","").replace("韓式","")+" "+s.branch.replace("店","");
+  const items=(st,id)=>S.decisions.filter(d=>d.st===st&&d.sc.includes(id));
+  const cell=list=>list.length?`<ul style="margin:0;padding-left:1.1em">${list.map(d=>`<li>${esc(d.t)}</li>`).join("")}</ul>`:`<span class="note">—</span>`;
+  const kf=decG==="品牌"?s=>s.brand:decG==="區域"?region:s=>(LINEOA[s.id]||{}).acc||"（沒有）";
+  const ord=decG==="品牌"?BRANDS.map(g=>g.b):decG==="區域"?REGIONS:[...new Set(S.stores.map(s=>(LINEOA[s.id]||{}).acc||"（沒有）"))];
+  const head=`<th>門市</th>${DEC_ST.map(([n,c])=>`<th><span class="pill ${c}">${n}</span></th>`).join("")}`;
+  const keys=ord.filter(k=>S.stores.some(s=>kf(s)===k));
+  const table=`<div class="gtab scroll"><table style="min-width:760px"><thead><tr>${head}</tr></thead><tbody>${keys.map(k=>`<tr class="brandrow"><td colspan="5">${esc(k)}</td></tr>${S.stores.filter(s=>kf(s)===k).map(s=>`<tr style="vertical-align:top"><td style="white-space:nowrap">${esc(decG==="品牌"?s.branch:short(s))}</td>${DEC_ST.map(([n])=>`<td style="font-size:.8rem">${cell(items(n,s.id))}</td>`).join("")}</tr>`).join("")}`).join("")}</tbody></table></div>`;
+  const common=`<div class="gtab scroll"><table style="min-width:760px"><thead><tr><th>全部門市</th>${DEC_ST.map(([n,c])=>`<th><span class="pill ${c}">${n}</span></th>`).join("")}</tr></thead><tbody><tr style="vertical-align:top"><td>共用</td>${DEC_ST.map(([n])=>`<td style="font-size:.8rem">${cell(items(n,"all"))}</td>`).join("")}</tr></tbody></table></div>`;
+  const scopeOpts=`<option value="all">全部門市</option>${BRANDS.map(g=>`<option value="b:${esc(g.b)}">${esc(g.b)}（全部分店）</option>`).join("")}<option value="la3">龍安 3 家（拾串、少帥、煎餃）</option>${S.stores.map(s=>`<option value="${esc(s.id)}">${esc(s.id)}</option>`).join("")}`;
+  const form=`<form class="add" id="decForm"><select id="dec-st">${DEC_ST.map(([n])=>`<option>${n}</option>`).join("")}</select><select id="dec-sc">${scopeOpts}</select><input id="dec-t" placeholder="事項（例：拾串寶山冬季加送 1 串）" required><button class="btn" type="submit">新增</button></form>`;
+  const list=DEC_ST.map(([n,c])=>{const l=S.decisions.filter(d=>d.st===n);return `<h3 style="margin:10px 0 4px"><span class="pill ${c}">${n}</span> <span class="note">${l.length} 項</span></h3><ul class="todo">${l.map(d=>`<li><span class="tx">${esc(d.t)}<span class="note">｜${d.sc.includes("all")?"全部門市":esc(d.sc.map(id=>{const s=S.stores.find(x=>x.id===id);return s?short(s):id}).join("、"))}${d.d?"｜"+esc(d.d.slice(5).replace("-","/")):""}</span></span><select data-decst="${d.id}" style="font-size:.75rem">${DEC_ST.map(([m])=>`<option ${m===d.st?"selected":""}>${m}</option>`).join("")}</select><button class="btn ghost" data-decdel="${d.id}" title="刪除" style="padding:2px 8px">×</button></li>`).join("")}</ul>`}).join("");
+  return `<section class="panel"><div><h2>決策表</h2><p class="hint">開會決定的事，依門市看「不要做／進行中／可以進行／繼續討論」。狀態改變就在下面清單換分類。</p></div>
+  <div class="card"><div class="row" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 8px"><span class="note">排列</span>${["品牌","區域","LINE 帳號"].map(v=>`<button class="chip ${decG===v?"":"off2"}" data-dg="${v}" aria-pressed="${decG===v}">${v}</button>`).join("")}</div>${table}<div style="margin-top:10px">${common}</div></div>
+  <div class="card"><h3>新增事項</h3>${form}<p class="note" style="margin-top:6px">選品牌會套到該品牌每家分店。</p></div>
+  <details class="card"><summary style="cursor:pointer;font-weight:700">全部事項（改分類、刪除）</summary>${list}</details></section>`;
+}
 function more(){
-  const opts=[["meeting","開會紀錄"],["service","客服紀錄"],["vault","帳號連結"],["backup","備份"]];
+  const opts=[["decide","決策表"],["meeting","開會紀錄"],["service","客服紀錄"],["vault","帳號連結"],["backup","備份"]];
   const seg=`<div class="seg" role="group" aria-label="切換">${opts.map(([k,l])=>`<button data-mv="${k}" aria-pressed="${moreView===k}">${l}</button>`).join("")}</div>`;
-  const body=moreView==="meeting"?meeting():moreView==="service"?service():moreView==="vault"?`<section class="panel"><div><h2>帳號連結</h2></div>${vault()}</section>`:`<section class="panel"><div><h2>備份</h2></div>${backup()}</section>`;
+  const body=moreView==="decide"?decide():moreView==="meeting"?meeting():moreView==="service"?service():moreView==="vault"?`<section class="panel"><div><h2>帳號連結</h2></div>${vault()}</section>`:`<section class="panel"><div><h2>備份</h2></div>${backup()}</section>`;
   return `<div style="margin-top:20px">${seg}</div>${body}`;
 }
 
@@ -880,6 +929,12 @@ function bind(){
   document.querySelectorAll("[data-tdel]").forEach(b=>b.onclick=()=>{S.stores[b.dataset.tdel].todos.splice(b.dataset.tj,1);save();render()});
   document.querySelectorAll("[data-lb]").forEach(i=>i.onchange=()=>{(S.line[i.dataset.lb]=S.line[i.dataset.lb]||{}).base=i.value.trim();save();render()});
   document.querySelectorAll("[data-ln]").forEach(i=>i.onchange=()=>{(S.line[i.dataset.ln]=S.line[i.dataset.ln]||{}).now=i.value.trim();save();render()});
+  document.querySelectorAll("[data-dg]").forEach(b=>b.onclick=()=>{decG=b.dataset.dg;try{localStorage.setItem(KEY+"-dg",decG)}catch(e){}render()});
+  document.querySelectorAll("[data-decst]").forEach(el=>el.onchange=()=>{const d=S.decisions.find(x=>String(x.id)===el.dataset.decst);if(d){d.st=el.value;save();render()}});
+  document.querySelectorAll("[data-decdel]").forEach(b=>b.onclick=()=>{S.decisions=S.decisions.filter(x=>String(x.id)!==b.dataset.decdel);save();render()});
+  const df=$("#decForm");if(df)df.onsubmit=e=>{e.preventDefault();const v=$("#dec-sc").value,t=$("#dec-t").value.trim();if(!t)return;
+   const sc=v==="all"?["all"]:v==="la3"?["拾串關東煮-龍安店","東北少帥麻辣拌-龍安店","一口煎餃-龍安店"]:v.startsWith("b:")?S.stores.filter(s=>s.brand===v.slice(2)).map(s=>s.id):[v];
+   S.decisions.push({id:Date.now(),st:$("#dec-st").value,sc,t,d:ym()+"-"+String(new Date().getDate()).padStart(2,"0")});save();render()};
   document.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{moreView=b.dataset.mv;try{localStorage.setItem(KEY+"-mv",moreView)}catch(e){}render()});
   const bc=$("#bkCopy");if(bc)bc.onclick=()=>{const t=$("#bk-out").value;navigator.clipboard.writeText(t).then(()=>{$("#bkOk").textContent="已複製"},()=>{$("#bk-out").select();$("#bkOk").textContent="已選取，請長按複製"})};
   const bi=$("#bkImport");if(bi)bi.onclick=()=>{try{const d=JSON.parse($("#bk-in").value);if(!d.stores)throw 0;S=d;save();$("#bkMsg").textContent="已匯入";render()}catch(e){$("#bkMsg").textContent="備份碼格式不對，請重新複製完整的一段"}};
