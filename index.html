@@ -556,6 +556,10 @@ if(!S.v1121e){const RT=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅�
    I("行銷",A,"下次談","每單折扣上限、廣告預算"),
    I("行銷",SG,"下次談","加盟合約能不能改集點卡")]});
  S.v1121e=1}
+if(!S.v1121f){S.decisions=(S.decisions||[]).filter(d=>!["龍安串門券","LINE 點餐免等待＋加好友禮"].includes(d.t));
+ S.decisions.forEach(d=>{if(["滿百首次加 LINE 送 $25 火鍋料","滿百首次加 LINE 送肉片 2 片","可以進行"].includes(d.t))d.st="可以進行";
+  if(d.st==="可以進行"&&["冬季滿 $150 送 1 串","改 LINE 集點、淡日雙倍","雙人套餐","討論中"].includes(d.t))d.st="繼續討論"});
+ S.v1121f=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
@@ -939,7 +943,10 @@ function decide(){
   <details class="card"><summary style="cursor:pointer;font-weight:700">全部事項（改分類、刪除）</summary>${list}</details></section>`;
 }
 const SHORT=s=>s.brand.replace("滷味","").replace("麻辣拌","").replace("關東煮","").replace("炒泡麵","").replace("韓式","")+" "+s.branch.replace("店","");
-const scLabel=sc=>sc.includes("all")?"全部門市":sc.map(id=>{const s=S.stores.find(x=>x.id===id);return s?SHORT(s):id}).join("、");
+const scLabel=sc=>{if(sc.includes("all"))return "全部門市";const LA3=["拾串關東煮-龍安店","東北少帥麻辣拌-龍安店","一口煎餃-龍安店"];
+ if(sc.length===3&&LA3.every(x=>sc.includes(x)))return "龍安 3 家";const out=[];let rest=sc.slice();
+ BRANDS.forEach(g=>{const ids=g.s.map(b=>g.b+"-"+b);if(ids.length>1&&ids.every(x=>rest.includes(x))){out.push(g.b.replace("滷味","").replace("關東煮","")+" 全部");rest=rest.filter(x=>!ids.includes(x))}});
+ return out.concat(rest.map(id=>{const s=S.stores.find(x=>x.id===id);return s?SHORT(s):id})).join("、")};
 const MCATS=["行政","行銷","Google","LINE","物料","自媒體"],MKINDS=[["決定","p-ok"],["要做","p-warn"],["下次談",""]];
 // group rows: returns [[groupName,[items]]]
 function groupBy(items,g){
@@ -955,7 +962,7 @@ function mtgView(){
   S.mtg=S.mtg||[];if(!S.mtg.length)S.mtg.push({id:Date.now(),title:"第 1 次",date:ym()+"-01",items:[]});
   if(mtgI<0||mtgI>=S.mtg.length)mtgI=S.mtg.length-1;const M=S.mtg[mtgI];
   const tabs=`<div class="seg" role="group" style="flex-wrap:wrap">${S.mtg.map((m,i)=>`<button data-mt="${i}" aria-pressed="${i===mtgI}">${esc(m.title)}・${+m.date.slice(5,7)}/${+m.date.slice(8)}</button>`).join("")}<button data-mtnew="1">＋ 新會議</button></div>`;
-  const rows=groupBy(M.items,mtgG).map(([g,l])=>`<tr class="brandrow"><td colspan="4">${esc(g)}</td></tr>${l.map(x=>`<tr class="${x.done?"done":""}"><td class="c"><input type="checkbox" data-mdone="${x.id}" ${x.done?"checked":""} aria-label="完成"></td><td><span class="pill ${(MKINDS.find(k=>k[0]===x.kind)||[])[1]||""}">${x.kind}</span></td><td><span style="${x.done?"text-decoration:line-through;color:var(--muted)":""}">${esc(x.t)}</span><br><span class="note">${mtgG==="分類"?esc(scLabel(x.sc)):esc(x.cat)+"｜"+esc(scLabel(x.sc))}</span></td><td><button class="btn ghost" data-mdel="${x.id}" style="padding:2px 8px" title="刪除">×</button></td></tr>`).join("")}`).join("");
+  const KO={"決定":0,"要做":1,"下次談":2};const rows=groupBy(M.items,mtgG).map(([g,l])=>[g,l.slice().sort((a,b)=>KO[a.kind]-KO[b.kind])]).map(([g,l])=>`<tr class="brandrow"><td colspan="4">${esc(g)}</td></tr>${l.map(x=>`<tr class="${x.done?"done":""}"><td class="c">${x.kind==="要做"?`<input type="checkbox" data-mdone="${x.id}" ${x.done?"checked":""} aria-label="完成">`:""}</td><td><span class="pill ${(MKINDS.find(k=>k[0]===x.kind)||[])[1]||""}">${x.kind}</span></td><td><span style="${x.done?"text-decoration:line-through;color:var(--muted)":""}">${esc(x.t)}</span><br><span class="note">${mtgG==="分類"?esc(scLabel(x.sc)):esc(x.cat)+"｜"+esc(scLabel(x.sc))}</span></td><td><button class="btn ghost" data-mdel="${x.id}" style="padding:2px 8px" title="刪除">×</button></td></tr>`).join("")}`).join("");
   const table=M.items.length?`<div class="gtab scroll"><table><thead><tr><th class="c">完成</th><th>類型</th><th>內容</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="empty">這次會議還沒有紀錄，從下面新增。</p>`;
   const scopeOpts=`<option value="all">全部門市</option>${BRANDS.map(g=>`<option value="b:${esc(g.b)}">${esc(g.b)}（全部分店）</option>`).join("")}<option value="la3">龍安 3 家（拾串、少帥、煎餃）</option>${S.stores.map(s=>`<option value="${esc(s.id)}">${esc(SHORT(s))}</option>`).join("")}`;
   const form=`<form class="add" id="mForm"><select id="m-kind">${MKINDS.map(([k])=>`<option>${k}</option>`).join("")}</select><select id="m-cat">${MCATS.map(c=>`<option>${c}</option>`).join("")}</select><select id="m-sc">${scopeOpts}</select><input id="m-t" placeholder="內容" required><button class="btn" type="submit">新增</button></form>`;
@@ -971,7 +978,7 @@ const PLAN=(()=>{const RT=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","�
  {p:"1. 零成本",when:"11–12 月",money:"幾乎 0 元",goal:"LINE 好友數、Google 瀏覽和導航",items:[
   ["LINE 每月群發、自動回應整理",A,"0（方案費已付）"],["Google 補照片、發貼文、回評論",A,"0"],["Google 放 LINE QR、雲端下單網址",A,"0"],["三顧紙本集點改 LINE 集點卡",SG,"0（LINE 內建）"],["店內加好友 QR 桌牌、DM",A,"印刷 500–1,500 元／店（一次）"]]},
  {p:"2. 小額讓利",when:"12 月–2027/2",money:"每店 1,000–3,000 元",goal:"兌換份數、回客、客單價",items:[
-  ["滿百首次加 LINE 送 $25 火鍋料",["拾串關東煮-龍安店"],"每份成本約 10 元 × 50–100 份"],["滿百首次加 LINE 送肉片 2 片",["東北少帥麻辣拌-龍安店"],"每份成本約 10–15 元 × 50–100 份"],["滿百送紅茶 $10 折價券（已在做）",["拾串關東煮-龍安店","東北少帥麻辣拌-龍安店","一口煎餃-龍安店"],"每張 10 元 × 實際兌換數"],["開幕期加 LINE 送煎餃 2 顆",["一口煎餃-龍安店"],"每份成本約 8–12 元 × 50–100 份"],["冬季滿 $150 送 1 串",["拾串關東煮-龍安店","拾串關東煮-寶山店"],"每串 10–15 元 × 100 份／店"],["淡日雙倍點數",SG,"約 500–1,000 元／店"],["雙人套餐",["韓式豆腐鍋-壽昌店"],"每組讓 30–50 元 × 30 組"]]},
+  ["滿百首次加 LINE 送 $25 火鍋料",["拾串關東煮-龍安店"],"每份成本約 10 元 × 50–100 份"],["滿百首次加 LINE 送肉片 2 片",["東北少帥麻辣拌-龍安店","可以進行"],"每份成本約 10–15 元 × 50–100 份"],["滿百送紅茶 $10 折價券",["拾串關東煮-龍安店","東北少帥麻辣拌-龍安店","一口煎餃-龍安店","進行中"],"每張 10 元 × 實際兌換數"],["冬季滿 $150 送 1 串",["拾串關東煮-龍安店","拾串關東煮-寶山店"],"每串 10–15 元 × 100 份／店"],["淡日雙倍點數",SG,"約 500–1,000 元／店","討論中"],["雙人套餐",["韓式豆腐鍋-壽昌店","討論中"],"每組讓 30–50 元 × 30 組"]]},
  {p:"3. 付費曝光",when:"2027/1–5 月",money:"每區 3,000–6,000 元",goal:"新客、營業額跟去年同月比",items:[
   ["FB／IG 在地廣告（半徑 3 公里）",A,"每區每天 100–200 元"],["Google 地圖廣告",A,"每區 1,500–3,000 元／月"],["在地小網紅試吃（追蹤 1–3 萬）",A,"餐點＋0–3,000 元／位，每月 2–3 位"]]},
  {p:"4. 自媒體",when:"2027/3 起",money:"約 13,000–27,000 元",goal:"追蹤、觀看、來店提到影片",items:[
@@ -979,9 +986,10 @@ const PLAN=(()=>{const RT=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","�
 let planG="階段";try{planG=localStorage.getItem(KEY+"-pg")||"階段"}catch(e){}
 function planView(){
   const sum=`<div class="gtab scroll"><table style="min-width:600px"><thead><tr><th>階段</th><th>時間</th><th>每月花費（估）</th><th>看什麼成效</th></tr></thead><tbody>${PLAN.map(x=>`<tr><td style="white-space:nowrap"><b>${x.p}</b></td><td style="white-space:nowrap">${x.when}</td><td>${x.money}</td><td>${x.goal}</td></tr>`).join("")}</tbody></table></div>`;
-  const flat=PLAN.flatMap(x=>x.items.map(([t,sc,c])=>({t,sc,c,ph:x.p})));
+  const flat=PLAN.flatMap(x=>x.items.map(([t,sc,c,st])=>({t,sc,c,st,ph:x.p})));
+  const stP=st=>st?`<span class="pill ${st==="進行中"?"p-warn":st==="可以進行"?"p-ok":""}" style="margin-right:4px">${st}</span>`:"";
   const groups=planG==="階段"?PLAN.map(x=>[x.p+"（"+x.when+"）",flat.filter(y=>y.ph===x.p)]):groupBy(flat,planG);
-  const det=`<div class="gtab scroll"><table style="min-width:640px"><thead><tr><th>項目</th><th>${planG==="階段"?"門市":"階段"}</th><th>成本（估）</th></tr></thead><tbody>${groups.map(([g,l])=>`<tr class="brandrow"><td colspan="3">${esc(g)}</td></tr>${l.map(y=>`<tr><td>${esc(y.t)}</td><td class="note" style="white-space:nowrap">${planG==="階段"?esc(scLabel(y.sc)):esc(y.ph)}</td><td>${esc(y.c)}</td></tr>`).join("")}`).join("")}</tbody></table></div>`;
+  const det=`<div class="gtab scroll"><table style="min-width:640px"><thead><tr><th>項目</th><th>${planG==="階段"?"門市":"階段"}</th><th>成本（估）</th></tr></thead><tbody>${groups.map(([g,l])=>`<tr class="brandrow"><td colspan="3">${esc(g)}</td></tr>${l.map(y=>`<tr><td>${stP(y.st)}${esc(y.t)}</td><td class="note" style="white-space:nowrap">${planG==="階段"?esc(scLabel(y.sc)):esc(y.ph)}</td><td>${esc(y.c)}</td></tr>`).join("")}`).join("")}</tbody></table></div>`;
   return `<section class="panel"><div><h2>階段式行銷方案</h2><p class="hint">依花費從低到高，前一階有效才進下一階。金額都是估算，各店 10 月營業額還沒填。</p></div>
   <div class="card"><h3>總覽</h3>${sum}</div>
   <div class="card"><h3>細項</h3>${gSw(planG,"pg",["階段","品牌","區域"])}${det}</div>
