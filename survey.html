@@ -1,5 +1,5 @@
 <!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>行銷方向問卷</title>
+<title>聊聊您想要的店</title>
 <style>
 :root{--ink:#16416c;--bg:#fdf9ee;--card:#fff;--hl:#c9dbef;--mute:#5b6b7c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;font-size:17px;line-height:1.5}
@@ -17,36 +17,29 @@ textarea{width:100%;font:inherit;font-size:15px;border:1.5px solid #ccd;border-r
 .bar button{flex:1;font:inherit;font-weight:700;border:0;border-radius:14px;padding:14px;background:#06c755;color:#fff;cursor:pointer}
 .bar span{font-size:14px;color:var(--mute);white-space:nowrap}
 </style></head><body><main>
-<h1>行銷方向問卷</h1>
-<p class="lead">點選就好，大約 5 分鐘。沒有標準答案，選最直覺的就好。填完按最下面綠色按鈕，用 LINE 傳回給我。之後的活動都會照這份答案來規劃。</p>
+<h1>聊聊您想要的店</h1>
+<p class="lead">點選就好，11 題，大約 5 分鐘。沒有標準答案，選最直覺的就好。填完按最下面綠色按鈕，用 LINE 傳回給我，之後的行銷都會照這份答案來規劃。</p>
 <div id="f"></div>
 </main>
 <div class="bar"><div><span id="cnt"></span><button id="send">用 LINE 傳回</button></div></div>
 <script>
+const B=["拾串・哨帥（龍安）", "三顧茅廬滷味", "李氏豆腐鍋", "一口煎餃", "紅茶大苑", "韓殿・拾串（寶山）"];
 const A=[
- ["先想一想",[
-  ["p1","三個月後，如果只能看到一個改變，您最希望是什麼？",null,["客人變多","LINE 好友變多","營業額明顯成長","客人記得我們的品牌","店員比較輕鬆"]],
-  ["p2","您心中「有意義的活動」比較像哪一種？","可選 2 個",["數字有成長","客人會記得、會再來","店員也覺得有感","有話題、有人分享","不用花大錢"],2],
-  ["p3","如果行銷交給我主導一個月，您最擔心的是？","可選 2 個",["花了錢沒效果","影響店的形象","增加店員工作","跟原本做法差太多","不知道進度"],2],
-  ["p4","到 12 月底，看到什麼結果您會覺得「這錢花得值得」？",null,null]]],
- ["整體方向",[
-  ["g1","接下來 3 個月，行銷最重要的目標是？","可選 2 個",["營業額成長","LINE 好友變多","新客人變多","老客人常回來","品牌知名度"],2],
-  ["g2","全部門市加起來，每月行銷花費上限大約？","讓利＋印刷＋廣告",["3,000 以內","3,000–10,000","1–3 萬","有成效再加碼"]],
-  ["g3","哪些事我可以自己決定、做完再跟您報告？",null,["不花錢的事（文案、貼文、排程）","每次 1,000 元以內","每次 3,000 元以內","全部都先問我"]],
-  ["g4","您希望多久跟您回報一次？",null,["每週 LINE 三行週報","每兩週電話一次","每月開會一次","有事再說"]],
-  ["g5","您怎麼判斷我這個月做得好？","可選 2 個",["營業額","LINE 好友數","活動兌換份數","事情推進速度","店員回饋"],2]]],
- ["各品牌：最想解決什麼？",[
-  ["b1","拾串・哨帥（龍安）",null,["新客少","老客不常回來","某些時段很冷","客單價低","維持現狀就好"]],
-  ["b2","三顧茅廬滷味（中平・寶山）",null,["新客少","老客不常回來","某些時段很冷","客單價低","維持現狀就好"]],
-  ["b3","李氏豆腐鍋（壽昌）",null,["新客少","老客不常回來","某些時段很冷","客單價低","維持現狀就好"]],
-  ["b4","一口煎餃（龍安）",null,["新客少","老客不常回來","某些時段很冷","客單價低","維持現狀就好"]],
-  ["b5","紅茶大苑（國鼎・壽昌・龍安）",null,["新客少","老客不常回來","某些時段很冷","客單價低","維持現狀就好"]],
-  ["b6","韓殿・拾串（寶山）",null,["新客少","老客不常回來","某些時段很冷","客單價低","維持現狀就好"]]]],
- ["活動規則",[
-  ["r1","一家店一個月最多可以讓利多少？","送小菜、折價券等",["1,000 以內","1,000–3,000","3,000–5,000","看活動再說"]],
-  ["r2","一個新活動要試多久再檢討？",null,["2 週","1 個月","2 個月"]],
-  ["r3","哪些東西不能拿來送或折？","例如招牌品項、某些飲料",null],
-  ["r4","還有什麼想跟我說的？",null,null]]]];
+ ["一、您真正想要的",[
+  ["c1","經營這些店，您最終最想得到的是？",null,["穩定賺錢","再開更多店","做出有名的品牌","店能自己運轉，我少操心","其他"]],
+  ["c2","一年後，您希望大家提到我們的店會說什麼？",null,["便宜划算","很好吃","很方便、不用等","服務很好、有人情味","很有特色、想打卡"]],
+  ["c3","現在客人選我們，您覺得最大的原因是？",null,["好吃","便宜","離家或公司近","吃習慣了","說不太出來"]],
+  ["c4","客人沒來、或來一次就不再來，您覺得最大的原因是？",null,["不知道我們","附近選擇太多","價格","口味或品質不穩","等太久","說不太出來"]]]],
+ ["二、店的優先順序",[
+  ["c5","現在哪一家店最讓您操心？",null,B],
+  ["c6","如果下個月的行銷資源只能押在一家店，您會押哪一家？",null,B]]],
+ ["三、錢和時間",[
+  ["c7","每月願意投入多少在行銷上？","讓利＋印刷＋廣告，全部門市加總",["3,000 以內","3,000–10,000","1–3 萬","看到成效再加"]],
+  ["c8","花在行銷的錢，多久看到回本您可以接受？",null,["1 個月","3 個月","半年","不一定要回本，有曝光就好"]],
+  ["c9","請人負責行銷，您最擔心的是？","可選 2 個",["花了錢沒效果","影響店的形象","增加店員工作","做法跟我想的不一樣","不知道進度"],2]]],
+ ["四、寫一句就好",[
+  ["c10","您心中「有意義的活動」，舉一個例子？","可以是別家店做過、您印象很深的",null],
+  ["c11","到 12 月底，看到什麼結果您會覺得「這錢花得值得」？",null,null]]]];
 const ans={};
 const f=document.getElementById("f");
 f.innerHTML=A.map(([sec,qs])=>`<h2>${sec}</h2>`+qs.map(([id,t,sub,opts,max])=>`<div class="q"><div class="t">${t}${sub?`<small>${sub}</small>`:""}</div>${opts?`<div class="opts" data-q="${id}" data-max="${max||1}">${opts.map(o=>`<button type="button" aria-pressed="false">${o}</button>`).join("")}</div>`:`<textarea data-q="${id}" placeholder="可以不填"></textarea>`}</div>`).join("")).join("");
@@ -57,6 +50,6 @@ f.querySelectorAll(".opts").forEach(g=>g.querySelectorAll("button").forEach(b=>b
 f.querySelectorAll("textarea").forEach(t=>t.oninput=()=>{ans[t.dataset.q]=t.value.trim()?[t.value.trim()]:[];upd()});
 const total=A.reduce((n,[,q])=>n+q.filter(x=>x[3]).length,0);
 function upd(){const n=A.flatMap(([,q])=>q).filter(x=>x[3]&&(ans[x[0]]||[]).length).length;document.getElementById("cnt").textContent=`已選 ${n}/${total}`}upd();
-document.getElementById("send").onclick=()=>{let i=0;const txt="【行銷方向問卷】\n"+A.map(([sec,qs])=>`\n■ ${sec}\n`+qs.map(([id,t])=>`${++i}. ${t}\n→ ${(ans[id]||[]).join("、")||"（未填）"}`).join("\n")).join("\n");
+document.getElementById("send").onclick=()=>{let i=0;const txt="【聊聊您想要的店】\n"+A.map(([sec,qs])=>`\n■ ${sec}\n`+qs.map(([id,t])=>`${++i}. ${t}\n→ ${(ans[id]||[]).join("、")||"（未填）"}`).join("\n")).join("\n");
  location.href="https://line.me/R/share?text="+encodeURIComponent(txt)};
 </script></body></html>
