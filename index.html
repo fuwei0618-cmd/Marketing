@@ -1012,19 +1012,19 @@ function planView(){
 
 const TR_ST=["提案","可以進行","進行中","完成","停止"];
 const TR_F=[["cost","預估花費"],["goal","預估效果"],["rev","預估營業額增加"],["acost","實際花費"],["res","實際成果"],["arev","實際營業額變化"],["next","結論／下一步"]];
-let trM="";
+let trM="",trG="品牌";try{trG=localStorage.getItem(KEY+"-tg")||"品牌"}catch(e){}
 function trackView(){
   S.track=S.track||[];const ms=[...new Set(S.track.map(x=>x.m))].sort().reverse();if(!trM||!ms.includes(trM))trM=ms[0]||"";
   const tabs=`<div class="seg" style="flex-wrap:wrap">${ms.map(m=>`<button data-trm="${m}" aria-pressed="${m===trM}">${+m.slice(5)} 月</button>`).join("")}</div>`;
   const rows=S.track.filter(x=>x.m===trM);
   const stSel=x=>`<select data-trst="${x.id}">${TR_ST.map(n=>`<option ${n===x.st?"selected":""}>${n}</option>`).join("")}</select>`;
   const cell=(x,k)=>`<td><input class="ag-note" style="min-width:110px" data-trf="${x.id}|${k}" value="${esc(x[k]||"")}"></td>`;
-  const tbl=`<div class="gtab scroll"><table style="min-width:1200px"><thead><tr><th>門市</th><th>活動</th><th>狀態</th>${TR_F.map(([,l],i)=>`<th style="${i===3?"border-left:2px solid currentColor":""}">${l}</th>`).join("")}<th></th></tr></thead><tbody>${rows.map(x=>`<tr><td style="white-space:nowrap">${esc(scLabel(x.sc))}</td><td style="min-width:170px">${esc(x.t)}</td><td>${stSel(x)}</td>${TR_F.map(([k])=>cell(x,k)).join("")}<td><button class="btn ghost" data-trdel="${x.id}" aria-label="刪除">✕</button></td></tr>`).join("")||`<tr><td colspan="11">這個月還沒有項目</td></tr>`}</tbody></table></div>`;
+  const tbl=`<div class="gtab scroll"><table style="min-width:1200px"><thead><tr><th>門市</th><th>活動</th><th>狀態</th>${TR_F.map(([,l],i)=>`<th style="${i===3?"border-left:2px solid currentColor":""}">${l}</th>`).join("")}<th></th></tr></thead><tbody>${groupBy(rows,trG).map(([g,l])=>`<tr class="brandrow"><td colspan="11">${esc(g)}</td></tr>`+l.map(x=>`<tr><td style="white-space:nowrap">${esc(scLabel(x.sc))}</td><td style="min-width:170px">${esc(x.t)}</td><td>${stSel(x)}</td>${TR_F.map(([k])=>cell(x,k)).join("")}<td><button class="btn ghost" data-trdel="${x.id}" aria-label="刪除">✕</button></td></tr>`).join("")).join("")||`<tr><td colspan="11">這個月還沒有項目</td></tr>`}</tbody></table></div>`;
   const scopeOpts=`<option value="all">全部門市</option>`+S.stores.map(st=>`<option value="${esc(st.id)}">${esc(SHORT(st))}</option>`).join("");
   const now=new Date(),nm=now.getFullYear()+"-"+String(now.getMonth()+2>12?1:now.getMonth()+2).padStart(2,"0");
   const form=`<form class="add" id="trForm"><input id="tr-m" type="month" value="${trM||nm}"><select id="tr-sc">${scopeOpts}</select><input id="tr-t" placeholder="活動（例：冬至 LINE 暖身訊息）" required><button class="btn" type="submit">新增</button></form>`;
   return `<section class="panel"><div><h2>成效追蹤</h2><p class="hint">每月提案時先填左邊「預估」，月底填右邊「實際」，下次開會直接拿這張表報告。</p></div>
-  <div class="card">${tabs}${tbl}${form}</div></section>`;
+  <div class="card">${tabs}<div style="margin-top:8px">${gSw(trG,"tg",["品牌","區域"])}</div>${tbl}${form}</div></section>`;
 }
 function more(){
   const opts=[["decide","決策表"],["meeting","會議紀錄"],["plan","行銷方案"],["track","成效追蹤"],["service","客服紀錄"],["vault","帳號連結"],["backup","備份"]];
@@ -1090,6 +1090,7 @@ function bind(){
   const mf=$("#mForm");if(mf)mf.onsubmit=e=>{e.preventDefault();const v=$("#m-sc").value,t=$("#m-t").value.trim();if(!t)return;
    const sc=v==="all"?["all"]:v==="la3"?["拾串關東煮-龍安店","東北少帥麻辣拌-龍安店","一口煎餃-龍安店"]:v.startsWith("b:")?S.stores.filter(s=>s.brand===v.slice(2)).map(s=>s.id):[v];
    curM().items.push({id:Date.now(),cat:$("#m-cat").value,sc,kind:$("#m-kind").value,t,done:false});save();render()};
+  document.querySelectorAll("[data-tg]").forEach(b=>b.onclick=()=>{trG=b.dataset.tg;try{localStorage.setItem(KEY+"-tg",trG)}catch(e){}render()});
   document.querySelectorAll("[data-trm]").forEach(b=>b.onclick=()=>{trM=b.dataset.trm;render()});
   document.querySelectorAll("[data-trst]").forEach(e=>e.onchange=()=>{S.track.find(x=>x.id==e.dataset.trst).st=e.value;save()});
   document.querySelectorAll("[data-trf]").forEach(e=>e.onchange=()=>{const [id,k]=e.dataset.trf.split("|");S.track.find(x=>x.id==id)[k]=e.value.trim();save()});
