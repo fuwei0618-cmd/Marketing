@@ -562,6 +562,15 @@ if(!S.v1121f){S.decisions=(S.decisions||[]).filter(d=>!["龍安串門券","LINE 
  S.decisions.forEach(d=>{if(["滿百首次加 LINE 送 $25 火鍋料","滿百首次加 LINE 送肉片 2 片","可以進行"].includes(d.t))d.st="可以進行";
   if(d.st==="可以進行"&&["冬季滿 $150 送 1 串","改 LINE 集點、淡日雙倍","雙人套餐","討論中"].includes(d.t))d.st="繼續討論"});
  S.v1121f=1}
+if(!S.v1121g){const LA=["拾串關東煮-龍安店"],SS=["東北少帥麻辣拌-龍安店"],SG=["三顧茅廬滷味-中平店","三顧茅廬滷味-寶山店"];
+ S.track=[
+  {id:1,m:"2026-12",sc:LA,t:"滿百首次加 LINE 送 $25 火鍋料",st:"可以進行",cost:"1,000",goal:"兌換 80 份、LINE +80",rev:"",acost:"",res:"",arev:"",next:""},
+  {id:2,m:"2026-12",sc:SS,t:"滿百首次加 LINE 送肉片 2 片",st:"可以進行",cost:"1,000",goal:"兌換 60 份、LINE +60",rev:"",acost:"",res:"",arev:"",next:""},
+  {id:3,m:"2026-12",sc:SG,t:"寒流快閃（LINE 群發，出示加送）",st:"提案",cost:"500／店",goal:"每次兌換 30 份",rev:"",acost:"",res:"",arev:"",next:""},
+  {id:4,m:"2026-12",sc:["韓式豆腐鍋-壽昌店"],t:"雙人套餐試辦",st:"提案",cost:"1,500",goal:"賣 30 組",rev:"",acost:"",res:"",arev:"",next:""},
+  {id:5,m:"2026-12",sc:["拾串關東煮-寶山店"],t:"冬季滿 $150 送 1 串",st:"提案",cost:"1,500",goal:"送出 100 串",rev:"",acost:"",res:"",arev:"",next:""},
+  {id:6,m:"2026-12",sc:["all"],t:"Google 地圖放雲端點餐＋LINE QR、每月 1 則貼文",st:"進行中",cost:"0",goal:"Google 網站點擊、LINE 好友數",rev:"",acost:"",res:"",arev:"",next:""}];
+ S.v1121g=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
@@ -1000,10 +1009,27 @@ function planView(){
   <div class="card"><h3>進下一階的條件</h3><ul class="todo"><li><span class="tx">1 → 2：LINE 好友數比 10 月多，自動回應和集點卡都上線</span></li><li><span class="tx">2 → 3：每店每月有一定兌換份數，營業額沒有因為讓利變少</span></li><li><span class="tx">3 → 4：廣告區營業額成長，花 1 元廣告換回超過 3 元營業額</span></li></ul>
   <h3 style="margin-top:10px">要老闆決定</h3><ul class="todo"><li><span class="tx">各店過去 12 個月營業額（跟去年同月比）</span></li><li><span class="tx">每家店每月最多能讓利多少</span></li><li><span class="tx">廣告每月總預算上限、先試哪一區</span></li><li><span class="tx">三顧加盟合約允不允許自己辦活動</span></li></ul></div></section>`;
 }
+
+const TR_ST=["提案","可以進行","進行中","完成","停止"];
+const TR_F=[["cost","預估花費"],["goal","預估效果"],["rev","預估營業額增加"],["acost","實際花費"],["res","實際成果"],["arev","實際營業額變化"],["next","結論／下一步"]];
+let trM="";
+function trackView(){
+  S.track=S.track||[];const ms=[...new Set(S.track.map(x=>x.m))].sort().reverse();if(!trM||!ms.includes(trM))trM=ms[0]||"";
+  const tabs=`<div class="seg" style="flex-wrap:wrap">${ms.map(m=>`<button data-trm="${m}" aria-pressed="${m===trM}">${+m.slice(5)} 月</button>`).join("")}</div>`;
+  const rows=S.track.filter(x=>x.m===trM);
+  const stSel=x=>`<select data-trst="${x.id}">${TR_ST.map(n=>`<option ${n===x.st?"selected":""}>${n}</option>`).join("")}</select>`;
+  const cell=(x,k)=>`<td><input class="ag-note" style="min-width:110px" data-trf="${x.id}|${k}" value="${esc(x[k]||"")}"></td>`;
+  const tbl=`<div class="gtab scroll"><table style="min-width:1200px"><thead><tr><th>門市</th><th>活動</th><th>狀態</th>${TR_F.map(([,l],i)=>`<th style="${i===3?"border-left:2px solid currentColor":""}">${l}</th>`).join("")}<th></th></tr></thead><tbody>${rows.map(x=>`<tr><td style="white-space:nowrap">${esc(scLabel(x.sc))}</td><td style="min-width:170px">${esc(x.t)}</td><td>${stSel(x)}</td>${TR_F.map(([k])=>cell(x,k)).join("")}<td><button class="btn ghost" data-trdel="${x.id}" aria-label="刪除">✕</button></td></tr>`).join("")||`<tr><td colspan="11">這個月還沒有項目</td></tr>`}</tbody></table></div>`;
+  const scopeOpts=`<option value="all">全部門市</option>`+S.stores.map(st=>`<option value="${esc(st.id)}">${esc(SHORT(st))}</option>`).join("");
+  const now=new Date(),nm=now.getFullYear()+"-"+String(now.getMonth()+2>12?1:now.getMonth()+2).padStart(2,"0");
+  const form=`<form class="add" id="trForm"><input id="tr-m" type="month" value="${trM||nm}"><select id="tr-sc">${scopeOpts}</select><input id="tr-t" placeholder="活動（例：冬至 LINE 暖身訊息）" required><button class="btn" type="submit">新增</button></form>`;
+  return `<section class="panel"><div><h2>成效追蹤</h2><p class="hint">每月提案時先填左邊「預估」，月底填右邊「實際」，下次開會直接拿這張表報告。</p></div>
+  <div class="card">${tabs}${tbl}${form}</div></section>`;
+}
 function more(){
-  const opts=[["decide","決策表"],["meeting","會議紀錄"],["plan","行銷方案"],["service","客服紀錄"],["vault","帳號連結"],["backup","備份"]];
+  const opts=[["decide","決策表"],["meeting","會議紀錄"],["plan","行銷方案"],["track","成效追蹤"],["service","客服紀錄"],["vault","帳號連結"],["backup","備份"]];
   const seg=`<div class="seg" role="group" aria-label="切換" style="flex-wrap:wrap">${opts.map(([k,l])=>`<button style="white-space:nowrap" data-mv="${k}" aria-pressed="${moreView===k}">${l}</button>`).join("")}</div>`;
-  const body=moreView==="decide"?decide():moreView==="meeting"?mtgView():moreView==="plan"?planView():moreView==="service"?service():moreView==="vault"?`<section class="panel"><div><h2>帳號連結</h2></div>${vault()}</section>`:`<section class="panel"><div><h2>備份</h2></div>${backup()}</section>`;
+  const body=moreView==="decide"?decide():moreView==="meeting"?mtgView():moreView==="plan"?planView():moreView==="track"?trackView():moreView==="service"?service():moreView==="vault"?`<section class="panel"><div><h2>帳號連結</h2></div>${vault()}</section>`:`<section class="panel"><div><h2>備份</h2></div>${backup()}</section>`;
   return `<div style="margin-top:20px">${seg}</div>${body}`;
 }
 
@@ -1064,6 +1090,11 @@ function bind(){
   const mf=$("#mForm");if(mf)mf.onsubmit=e=>{e.preventDefault();const v=$("#m-sc").value,t=$("#m-t").value.trim();if(!t)return;
    const sc=v==="all"?["all"]:v==="la3"?["拾串關東煮-龍安店","東北少帥麻辣拌-龍安店","一口煎餃-龍安店"]:v.startsWith("b:")?S.stores.filter(s=>s.brand===v.slice(2)).map(s=>s.id):[v];
    curM().items.push({id:Date.now(),cat:$("#m-cat").value,sc,kind:$("#m-kind").value,t,done:false});save();render()};
+  document.querySelectorAll("[data-trm]").forEach(b=>b.onclick=()=>{trM=b.dataset.trm;render()});
+  document.querySelectorAll("[data-trst]").forEach(e=>e.onchange=()=>{S.track.find(x=>x.id==e.dataset.trst).st=e.value;save()});
+  document.querySelectorAll("[data-trf]").forEach(e=>e.onchange=()=>{const [id,k]=e.dataset.trf.split("|");S.track.find(x=>x.id==id)[k]=e.value.trim();save()});
+  document.querySelectorAll("[data-trdel]").forEach(b=>b.onclick=()=>{if(!confirm("刪除這一列？"))return;S.track=S.track.filter(x=>x.id!=b.dataset.trdel);save();render()});
+  const trF=document.querySelector("#trForm");if(trF)trF.onsubmit=e=>{e.preventDefault();const m=$("#tr-m").value;if(!m)return;S.track.push({id:Date.now(),m,sc:[$("#tr-sc").value],t:$("#tr-t").value.trim(),st:"提案",cost:"",goal:"",rev:"",acost:"",res:"",arev:"",next:""});trM=m;save();render()};
   document.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{moreView=b.dataset.mv;try{localStorage.setItem(KEY+"-mv",moreView)}catch(e){}render()});
   const bc=$("#bkCopy");if(bc)bc.onclick=()=>{const t=$("#bk-out").value;navigator.clipboard.writeText(t).then(()=>{$("#bkOk").textContent="已複製"},()=>{$("#bk-out").select();$("#bkOk").textContent="已選取，請長按複製"})};
   const bi=$("#bkImport");if(bi)bi.onclick=()=>{try{const d=JSON.parse($("#bk-in").value);if(!d.stores)throw 0;S=d;save();$("#bkMsg").textContent="已匯入";render()}catch(e){$("#bkMsg").textContent="備份碼格式不對，請重新複製完整的一段"}};
