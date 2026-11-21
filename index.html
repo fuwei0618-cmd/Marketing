@@ -519,6 +519,12 @@ if(!S.v1121b){const RT=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅�
   D("繼續討論",["all"],"每單折扣上限"),
   D("繼續討論",SG,"加盟合約能否改集點")]);
  S.v1121b=1}
+if(!S.v1121c){const LA=["拾串關東煮-龍安店","東北少帥麻辣拌-龍安店","一口煎餃-龍安店"];
+ S.decisions=S.decisions||[];
+ const old=S.decisions.find(d=>d.t==="LINE 點餐免等待＋加好友禮");if(old)old.sc=["一口煎餃-龍安店"];
+ const D=(st,sc,t)=>({id:Date.now()+Math.random(),st,sc,t,d:"2026-11-21"});
+ S.decisions.push(D("進行中",LA,"滿百送紅茶 $10 折價券"),D("進行中",["拾串關東煮-龍安店"],"滿百首次加 LINE 送 $25 火鍋料"),D("進行中",["東北少帥麻辣拌-龍安店"],"滿百首次加 LINE 送肉片 2 片"));
+ S.v1121c=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
@@ -885,7 +891,7 @@ function decide(){
   S.decisions=S.decisions||[];
   const short=s=>s.brand.replace("滷味","").replace("麻辣拌","").replace("關東煮","").replace("炒泡麵","").replace("韓式","")+" "+s.branch.replace("店","");
   const items=(st,id)=>S.decisions.filter(d=>d.st===st&&d.sc.includes(id));
-  const cell=list=>list.length?`<ul style="margin:0;padding-left:1.1em">${list.map(d=>`<li>${esc(d.t)}</li>`).join("")}</ul>`:`<span class="note">—</span>`;
+  const cell=list=>list.length?`<ul style="margin:0;padding-left:${list[0].st==="不要做"?"0;list-style:none":"1.1em"}">${list.map(d=>`<li>${d.st==="不要做"?`<b style="color:#d33">✕</b> `:""}${esc(d.t)}</li>`).join("")}</ul>`:`<span class="note">—</span>`;
   const kf=decG==="品牌"?s=>s.brand:decG==="區域"?region:s=>(LINEOA[s.id]||{}).acc||"（沒有）";
   const ord=decG==="品牌"?BRANDS.map(g=>g.b):decG==="區域"?REGIONS:[...new Set(S.stores.map(s=>(LINEOA[s.id]||{}).acc||"（沒有）"))];
   const head=`<th>門市</th>${DEC_ST.map(([n,c])=>`<th><span class="pill ${c}">${n}</span></th>`).join("")}`;
