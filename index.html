@@ -592,6 +592,27 @@ if(!S.v1121j){const T=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅茶
   E({id:13,m:"2026-11",sc:["一口煎餃-龍安店"],t:"開幕廣告牌（兩種格式）",st:"完成",cost:"",goal:"—",res:"",files:[],log:"檔案待補：請把廣告牌圖片傳給 Claude"}),
   E({id:14,m:"2026-11",sc:["all"],t:"Google 商家認領、驗證",st:"進行中",cost:"0 元",goal:"8 家都能管理",res:"紅茶龍安、韓殿寶山已驗證；哨帥龍安等明信片；豆腐鍋等轉權限",files:[]})
  ].forEach(r=>{if(!S.track.some(x=>x.id===r.id))S.track.push(r)});S.v1121j=1}
+if(!S.v1121k){const LA2=["拾串關東煮-龍安店","東北少帥麻辣拌-龍安店"],SG=["三顧茅廬滷味-中平店","三顧茅廬滷味-寶山店"],TF=["韓式豆腐鍋-壽昌店"],SB=["拾串關東煮-寶山店"];
+ let n=0;const I=(cat,sc,kind,t)=>({id:Date.now()+(n++),cat,sc,kind,t,done:false});
+ S.mtg=S.mtg||[];if(!S.mtg.some(m=>m.date==="2026-11-21"))S.mtg.push({id:3,title:"第 3 次（電話）",date:"2026-11-21",items:[
+  I("物料",LA2,"要做","滿百贈送活動 DM 各 1 張（拾串 $25 火鍋料、哨帥肉片 2 片）"),
+  I("物料",LA2,"要做","到店免等待（LINE 點餐）DM × 2"),
+  I("物料",SG,"要做","到店免等待（LINE 點餐）DM × 2 家"),
+  I("Google",["all"],"要做","Google 網址＋貼文＋菜單相片"),
+  I("行銷",TF,"決定","加 LINE 好友，每消費 $100 送 $20 紅茶折價券"),
+  I("行銷",SB,"決定","拾串寶山店不做活動"),
+  I("行政",["all"],"下次談","行銷專案方向：(1) 依目前工作範圍調整薪資 (2) 原本的理想方案")]});
+ S.decisions=S.decisions||[];const D=(st,sc,t)=>({id:Date.now()+Math.random(),st,sc,t,d:"2026-11-21"});
+ S.decisions.forEach(d=>{if(d.t==="冬季滿 $150 送 1 串"&&d.sc.includes("拾串關東煮-寶山店")){d.sc=d.sc.filter(x=>x!=="拾串關東煮-寶山店")}});
+ S.decisions=S.decisions.filter(d=>d.sc.length);
+ S.decisions.push(D("不要做",SB,"拾串寶山店不做活動"),D("可以進行",TF,"加 LINE 每 $100 送 $20 紅茶折價券"));
+ (S.track||[]).forEach(x=>{if(x.id===5){x.st="停止";x.next="11/21 老闆：寶山店不做活動"}
+  if(x.id===4){x.t="加 LINE 好友，每消費 $100 送 $20 紅茶折價券";x.st="可以進行";x.cost="兌換張數 × $20";x.goal="LINE 好友 86 → ?、兌換張數";x.rev="";x.log=(x.log?x.log+"\n":"")+"11/21 老闆改成這個方案（原雙人套餐不做）"}
+  if(x.id===1||x.id===2)x.log=(x.log?x.log+"\n":"")+"11/21 老闆確認要出 DM";});
+ const E=o=>({rev:"",acost:"",res:"",arev:"",next:"",log:"",files:[],...o});
+ [E({id:15,m:"2026-12",sc:LA2,t:"到店免等待：LINE 點餐 DM",st:"可以進行",cost:"印刷費",goal:"LINE 點餐筆數"}),
+  E({id:16,m:"2026-12",sc:SG,t:"到店免等待：LINE 點餐 DM",st:"可以進行",cost:"印刷費",goal:"LINE 點餐筆數"})].forEach(r=>{if(!S.track.some(x=>x.id===r.id))S.track.push(r)});
+ S.v1121k=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
