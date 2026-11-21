@@ -1012,19 +1012,23 @@ function planView(){
 
 const TR_ST=["提案","可以進行","進行中","完成","停止"];
 const TR_F=[["cost","預估花費"],["goal","預估效果"],["rev","預估營業額增加"],["acost","實際花費"],["res","實際成果"],["arev","實際營業額變化"],["next","結論／下一步"]];
-let trM="",trG="品牌";try{trG=localStorage.getItem(KEY+"-tg")||"品牌"}catch(e){}
+let trM="",trG="品牌",trV=innerWidth<700?"卡片":"表格";try{trG=localStorage.getItem(KEY+"-tg")||"品牌"}catch(e){}
 function trackView(){
   S.track=S.track||[];const ms=[...new Set(S.track.map(x=>x.m))].sort().reverse();if(!trM||!ms.includes(trM))trM=ms[0]||"";
   const tabs=`<div class="seg" style="flex-wrap:wrap">${ms.map(m=>`<button data-trm="${m}" aria-pressed="${m===trM}">${+m.slice(5)} 月</button>`).join("")}</div>`;
   const rows=S.track.filter(x=>x.m===trM);
   const stSel=x=>`<select data-trst="${x.id}">${TR_ST.map(n=>`<option ${n===x.st?"selected":""}>${n}</option>`).join("")}</select>`;
   const cell=(x,k)=>`<td><input class="ag-note" style="min-width:110px" data-trf="${x.id}|${k}" value="${esc(x[k]||"")}"></td>`;
+  const stC=st=>st==="可以進行"||st==="完成"?"p-ok":st==="進行中"?"p-warn":st==="停止"?"p-bad":"";
+  const ln=(l,v)=>v?`<div style="font-size:13px;margin-top:2px"><span class="note">${l}</span> ${esc(v)}</div>`:"";
+  const cards=groupBy(rows,trG).map(([g,l])=>`<div style="font-weight:700;margin:14px 0 6px">${esc(g)}</div>`+l.map(x=>`<div class="card" style="margin:0 0 8px;padding:12px"><div style="display:flex;justify-content:space-between;gap:8px;align-items:start"><div><div class="note">${esc(scLabel(x.sc))}</div><div style="font-weight:700">${esc(x.t)}</div></div><span class="pill ${stC(x.st)}" style="white-space:nowrap">${x.st}</span></div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px"><div><div style="font-weight:700;font-size:13px">預估</div>${ln("花費",x.cost)}${ln("效果",x.goal)}${ln("營業額",x.rev)}</div><div style="border-left:2px solid #c9dbef;padding-left:10px"><div style="font-weight:700;font-size:13px">實際</div>${ln("花費",x.acost)}${ln("成果",x.res)}${ln("營業額",x.arev)}${x.acost||x.res||x.arev?"":`<div class="note" style="font-size:13px">月底填寫</div>`}</div></div>${x.next?`<div style="font-size:13px;margin-top:8px;border-top:1px dashed #ccc;padding-top:6px"><b>結論</b> ${esc(x.next)}</div>`:""}</div>`).join("")).join("")||`<p class="note">這個月還沒有項目</p>`;
   const tbl=`<div class="gtab scroll"><table style="min-width:1200px"><thead><tr><th>門市</th><th>活動</th><th>狀態</th>${TR_F.map(([,l],i)=>`<th style="${i===3?"border-left:2px solid currentColor":""}">${l}</th>`).join("")}<th></th></tr></thead><tbody>${groupBy(rows,trG).map(([g,l])=>`<tr class="brandrow"><td colspan="11">${esc(g)}</td></tr>`+l.map(x=>`<tr><td style="white-space:nowrap">${esc(scLabel(x.sc))}</td><td style="min-width:170px">${esc(x.t)}</td><td>${stSel(x)}</td>${TR_F.map(([k])=>cell(x,k)).join("")}<td><button class="btn ghost" data-trdel="${x.id}" aria-label="刪除">✕</button></td></tr>`).join("")).join("")||`<tr><td colspan="11">這個月還沒有項目</td></tr>`}</tbody></table></div>`;
   const scopeOpts=`<option value="all">全部門市</option>`+S.stores.map(st=>`<option value="${esc(st.id)}">${esc(SHORT(st))}</option>`).join("");
   const now=new Date(),nm=now.getFullYear()+"-"+String(now.getMonth()+2>12?1:now.getMonth()+2).padStart(2,"0");
   const form=`<form class="add" id="trForm"><input id="tr-m" type="month" value="${trM||nm}"><select id="tr-sc">${scopeOpts}</select><input id="tr-t" placeholder="活動（例：冬至 LINE 暖身訊息）" required><button class="btn" type="submit">新增</button></form>`;
   return `<section class="panel"><div><h2>成效追蹤</h2><p class="hint">每月提案時先填左邊「預估」，月底填右邊「實際」，下次開會直接拿這張表報告。</p></div>
-  <div class="card">${tabs}<div style="margin-top:8px">${gSw(trG,"tg",["品牌","區域"])}</div>${tbl}${form}</div></section>`;
+  <div class="card">${tabs}<div style="margin-top:8px">${gSw(trG,"tg",["品牌","區域"])}${gSw(trV,"tv",["卡片","表格"]).replace("排列","顯示")}</div>${trV==="卡片"?cards+`<p class="note">要編輯請切到「表格」</p>`:tbl+form}</div></section>`;
 }
 function more(){
   const opts=[["decide","決策表"],["meeting","會議紀錄"],["plan","行銷方案"],["track","成效追蹤"],["service","客服紀錄"],["vault","帳號連結"],["backup","備份"]];
@@ -1060,6 +1064,7 @@ function bind(){
   document.querySelectorAll("[data-cv]").forEach(b=>b.onclick=()=>{campV=b.dataset.cv;render()});
   document.querySelectorAll("[data-cg]").forEach(b=>b.onclick=()=>{campG=b.dataset.cg;render()});
   document.querySelectorAll("[data-tc]").forEach(b=>b.onclick=()=>{todoCat=b.dataset.tc;render()});
+  document.querySelectorAll("[data-tv]").forEach(b=>b.onclick=()=>{trV=b.dataset.tv;render()});
   document.querySelectorAll("[data-tg]").forEach(b=>b.onclick=()=>{todoGroup=b.dataset.tg;render()});
   const tdd=$("#tdDone");if(tdd)tdd.onclick=()=>{todoDone=!todoDone;render()};
   document.querySelectorAll("[data-av]").forEach(b=>b.onclick=()=>{accV=b.dataset.av;render()});
@@ -1115,6 +1120,7 @@ function bind(){
     save();render()});
   const r=$("#reset");if(r)r.onclick=()=>{$("#resetConfirm").innerHTML=`確定清空？ <button class="btn ghost" id="yes">確定</button>`;$("#yes").onclick=()=>{S=seed();save();render()}};
 }
+{const v=(new URLSearchParams(location.search).get("v")||location.hash.slice(1));if(["decide","meeting","plan","track","service","vault"].includes(v)){tab="more";moreView=v}}
 renderTabs();render();renderGoal();
 </script>
 
