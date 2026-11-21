@@ -525,6 +525,9 @@ if(!S.v1121c){const LA=["拾串關東煮-龍安店","東北少帥麻辣拌-龍�
  const D=(st,sc,t)=>({id:Date.now()+Math.random(),st,sc,t,d:"2026-11-21"});
  S.decisions.push(D("進行中",LA,"滿百送紅茶 $10 折價券"),D("進行中",["拾串關東煮-龍安店"],"滿百首次加 LINE 送 $25 火鍋料"),D("進行中",["東北少帥麻辣拌-龍安店"],"滿百首次加 LINE 送肉片 2 片"));
  S.v1121c=1}
+if(!S.v1121d){S.stores.forEach(s=>{const has=t=>(s.todos||[]).some(x=>x.text===t);const add=t=>{if(!has(t))s.todos.push({cat:"Google",text:t,done:false})};
+ if(LINEOA[s.id])add("Google 商家放上 LINE 加好友連結／QR（社群連結＋貼文）");
+ if(ORDER_LINKS[s.id])add("Google 商家放上雲端下單網址（「線上訂餐」連結）")});S.v1121d=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
