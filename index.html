@@ -584,6 +584,14 @@ if(!S.v1121i){const T=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅茶
  if(!S.track.some(x=>x.id===7))S.track.push({id:7,m:"2026-12",sc:T,t:"每月輪替：12 月基茶月 $25（原有活動）",st:"進行中",cost:"0 元",goal:"基茶賣出杯數（比 11 月青檸多多）",rev:"",acost:"",res:"",arev:"",next:"",log:"",files:[{n:"活動圖",u:"img/rot6.jpg"}]},
   {id:8,m:"2026-12",sc:T,t:"雲端訂餐滿 $100 送 $30（原有活動）",st:"進行中",cost:"送出券數 × 30 元",goal:"雲端訂單筆數",rev:"",acost:"",res:"",arev:"",next:"",log:"",files:[{n:"雲端訂餐 DM",u:"dm/tea_cloud_order_v2.png"}]});
  S.v1121i=1}
+if(!S.v1121j){const T=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅茶大苑-龍安店"],E=(o)=>({rev:"",acost:"",arev:"",next:"",log:"",...o});
+ [E({id:9,m:"2026-11",sc:T,t:"首次加 LINE 好友送紅茶鮮奶(L)（傳「我要喝紅茶鮮奶」）",st:"進行中",cost:"每杯成本 × 兌換數",goal:"LINE 好友數比 10 月多",res:"",files:[{n:"國鼎壽昌 DM",u:"dm/line_add_gs.png"},{n:"龍安 DM",u:"dm/line_add_la.png"}],log:"10/31 DM 兩版完成\n待辦：LINE 自動回應關鍵字要改成「我要喝紅茶鮮奶」"}),
+  E({id:10,m:"2026-11",sc:T,t:"每月輪替：11 月青檸多多 $39（原有活動）",st:"完成",cost:"0 元",goal:"青檸多多賣出杯數",res:"",files:[{n:"活動圖",u:"img/rot5.jpg"}],log:"LINE 月底排程群發（所有好友）"}),
+  E({id:11,m:"2026-11",sc:T,t:"雲端訂餐滿 $100 送 $30（原有活動）",st:"進行中",cost:"送出券數 × 30 元",goal:"雲端訂單筆數",res:"",files:[{n:"雲端訂餐 DM",u:"dm/tea_cloud_order_v2.png"}],log:"LINE 月中排程推雲端訂餐"}),
+  E({id:12,m:"2026-11",sc:T,t:"LINE Pay QR 桌牌",st:"完成",cost:"印刷費",goal:"—",res:"",files:[{n:"LINE Pay QR 六張",u:"dm/linepay_qr6.png"}]}),
+  E({id:13,m:"2026-11",sc:["一口煎餃-龍安店"],t:"開幕廣告牌（兩種格式）",st:"完成",cost:"",goal:"—",res:"",files:[],log:"檔案待補：請把廣告牌圖片傳給 Claude"}),
+  E({id:14,m:"2026-11",sc:["all"],t:"Google 商家認領、驗證",st:"進行中",cost:"0 元",goal:"8 家都能管理",res:"紅茶龍安、韓殿寶山已驗證；哨帥龍安等明信片；豆腐鍋等轉權限",files:[]})
+ ].forEach(r=>{if(!S.track.some(x=>x.id===r.id))S.track.push(r)});S.v1121j=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
@@ -1044,10 +1052,28 @@ function trackView(){
   return `<section class="panel"><div><h2>成效追蹤</h2><p class="hint">每月提案時先填左邊「預估」，月底填右邊「實際」，下次開會直接拿這張表報告。</p></div>
   <div class="card">${tabs}<div style="margin-top:8px">${gSw(trG,"tg",["品牌","區域"])}${gSw(trV,"tv",["表格","卡片"]).replace("排列","顯示")}</div>${trV==="卡片"?cards+`<p class="note">要編輯請切到「表格」</p>`:tbl+form}</div></section>`;
 }
+
+const ASSETS=[
+ {b:"紅茶大苑",items:[["Logo（白底）","assets/tea_logo.png"],["Logo（透明背景）","assets/tea_logo_transparent.png"],["LINE 加好友 QR（國鼎・壽昌）","assets/line_qr_guoding_shouchang.png"],["LINE 加好友 QR（龍安美食）","assets/line_qr_longan.png"],["雲端點餐 QR（國鼎）","assets/order_qr_guoding.png"],["每月輪替活動圖 1–6","img/rot1.jpg"]]},
+ {b:"拾串關東煮",items:[["龍安招牌照片（有反光）","assets/shichuan_sign_photo.png"]],need:"Logo 原檔"},
+ {b:"東北少帥麻辣拌",items:[],need:"Logo 原檔、招牌照片"},
+ {b:"一口煎餃",items:[],need:"Logo、開幕招牌、兩種格式廣告牌"},
+ {b:"三顧茅廬滷味",items:[],need:"Logo、招牌照片"},
+ {b:"李氏韓式豆腐鍋",items:[],need:"Logo、招牌照片"},
+ {b:"韓殿炒泡麵",items:[],need:"Logo、招牌照片"}];
+function assetsView(){
+  S.assets=S.assets||[];
+  const box=(n,u,del)=>`<a href="${esc(u)}" target="_blank" rel="noopener" style="display:block;width:140px;text-decoration:none;color:inherit"><div style="width:140px;height:110px;border:1px solid #ddd;border-radius:10px;background:#fff center/contain no-repeat url('${esc(u)}')"></div><div style="font-size:12px;margin-top:4px">${esc(n)}</div></a>${del!=null?`<button class="btn ghost" style="padding:0 6px" data-asx="${del}">移除</button>`:""}`;
+  const isImg=u=>/\.(png|jpe?g|gif|webp)$/i.test(u)&&!/^https?:/.test(u)||/\.(png|jpe?g|gif|webp)(\?|$)/i.test(u);
+  const cards=ASSETS.map(g=>{const mine=S.assets.map((a,i)=>[a,i]).filter(([a])=>a.b===g.b);
+   return `<div class="card"><h3>${esc(g.b)}</h3><div style="display:flex;flex-wrap:wrap;gap:12px">${g.items.map(([n,u])=>`<div>${box(n,u)}</div>`).join("")}${mine.map(([a,i])=>`<div>${isImg(a.u)?box(a.n,a.u,i):`📎 <a class="lnk" href="${esc(a.u)}" target="_blank" rel="noopener">${esc(a.n)}</a> <button class="btn ghost" style="padding:0 6px" data-asx="${i}">移除</button>`}</div>`).join("")}</div>${g.need?`<p class="note" style="margin-top:8px">還缺：${esc(g.need)}</p>`:""}</div>`}).join("");
+  const form=`<form class="add" id="asForm"><select id="as-b">${ASSETS.map(g=>`<option>${g.b}</option>`).join("")}</select><input id="as-n" placeholder="名稱（例：煎餃招牌）" required><input id="as-u" placeholder="貼上連結（雲端硬碟、Canva…）" required><button class="btn" type="submit">新增</button></form>`;
+  return `<section class="panel"><div><h2>素材庫</h2><p class="hint">各品牌的 Logo、招牌、QR code。圖片傳給 Claude 會直接放進來；也可以自己貼雲端連結。</p></div><div class="card">${form}</div>${cards}</section>`;
+}
 function more(){
-  const opts=[["decide","決策表"],["meeting","會議紀錄"],["plan","行銷方案"],["track","成效追蹤"],["service","客服紀錄"],["vault","帳號連結"],["backup","備份"]];
+  const opts=[["decide","決策表"],["meeting","會議紀錄"],["plan","行銷方案"],["track","成效追蹤"],["assets","素材庫"],["service","客服紀錄"],["vault","帳號連結"],["backup","備份"]];
   const seg=`<div class="seg" role="group" aria-label="切換" style="flex-wrap:wrap">${opts.map(([k,l])=>`<button style="white-space:nowrap" data-mv="${k}" aria-pressed="${moreView===k}">${l}</button>`).join("")}</div>`;
-  const body=moreView==="decide"?decide():moreView==="meeting"?mtgView():moreView==="plan"?planView():moreView==="track"?trackView():moreView==="service"?service():moreView==="vault"?`<section class="panel"><div><h2>帳號連結</h2></div>${vault()}</section>`:`<section class="panel"><div><h2>備份</h2></div>${backup()}</section>`;
+  const body=moreView==="decide"?decide():moreView==="meeting"?mtgView():moreView==="plan"?planView():moreView==="track"?trackView():moreView==="assets"?assetsView():moreView==="service"?service():moreView==="vault"?`<section class="panel"><div><h2>帳號連結</h2></div>${vault()}</section>`:`<section class="panel"><div><h2>備份</h2></div>${backup()}</section>`;
   return `<div style="margin-top:20px">${seg}</div>${body}`;
 }
 
@@ -1080,6 +1106,8 @@ function bind(){
   document.querySelectorAll("[data-tc]").forEach(b=>b.onclick=()=>{todoCat=b.dataset.tc;render()});
   document.querySelectorAll("[data-trl]").forEach(e=>e.onchange=()=>{const u=e.value.trim();if(!u)return;const x=S.track.find(y=>y.id==e.dataset.trl);const n=(prompt("這個檔案叫什麼？（例：A4 DM 定稿）","DM")||"DM").trim();x.files=x.files||[];x.files.push({n,u});save();render()});
   document.querySelectorAll("[data-trlx]").forEach(b=>b.onclick=()=>{const [id,i]=b.dataset.trlx.split("|");const x=S.track.find(y=>y.id==id);x.files.splice(+i,1);save();render()});
+  const asF=document.querySelector("#asForm");if(asF)asF.onsubmit=e=>{e.preventDefault();S.assets=S.assets||[];S.assets.push({b:$("#as-b").value,n:$("#as-n").value.trim(),u:$("#as-u").value.trim()});save();render()};
+  document.querySelectorAll("[data-asx]").forEach(b=>b.onclick=e=>{e.preventDefault();S.assets.splice(+b.dataset.asx,1);save();render()});
   document.querySelectorAll("[data-tv]").forEach(b=>b.onclick=()=>{trV=b.dataset.tv;render()});
   document.querySelectorAll("[data-tg]").forEach(b=>b.onclick=()=>{todoGroup=b.dataset.tg;render()});
   const tdd=$("#tdDone");if(tdd)tdd.onclick=()=>{todoDone=!todoDone;render()};
@@ -1136,7 +1164,7 @@ function bind(){
     save();render()});
   const r=$("#reset");if(r)r.onclick=()=>{$("#resetConfirm").innerHTML=`確定清空？ <button class="btn ghost" id="yes">確定</button>`;$("#yes").onclick=()=>{S=seed();save();render()}};
 }
-{const v=(new URLSearchParams(location.search).get("v")||location.hash.slice(1));if(["decide","meeting","plan","track","service","vault"].includes(v)){tab="more";moreView=v}}
+{const v=(new URLSearchParams(location.search).get("v")||location.hash.slice(1));if(["decide","meeting","plan","track","assets","service","vault"].includes(v)){tab="more";moreView=v}}
 renderTabs();render();renderGoal();
 </script>
 
