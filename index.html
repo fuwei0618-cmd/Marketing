@@ -970,12 +970,16 @@ const md=d=>d?`${+d.slice(5,7)}/${+d.slice(8,10)}`:"";
 const parseMD=(v)=>{const m=String(v).trim().match(/^(\d{1,2})\s*[\/\-.月]\s*(\d{1,2})/);if(!m)return "";const now=new Date();let y=now.getFullYear();const mm=+m[1],dd=+m[2];if(mm<now.getMonth()+1)y++;return `${y}-${String(mm).padStart(2,"0")}-${String(dd).padStart(2,"0")}`};
 const ACT_COLS=["LINE 好友","消費優惠","雲端點餐"];
 const actCol=t=>/群發|推播/.test(t)?"推播":/加 LINE|LINE 好友|好友 DM|DM|桌牌/.test(t)?"LINE 好友":/雲端/.test(t)?"雲端點餐":/Google/.test(t)?"Google":"消費優惠";
+const actWord=(t,c)=>{t=t.replace(/^每月輪替：/,"輪替：").replace(/^店內放置/,"店內放");
+  t=t.replace(/^雲端(訂餐|點餐)[，,]?\s*/,"").replace(/^加 LINE 好友[，,]\s*/,"").replace(/加 LINE 好友/,"加好友").replace(/首次加 LINE 好友/,"首次加好友").replace(/首次加 LINE\s*/,"首次加好友");
+  t=t.replace(/(每消費\s*\$?100|滿\s*\$?100)\s*/g,"滿百").replace(/滿百送紅茶\s*\$(\d+)\s*折價券/,"滿百送 $$$1 紅茶").replace(/滿百送\s*\$(\d+)\s*紅茶折價券/,"滿百送 $$$1 紅茶").replace(/滿百送\s*\$(\d+)$/,"滿百送 $$$1");
+  return t};
 function storeActs(id){
   const seen=new Set();const cell={};ACT_COLS.forEach(c=>cell[c]=[]);let push=false;
   (S.track||[]).filter(x=>["進行中","可以進行"].includes(x.st)&&!/到店免等待|認領|驗證/.test(x.t)&&!x.sc.includes("all")&&x.sc.includes(id))
    .sort((a,b)=>b.m.localeCompare(a.m)).forEach(x=>{const t=x.t.replace(/（.*?）/g,"");if(seen.has(t))return;seen.add(t);const c=actCol(t);
     if(c==="推播"){push=true;return}if(!cell[c])return;
-    cell[c].push(esc(t.replace(/^每月輪替：/,"輪替：").replace(/^店內放置/,"")))});
+    cell[c].push(esc(actWord(t,c)))});
   const pt=`<div class="note" style="font-size:12px;margin-top:2px">＋每月 LINE 推播</div>`;
   return ACT_COLS.map(c=>`<td style="font-size:13px;min-width:190px;vertical-align:top">${cell[c].length?cell[c].join("<div style='height:4px'></div>"):`<span class="note">—</span>`}${push&&c!=="LINE 好友"?pt:""}</td>`).join("");
 }
@@ -987,16 +991,18 @@ function lineGoalCard(){
    const act=last&&first&&last!==first?((cur-n(M[k][first]))/Math.max(1,day(dL)-day(dF))):null;
    const left=g.due?Math.max(0,day(g.due)-td):null;const need=g.t&&left?Math.max(0,(n(g.t)-cur)/left):null;
    const ok=act!=null&&need!=null?act>=need:null;const f=v=>v.toFixed(1).replace("-0.0","0.0");
-   const st=ACC_STORES[k]||[];const r=st.length||1;const rs=r>1?` rowspan="${r}"`:"";
+   const st=ACC_STORES[k]||[];const r=new Set((st.length?st:[null]).map(id=>id?storeActs(id):"")).size;const rs=r>1?` rowspan="${r}"`:"";
    const nm=id=>{const z=S.stores.find(y=>y.id===id);return z?SHORT(z):id};
-   const head=`<td${rs} class="stick" style="white-space:nowrap;vertical-align:top;${B}">${esc(k.replace(/（.*?）/,"").replace("、拾串關東煮","・拾串"))}</td><td${rs} class="c" style="vertical-align:top;${B}"><input class="num-in" style="width:64px" inputmode="numeric" data-lg="${i}|t" value="${esc(g.t||"")}"></td><td${rs} class="c" style="vertical-align:top;${B}"><input class="num-in" style="width:64px" placeholder="月/日" data-lg="${i}|due" value="${esc(md(g.due))}"></td><td${rs} class="c" style="vertical-align:top;white-space:nowrap;${B}">${left==null?"—":left+" 天"}</td><td${rs} class="c" style="vertical-align:top;${B}"><b>${cur||"—"}</b></td><td${rs} class="c" style="vertical-align:top;${B}">${g.t?Math.max(0,n(g.t)-cur):"—"}</td>
+   const head=`<td${rs} class="stick" style="vertical-align:top;line-height:1.35;white-space:nowrap;${B}">${esc(k.replace(/（.*?）/,"").replace("、拾串關東煮","・拾串")).replace(/[-\s・]/,"<br>").replace(/<br>桃園(壽昌|寶山店|中平店)$/,"<br>桃園$1")}</td><td${rs} class="c" style="vertical-align:top;${B}"><input class="num-in" style="width:64px" inputmode="numeric" data-lg="${i}|t" value="${esc(g.t||"")}"></td><td${rs} class="c" style="vertical-align:top;${B}"><input class="num-in" style="width:64px" placeholder="月/日" data-lg="${i}|due" value="${esc(md(g.due))}"></td><td${rs} class="c" style="vertical-align:top;white-space:nowrap;${B}">${left==null?"—":left+" 天"}</td><td${rs} class="c" style="vertical-align:top;${B}"><b>${cur||"—"}</b></td><td${rs} class="c" style="vertical-align:top;${B}">${g.t?Math.max(0,n(g.t)-cur):"—"}</td>
    <td${rs} class="c" style="vertical-align:top;border-left:2px solid #c9dbef;${B}">${act==null?"—":f(act)}</td><td${rs} class="c" style="vertical-align:top;border-right:2px solid #c9dbef;${B}"><span class="pill ${ok==null?"":ok?"p-ok":"p-bad"}">${need==null?"—":f(need)}</span></td>`;
    const noteTd=`<td${rs} style="vertical-align:top;${B}"><textarea class="ag-note" style="min-width:180px;min-height:38px;font-size:13px" placeholder="備註／建議" data-lg="${i}|acts">${esc(g.acts||"")}</textarea></td>`;
-   return (st.length?st:[null]).map((id,j)=>{const top=j===0?B:"";const sCell=`<td style="white-space:nowrap;vertical-align:top;font-size:13px;${top}">${id?esc(nm(id)):"—"}</td>`;
-    const acts=id?storeActs(id).replace(/<td style="/g,`<td style="${top}`):"";
+   const grp=[];(st.length?st:[null]).forEach(id=>{const h=id?storeActs(id):"";const gg=grp.find(x=>x.h===h);gg?gg.ids.push(id):grp.push({h,ids:[id]})});
+   const gname=ids=>{if(!ids[0])return "—";const ns=ids.map(nm);const b=ns[0].split(" ")[0];return ns.length>1&&ns.every(x=>x.split(" ")[0]===b)?b+" "+ns.map(x=>x.split(" ").slice(1).join(" ")).join("、"):ns.join("、")};
+   return grp.map((gp,j)=>{const top=j===0?B:"";const sCell=`<td style="white-space:nowrap;vertical-align:top;font-size:13px;${top}">${esc(gname(gp.ids))}</td>`;
+    const acts=gp.h.replace(/<td style="/g,`<td style="${top}`);
     return `<tr>${j===0?head:""}${sCell}${acts}${j===0?noteTd:""}</tr>`}).join("")}).join("");
   return `<div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>會員目標</h3><span class="note">目標人數、期限可以直接改（期限打 1/31 這樣就好）。紅色＝目前速度不夠</span></div>
-  <div class="scroll"><table class="tight" style="min-width:1500px"><thead><tr><th rowspan="2" class="stick">帳號</th><th class="c" rowspan="2">目標人數</th><th class="c" rowspan="2">期限</th><th class="c" rowspan="2">剩餘</th><th class="c" rowspan="2">目前</th><th class="c" rowspan="2">還差</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th class="c" colspan="${ACT_COLS.length+1}" style="border-bottom:1px solid #c9dbef">目前活動（從成效追蹤自動帶入；Google QR 全部門市都有）</th><th rowspan="2">備註／建議</th></tr><tr><th class="c" style="border-left:2px solid #c9dbef">實際</th><th class="c" style="border-right:2px solid #c9dbef">需要</th><th>門市</th>${ACT_COLS.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  <div class="scroll"><table class="tight" style="min-width:1250px"><thead><tr><th rowspan="2" class="stick">帳號</th><th class="c" rowspan="2">目標人數</th><th class="c" rowspan="2">期限</th><th class="c" rowspan="2">剩餘</th><th class="c" rowspan="2">目前</th><th class="c" rowspan="2">還差</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th class="c" colspan="${ACT_COLS.length+1}" style="border-bottom:1px solid #c9dbef">目前活動（從成效追蹤自動帶入；Google QR 全部門市都有）</th><th rowspan="2">備註／建議</th></tr><tr><th class="c" style="border-left:2px solid #c9dbef">實際</th><th class="c" style="border-right:2px solid #c9dbef">需要</th><th>門市</th>${ACT_COLS.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
 function growth(){
