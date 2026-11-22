@@ -119,6 +119,7 @@ a.lbtn{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weig
 .lineb{display:inline-block;margin-left:4px;padding:0 4px;border-radius:3px;background:#06c755;color:#fff;font-size:10px;font-weight:700;line-height:15px;vertical-align:1px}
 .gnote{width:100%;border:0;background:transparent;resize:none;font:inherit;font-size:12px;color:inherit;opacity:.7;padding:2px 4px;min-height:20px;field-sizing:content;border-radius:4px}
 .gnote:focus{opacity:1;outline:1px solid #c9dbef;background:var(--surface)}
+.okb{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#1a9e55;color:#fff;font-size:12px;font-weight:700}
 .stick{position:sticky;left:0;z-index:1;background:var(--surface);box-shadow:2px 0 0 rgba(0,0,0,.06)}
 .gtab table{font-size:.75rem}
 .gtab th,.gtab td{padding:4px 6px}
@@ -983,9 +984,9 @@ function storeActs(id){
   (S.track||[]).filter(x=>["進行中","可以進行"].includes(x.st)&&!/到店免等待|認領|驗證/.test(x.t)&&!x.sc.includes("all")&&x.sc.includes(id))
    .sort((a,b)=>b.m.localeCompare(a.m)).forEach(x=>{const t=x.t.replace(/（.*?）/g,"");if(seen.has(t))return;seen.add(t);let c=actCol(t);
     if(c==="推播"){push=true;return}let w=actWord(t,c);
-    if(c==="LINE 好友"){if(/DM/.test(w)){c="店內 DM";w="✓"}else if(/^滿百/.test(w)){c="滿百首次";w=/首次/.test(w)?w.replace(/^滿百首次加好友/,""):w.replace(/^滿百/,"")}else{c="首次";w=w.replace(/^首次加好友/,"")}}
+    if(c==="LINE 好友"){if(/DM/.test(w)){c="店內 DM";w="__OK__"}else if(/^滿百/.test(w)){c="滿百首次";w=/首次/.test(w)?w.replace(/^滿百首次加好友/,""):w.replace(/^滿百/,"")}else{c="首次";w=w.replace(/^首次加好友/,"")}}
     else if(c==="雲端點餐")w=w.replace(/^滿百/,"");
-    if(!cell[c])return;cell[c].push({h:esc(w),p:c==="雲端點餐"||/輪替/.test(t)})});
+    if(!cell[c])return;cell[c].push({h:w==="__OK__"?`<span class="okb" title="有放">✔</span>`:esc(w),p:c==="雲端點餐"||/輪替/.test(t)})});
   const LB=`<span class="lineb" title="每月 LINE 推播">LINE</span>`;
   return ACT_COLS.map(c=>`<td style="font-size:13px;min-width:${/首次|DM/.test(c)?"60px":"90px"};vertical-align:top${/首次/.test(c)?";white-space:nowrap":""}${c==="店內 DM"?";text-align:center":""}">${cell[c].length?cell[c].map(e=>push&&e.p?`<span style="white-space:nowrap">${e.h}${LB}</span>`:e.h).join("<div style='height:4px'></div>"):`<span class="note">—</span>`}</td>`).join("");
 }
