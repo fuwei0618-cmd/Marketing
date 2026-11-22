@@ -637,6 +637,13 @@ if(!S.v1122d){const N={"紅茶大苑-壽昌、國鼎店":"","龍安美食（拾�
  Object.entries(N).forEach(([k,v])=>{if(S.lineGoal&&S.lineGoal[k])S.lineGoal[k].acts=v});
  const TF=(S.track||[]).find(x=>x.id===4);if(TF&&!/LINE/.test(TF.t))TF.t="加 LINE 好友，每消費 $100 送 $20 紅茶折價券";
  S.v1122d=1}
+if(!S.v1122e){const T=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅茶大苑-龍安店"],LA3=["拾串關東煮-龍安店","東北少帥麻辣拌-龍安店","一口煎餃-龍安店"];S.track=S.track||[];
+ const E=o=>({rev:"",acost:"",res:"",arev:"",next:"",log:"",files:[],...o});
+ const g=S.track.find(x=>x.id===6);if(g){g.t="Google 地圖放雲端點餐網址＋LINE QR（一次性）";g.goal="LINE 好友、雲端訂單變多"}
+ [E({id:17,m:"2026-12",sc:LA3,t:"滿百送紅茶 $10 折價券（原有活動）",st:"進行中",cost:"兌換張數 × $10",goal:"兌換張數"}),
+  E({id:18,m:"2026-12",sc:["韓式豆腐鍋-壽昌店"],t:"雲端點餐，每消費 $100 送 $10 紅茶折價券",st:"進行中",cost:"兌換張數 × $10",goal:"雲端訂單筆數"}),
+  E({id:19,m:"2026-12",sc:T,t:"LINE 每月 2 則群發（月中推雲端點餐、月底推新活動）",st:"進行中",cost:"0 元",goal:"推播後來客、兌換數"})
+ ].forEach(r=>{if(!S.track.some(x=>x.id===r.id))S.track.push(r)});S.v1122e=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
@@ -959,12 +966,16 @@ const ACC_STORES={"紅茶大苑-壽昌、國鼎店":["紅茶大苑-國鼎店","�
 const md=d=>d?`${+d.slice(5,7)}/${+d.slice(8,10)}`:"";
 const parseMD=(v)=>{const m=String(v).trim().match(/^(\d{1,2})\s*[\/\-.月]\s*(\d{1,2})/);if(!m)return "";const now=new Date();let y=now.getFullYear();const mm=+m[1],dd=+m[2];if(mm<now.getMonth()+1)y++;return `${y}-${String(mm).padStart(2,"0")}-${String(dd).padStart(2,"0")}`};
 function accActs(k){
-  const st=ACC_STORES[k]||[];const seen=new Set();
-  const rows=(S.track||[]).filter(x=>["進行中","可以進行"].includes(x.st)&&/LINE|QR|好友/.test(x.t)&&(x.sc.includes("all")||x.sc.some(id=>st.includes(id))))
-   .sort((a,b)=>(a.sc.includes("all")?0:1)-(b.sc.includes("all")?0:1)||b.m.localeCompare(a.m))
+  const st=ACC_STORES[k]||[];const seen=new Set();const covered=new Set();
+  const rows=(S.track||[]).filter(x=>["進行中","可以進行"].includes(x.st)&&!/到店免等待|認領|驗證/.test(x.t)&&(x.sc.includes("all")||x.sc.some(id=>st.includes(id))))
+   .sort((a,b)=>(a.sc.includes("all")?0:1)-(b.sc.includes("all")?0:1)||b.sc.filter(id=>st.includes(id)).length-a.sc.filter(id=>st.includes(id)).length||b.m.localeCompare(a.m))
    .filter(x=>{const key=x.t.replace(/（.*?）/g,"");if(seen.has(key))return false;seen.add(key);return true});
-  return rows.map(x=>{const who=x.sc.includes("all")?"全部門市":x.sc.filter(id=>st.includes(id)).length===st.length&&st.length>1?"全帳號":x.sc.filter(id=>st.includes(id)).map(id=>{const z=S.stores.find(y=>y.id===id);return z?SHORT(z):id}).join("、");
-   return `<div style="font-size:13px;white-space:nowrap"><span class="note">${esc(who)}</span>　${esc(x.t.replace(/（.*?）/g,""))}</div>`}).join("");
+  const nm=id=>{const z=S.stores.find(y=>y.id===id);return z?SHORT(z):id};
+  const out=rows.map(x=>{const mine=x.sc.filter(id=>st.includes(id));if(!x.sc.includes("all")&&/LINE 好友|加 LINE/.test(x.t))mine.forEach(id=>covered.add(id));
+   const who=x.sc.includes("all")?"全部門市":mine.length===st.length&&st.length>1?"全帳號":mine.length===3&&mine.every(id=>/龍安/.test(id))?"龍安 3 家":mine.map(nm).join("、");
+   return `<div style="font-size:13px"><span class="note">${esc(who)}</span>　${esc(x.t.replace(/（.*?）/g,""))}</div>`});
+  st.filter(id=>!covered.has(id)).forEach(id=>out.push(`<div style="font-size:13px"><span class="note">${esc(nm(id))}</span>　<span class="note">暫時無活動</span></div>`));
+  return out.join("");
 }
 function lineGoalCard(){
   const G=S.lineGoal||{},D=S.lineD||{},M=S.lineM||{};const day=d=>Math.round(new Date(d+"T00:00:00")/864e5);
@@ -979,7 +990,7 @@ function lineGoalCard(){
    <td class="c" style="border-left:2px solid #c9dbef">${act==null?"—":f(act)}</td><td class="c" style="border-right:2px solid #c9dbef"><span class="pill ${ok==null?"":ok?"p-ok":"p-bad"}">${need==null?"—":f(need)}</span></td>
    <td style="min-width:300px">${acts||`<span class="note" style="font-size:13px">目前沒有加好友活動</span>`}<input class="ag-note" style="min-width:280px;margin-top:4px;font-size:13px" placeholder="備註／建議" data-lg="${i}|acts" value="${esc(g.acts||"")}"></td></tr>`}).join("");
   return `<div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>會員目標</h3><span class="note">目標人數、期限可以直接改（期限打 1/31 這樣就好）。紅色＝目前速度不夠。活動從「成效追蹤」自動帶入</span></div>
-  <div class="scroll"><table class="tight" style="min-width:980px"><thead><tr><th rowspan="2">帳號</th><th class="c" rowspan="2">目標人數</th><th class="c" rowspan="2">期限</th><th class="c" rowspan="2">剩餘</th><th class="c" rowspan="2">目前</th><th class="c" rowspan="2">還差</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th rowspan="2">加好友活動</th></tr><tr><th class="c" style="border-left:2px solid #c9dbef">實際</th><th class="c" style="border-right:2px solid #c9dbef">需要</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  <div class="scroll"><table class="tight" style="min-width:980px"><thead><tr><th rowspan="2">帳號</th><th class="c" rowspan="2">目標人數</th><th class="c" rowspan="2">期限</th><th class="c" rowspan="2">剩餘</th><th class="c" rowspan="2">目前</th><th class="c" rowspan="2">還差</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th rowspan="2">目前活動</th></tr><tr><th class="c" style="border-left:2px solid #c9dbef">實際</th><th class="c" style="border-right:2px solid #c9dbef">需要</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
 function growth(){
