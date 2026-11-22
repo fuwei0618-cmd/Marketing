@@ -967,18 +967,18 @@ let growG="品牌";
 const ACC_STORES={"紅茶大苑-壽昌、國鼎店":["紅茶大苑-國鼎店","紅茶大苑-壽昌店"],"龍安美食（拾串、少帥、紅茶大苑、哨帥）":["紅茶大苑-龍安店","拾串關東煮-龍安店","東北少帥麻辣拌-龍安店","一口煎餃-龍安店"],"韓殿炒泡麵、拾串關東煮（寶山店）":["拾串關東煮-寶山店","韓殿炒泡麵-寶山店"],"李氏韓式豆腐鍋-桃園壽昌":["韓式豆腐鍋-壽昌店"],"三顧茅廬 桃園寶山店":["三顧茅廬滷味-寶山店"],"三顧茅廬-桃園中平店":["三顧茅廬滷味-中平店"]};
 const md=d=>d?`${+d.slice(5,7)}/${+d.slice(8,10)}`:"";
 const parseMD=(v)=>{const m=String(v).trim().match(/^(\d{1,2})\s*[\/\-.月]\s*(\d{1,2})/);if(!m)return "";const now=new Date();let y=now.getFullYear();const mm=+m[1],dd=+m[2];if(mm<now.getMonth()+1)y++;return `${y}-${String(mm).padStart(2,"0")}-${String(dd).padStart(2,"0")}`};
+const ACT_COLS=["加好友禮","消費優惠","雲端點餐","LINE 推播","店內 DM"];
+const actCol=t=>/加 LINE|LINE 好友送|好友 DM|LINE 好友，/.test(t)?(/DM/.test(t)?"店內 DM":"加好友禮"):/雲端/.test(t)?"雲端點餐":/群發|推播/.test(t)?"LINE 推播":/DM|桌牌/.test(t)?"店內 DM":/Google/.test(t)?"Google":"消費優惠";
 function accActs(k){
-  const st=ACC_STORES[k]||[];const seen=new Set();const covered=new Set();
-  const rows=(S.track||[]).filter(x=>["進行中","可以進行"].includes(x.st)&&!/到店免等待|認領|驗證/.test(x.t)&&(x.sc.includes("all")||x.sc.some(id=>st.includes(id))))
-   .sort((a,b)=>(a.sc.includes("all")?0:1)-(b.sc.includes("all")?0:1)||b.sc.filter(id=>st.includes(id)).length-a.sc.filter(id=>st.includes(id)).length||b.m.localeCompare(a.m))
-   .filter(x=>{const key=x.t.replace(/（.*?）/g,"");if(seen.has(key))return false;seen.add(key);return true});
-  const nm=id=>{const z=S.stores.find(y=>y.id===id);return z?SHORT(z):id};
-  const out=rows.map(x=>{const mine=x.sc.filter(id=>st.includes(id));if(!x.sc.includes("all")&&/LINE 好友|加 LINE/.test(x.t))mine.forEach(id=>covered.add(id));
-   const who=x.sc.includes("all")?"全部門市":mine.length===st.length&&st.length>1?"全帳號":mine.length===3&&mine.every(id=>/龍安/.test(id))?"龍安 3 家":mine.map(nm).join("、");
-   return [who,x.t.replace(/（.*?）/g,"")]});
-  st.filter(id=>!covered.has(id)).forEach(id=>out.push([nm(id),null]));
-  const grp=[];out.forEach(([w,t])=>{let g=grp.find(x=>x[0]===w);if(!g)grp.push(g=[w,[]]);if(t)g[1].push(t)});
-  return grp.map(([w,ts])=>`<div style="display:flex;gap:10px;font-size:13px;margin:2px 0"><span class="note" style="min-width:84px;white-space:nowrap">${esc(w)}</span><div>${ts.length?ts.map(esc).join("<br>"):`<span class="note">暫時無活動</span>`}</div></div>`).join("");
+  const st=ACC_STORES[k]||[];const seen=new Set();
+  const rows=(S.track||[]).filter(x=>["進行中","可以進行"].includes(x.st)&&!/到店免等待|認領|驗證/.test(x.t)&&!x.sc.includes("all")&&x.sc.some(id=>st.includes(id)))
+   .sort((a,b)=>b.m.localeCompare(a.m)).filter(x=>{const key=x.t.replace(/（.*?）/g,"");if(seen.has(key))return false;seen.add(key);return true});
+  const nm=id=>{const z=S.stores.find(y=>y.id===id);return z?SHORT(z).replace(/ .*/,""):id};
+  const cell={};ACT_COLS.forEach(c=>cell[c]=[]);
+  rows.forEach(x=>{const c=actCol(x.t.replace(/（.*?）/g,""));if(!cell[c])return;const mine=x.sc.filter(id=>st.includes(id));
+   const who=st.length===1||mine.length===st.length?"":mine.length===3&&mine.every(id=>/龍安/.test(id))?"龍安 3 家":mine.map(nm).join("、");
+   cell[c].push(`${who?`<span class="note">${esc(who)}</span> `:""}${esc(x.t.replace(/（.*?）/g,"").replace(/^每月輪替：/,"輪替：").replace(/^店內放置/,""))}`)});
+  return ACT_COLS.map(c=>`<td style="font-size:13px;min-width:150px;vertical-align:top">${cell[c].length?cell[c].join("<div style='height:4px'></div>"):`<span class="note">—</span>`}</td>`).join("");
 }
 function lineGoalCard(){
   const G=S.lineGoal||{},D=S.lineD||{},M=S.lineM||{};const day=d=>Math.round(new Date(d+"T00:00:00")/864e5);
@@ -991,9 +991,12 @@ function lineGoalCard(){
    const acts=accActs(k);
    return `<tr><td style="white-space:nowrap">${esc(k.replace(/（.*?）/,""))}</td><td class="c"><input class="num-in" style="width:64px" inputmode="numeric" data-lg="${i}|t" value="${esc(g.t||"")}"></td><td class="c"><input class="num-in" style="width:64px" placeholder="月/日" data-lg="${i}|due" value="${esc(md(g.due))}"></td><td class="c">${left==null?"—":left+" 天"}</td><td class="c"><b>${cur||"—"}</b></td><td class="c">${g.t?Math.max(0,n(g.t)-cur):"—"}</td>
    <td class="c" style="border-left:2px solid #c9dbef">${act==null?"—":f(act)}</td><td class="c" style="border-right:2px solid #c9dbef"><span class="pill ${ok==null?"":ok?"p-ok":"p-bad"}">${need==null?"—":f(need)}</span></td>
-   <td style="min-width:300px">${acts||`<span class="note" style="font-size:13px">目前沒有加好友活動</span>`}<input class="ag-note" style="min-width:280px;margin-top:4px;font-size:13px" placeholder="備註／建議" data-lg="${i}|acts" value="${esc(g.acts||"")}"></td></tr>`}).join("");
-  return `<div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>會員目標</h3><span class="note">目標人數、期限可以直接改（期限打 1/31 這樣就好）。紅色＝目前速度不夠。活動從「成效追蹤」自動帶入</span></div>
-  <div class="scroll"><table class="tight" style="min-width:980px"><thead><tr><th rowspan="2">帳號</th><th class="c" rowspan="2">目標人數</th><th class="c" rowspan="2">期限</th><th class="c" rowspan="2">剩餘</th><th class="c" rowspan="2">目前</th><th class="c" rowspan="2">還差</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th rowspan="2">目前活動</th></tr><tr><th class="c" style="border-left:2px solid #c9dbef">實際</th><th class="c" style="border-right:2px solid #c9dbef">需要</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+   <td><input class="ag-note" style="min-width:220px;font-size:13px" placeholder="備註／建議" data-lg="${i}|acts" value="${esc(g.acts||"")}"></td></tr>`}).join("");
+  const mrows=LINE_ACCS.map(k=>`<tr><td style="white-space:nowrap;vertical-align:top">${esc(k.replace(/（.*?）/,""))}</td>${accActs(k)}</tr>`).join("");
+  return `<div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>會員目標</h3><span class="note">目標人數、期限可以直接改（期限打 1/31 這樣就好）。紅色＝目前速度不夠</span></div>
+  <div class="scroll"><table class="tight" style="min-width:980px"><thead><tr><th rowspan="2">帳號</th><th class="c" rowspan="2">目標人數</th><th class="c" rowspan="2">期限</th><th class="c" rowspan="2">剩餘</th><th class="c" rowspan="2">目前</th><th class="c" rowspan="2">還差</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th rowspan="2">備註／建議</th></tr><tr><th class="c" style="border-left:2px solid #c9dbef">實際</th><th class="c" style="border-right:2px solid #c9dbef">需要</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+  <div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>各帳號活動一覽</h3><span class="note">從「成效追蹤」自動帶入；全部門市共同：Google 地圖放雲端點餐網址＋LINE QR</span></div>
+  <div class="scroll"><table class="tight" style="min-width:980px"><thead><tr><th>帳號</th>${ACT_COLS.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${mrows}</tbody></table></div></div>`;
 }
 
 function growth(){
