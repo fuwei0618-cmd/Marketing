@@ -980,7 +980,7 @@ function storeActs(id){
   (S.track||[]).filter(x=>["進行中","可以進行"].includes(x.st)&&!/到店免等待|認領|驗證/.test(x.t)&&!x.sc.includes("all")&&x.sc.includes(id))
    .sort((a,b)=>b.m.localeCompare(a.m)).forEach(x=>{const t=x.t.replace(/（.*?）/g,"");if(seen.has(t))return;seen.add(t);const c=actCol(t);
     if(c==="推播"){push=true;return}if(!cell[c])return;
-    cell[c].push(esc(actWord(t,c)))});
+    cell[c].push(esc(actWord(t,c)).replace(/加好友送(?=\S)/,"加好友送<br>"))});
   const pt=`<div class="note" style="font-size:12px;margin-top:2px">＋每月 LINE 推播</div>`;
   return ACT_COLS.map(c=>`<td style="font-size:13px;min-width:110px;vertical-align:top">${cell[c].length?cell[c].join("<div style='height:4px'></div>"):`<span class="note">—</span>`}${push&&c!=="LINE 好友"?pt:""}</td>`).join("");
 }
@@ -998,8 +998,9 @@ function lineGoalCard(){
    <td${rs} class="c" style="vertical-align:top;border-left:2px solid #c9dbef;${B}">${act==null?"—":f(act)}</td><td${rs} class="c" style="vertical-align:top;border-right:2px solid #c9dbef;${B}"><span class="pill ${ok==null?"":ok?"p-ok":"p-bad"}">${need==null?"—":f(need)}</span></td>`;
    const noteTd=`<td${rs} style="vertical-align:top;${B}"><textarea class="ag-note" style="min-width:110px;width:100%;min-height:38px;font-size:13px" placeholder="備註／建議" data-lg="${i}|acts">${esc(g.acts||"")}</textarea></td>`;
    const grp=[];(st.length?st:[null]).forEach(id=>{const h=id?storeActs(id):"";const gg=grp.find(x=>x.h===h);gg?gg.ids.push(id):grp.push({h,ids:[id]})});
-   const gname=ids=>{if(!ids[0])return "—";const ns=ids.map(nm);const b=ns[0].split(" ")[0];return ns.length>1&&ns.every(x=>x.split(" ")[0]===b)?b+" "+ns.map(x=>x.split(" ").slice(1).join(" ")).join("、"):ns.join("、")};
-   return grp.map((gp,j)=>{const top=j===0?B:"";const sCell=`<td style="min-width:80px;vertical-align:top;font-size:13px;${top}">${esc(gname(gp.ids)).replace(" ","<br>")}</td>`;
+   const loc=x=>x.split(" ").slice(1).join(" "),brd=x=>x.split(" ")[0];const oneLoc=st.length&&new Set(st.map(id=>loc(nm(id)))).size===1;
+   const gname=ids=>{if(!ids[0])return "—";const ns=ids.map(nm);if(oneLoc)return [...new Set(ns.map(brd))].map(esc).join("<br>");const b=brd(ns[0]);return ns.length>1&&ns.every(x=>brd(x)===b)?esc(b)+"<br>"+esc(ns.map(loc).join("、")):ns.length>1?ns.map(x=>esc(x.replace(" ",""))).join("<br>"):esc(ns[0]).replace(" ","<br>")};
+   return grp.map((gp,j)=>{const top=j===0?B:"";const sCell=`<td style="min-width:80px;vertical-align:top;font-size:13px;${top}">${gname(gp.ids)}</td>`;
     const acts=gp.h.replace(/<td style="/g,`<td style="${top}`);
     return `<tr>${j===0?head:""}${sCell}${acts}${j===0?noteTd:""}</tr>`}).join("")}).join("");
   return `<div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>會員目標</h3><span class="note">目標人數、期限可以直接改（期限打 1/31 這樣就好）。紅色＝目前速度不夠</span></div>
