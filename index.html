@@ -971,7 +971,7 @@ const md=d=>d?`${+d.slice(5,7)}/${+d.slice(8,10)}`:"";
 const parseMD=(v)=>{const m=String(v).trim().match(/^(\d{1,2})\s*[\/\-.月]\s*(\d{1,2})/);if(!m)return "";const now=new Date();let y=now.getFullYear();const mm=+m[1],dd=+m[2];if(mm<now.getMonth()+1)y++;return `${y}-${String(mm).padStart(2,"0")}-${String(dd).padStart(2,"0")}`};
 const ACT_COLS=["LINE 好友","消費優惠","雲端點餐"];
 const actCol=t=>/群發|推播/.test(t)?"推播":/加 LINE|LINE 好友|好友 DM|DM|桌牌/.test(t)?"LINE 好友":/雲端/.test(t)?"雲端點餐":/Google/.test(t)?"Google":"消費優惠";
-const actWord=(t,c)=>{t=t.replace(/^每月輪替：/,"輪替：").replace(/^店內放置/,"店內放");
+const actWord=(t,c)=>{t=t.replace(/^(每月)?輪替[：:].*$/,"每月優惠飲料輪替").replace(/^店內放置/,"店內放");
   t=t.replace(/^雲端(訂餐|點餐)[，,]?\s*/,"").replace(/^加 LINE 好友[，,]\s*/,"").replace(/加 LINE 好友/,"加好友").replace(/首次加 LINE 好友/,"首次加好友").replace(/首次加 LINE\s*/,"首次加好友");
   t=t.replace(/(每消費\s*\$?100|滿\s*\$?100)\s*/g,"滿百").replace(/滿百送紅茶\s*\$(\d+)\s*折價券/,"滿百送 $$$1 紅茶").replace(/滿百送\s*\$(\d+)\s*紅茶折價券/,"滿百送 $$$1 紅茶").replace(/滿百送\s*\$(\d+)$/,"滿百送 $$$1");
   return t};
