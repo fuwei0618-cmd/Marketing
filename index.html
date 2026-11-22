@@ -647,6 +647,7 @@ if(!S.v1122e){const T=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅茶
  ].forEach(r=>{if(!S.track.some(x=>x.id===r.id))S.track.push(r)});S.v1122e=1}
 if(!S.v1122f){S.track=S.track||[];const G=S.lineGoal||{};if(G["三顧茅廬 桃園寶山店"]&&G["三顧茅廬 桃園寶山店"].acts==="建議：QR 桌牌、店員開口")G["三顧茅廬 桃園寶山店"].acts="建議：店員結帳時開口";if(G["三顧茅廬-桃園中平店"]&&G["三顧茅廬-桃園中平店"].acts==="建議：QR 桌牌、紙本集點卡改 LINE 集點")G["三顧茅廬-桃園中平店"].acts="建議：紙本集點卡改 LINE 集點";
  if(!S.track.some(x=>x.id===20))S.track.push({id:20,m:"2026-11",sc:["三顧茅廬滷味-中平店","三顧茅廬滷味-寶山店"],t:"店內放置加 LINE 好友 DM",st:"進行中",cost:"印刷費",goal:"LINE 好友數",rev:"",acost:"",res:"",arev:"",next:"",log:"",files:[]});S.v1122f=1}
+if(!S.v1122g){S.track=S.track||[];if(!S.track.some(x=>x.id===21))S.track.push({id:21,m:"2026-11",sc:["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅茶大苑-龍安店"],t:"全系列滿 5 送 1（原有活動）",st:"進行中",cost:"送出杯數 × 成本",goal:"兌換杯數",rev:"",acost:"",res:"",arev:"",next:"",log:"",files:[]});S.v1122g=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
