@@ -633,6 +633,10 @@ if(!S.v1122c){S.lineD=Object.assign({"2026-10":"2026-10-14","2026-11":"2026-11-2
   "三顧茅廬 桃園寶山店":{t:"100",due:"2027-01-31",acts:"目前無 → 建議 QR 桌牌、店員開口"},
   "韓殿炒泡麵、拾串關東煮（寶山店）":{t:"100",due:"2027-01-31",acts:"不做活動 → 只放 QR 桌牌、Google QR"}};
  S.v1122c=1}
+if(!S.v1122d){const N={"紅茶大苑-壽昌、國鼎店":"","龍安美食（拾串、少帥、紅茶大苑、哨帥）":"","三顧茅廬-桃園中平店":"建議：QR 桌牌、紙本集點卡改 LINE 集點","李氏韓式豆腐鍋-桃園壽昌":"","三顧茅廬 桃園寶山店":"建議：QR 桌牌、店員開口","韓殿炒泡麵、拾串關東煮（寶山店）":"老闆不做活動 → 只放 QR 桌牌"};
+ Object.entries(N).forEach(([k,v])=>{if(S.lineGoal&&S.lineGoal[k])S.lineGoal[k].acts=v});
+ const TF=(S.track||[]).find(x=>x.id===4);if(TF&&!/LINE/.test(TF.t))TF.t="加 LINE 好友，每消費 $100 送 $20 紅茶折價券";
+ S.v1122d=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
@@ -951,18 +955,33 @@ function video(){
 
 let growG="品牌";
 
+const ACC_STORES={"紅茶大苑-壽昌、國鼎店":["紅茶大苑-國鼎店","紅茶大苑-壽昌店"],"龍安美食（拾串、少帥、紅茶大苑、哨帥）":["紅茶大苑-龍安店","拾串關東煮-龍安店","東北少帥麻辣拌-龍安店","一口煎餃-龍安店"],"韓殿炒泡麵、拾串關東煮（寶山店）":["拾串關東煮-寶山店","韓殿炒泡麵-寶山店"],"李氏韓式豆腐鍋-桃園壽昌":["韓式豆腐鍋-壽昌店"],"三顧茅廬 桃園寶山店":["三顧茅廬滷味-寶山店"],"三顧茅廬-桃園中平店":["三顧茅廬滷味-中平店"]};
+const md=d=>d?`${+d.slice(5,7)}/${+d.slice(8,10)}`:"";
+const parseMD=(v)=>{const m=String(v).trim().match(/^(\d{1,2})\s*[\/\-.月]\s*(\d{1,2})/);if(!m)return "";const now=new Date();let y=now.getFullYear();const mm=+m[1],dd=+m[2];if(mm<now.getMonth()+1)y++;return `${y}-${String(mm).padStart(2,"0")}-${String(dd).padStart(2,"0")}`};
+function accActs(k){
+  const st=ACC_STORES[k]||[];const seen=new Set();
+  const rows=(S.track||[]).filter(x=>["進行中","可以進行"].includes(x.st)&&/LINE|QR|好友/.test(x.t)&&(x.sc.includes("all")||x.sc.some(id=>st.includes(id))))
+   .sort((a,b)=>(a.sc.includes("all")?0:1)-(b.sc.includes("all")?0:1)||b.m.localeCompare(a.m))
+   .filter(x=>{const key=x.t.replace(/（.*?）/g,"");if(seen.has(key))return false;seen.add(key);return true});
+  return rows.map(x=>{const who=x.sc.includes("all")?"全部門市":x.sc.filter(id=>st.includes(id)).length===st.length&&st.length>1?"全帳號":x.sc.filter(id=>st.includes(id)).map(id=>{const z=S.stores.find(y=>y.id===id);return z?SHORT(z):id}).join("、");
+   return `<div style="font-size:13px;white-space:nowrap"><span class="note">${esc(who)}</span>　${esc(x.t.replace(/（.*?）/g,""))}</div>`}).join("");
+}
 function lineGoalCard(){
   const G=S.lineGoal||{},D=S.lineD||{},M=S.lineM||{};const day=d=>Math.round(new Date(d+"T00:00:00")/864e5);
-  const today=new Date();const td=day(today.toISOString().slice(0,10));
+  const td=day(new Date().toISOString().slice(0,10));
   const rows=LINE_ACCS.map((k,i)=>{const g=G[k]||{};const ms=Object.keys(M[k]||{}).filter(m=>n(M[k][m])).sort();const last=ms[ms.length-1],first=ms[0];
    const cur=last?n(M[k][last]):0;const dL=last?(D[last]||last+"-28"):null,dF=first?(D[first]||first+"-28"):null;
    const act=last&&first&&last!==first?((cur-n(M[k][first]))/Math.max(1,day(dL)-day(dF))):null;
-   const left=g.due?Math.max(1,day(g.due)-td):null;const need=g.t&&left?Math.max(0,(n(g.t)-cur)/left):null;
-   const ok=act!=null&&need!=null?act>=need:null;
-   return `<tr><td style="white-space:nowrap">${esc(k.replace(/（.*?）/,""))}</td><td class="c"><input class="num-in" style="width:64px" data-lg="${i}|t" value="${esc(g.t||"")}"></td><td class="c"><input type="date" class="num-in" style="width:130px" data-lg="${i}|due" value="${esc(g.due||"")}"></td><td class="c"><b>${cur||"—"}</b></td><td class="c">${g.t?Math.max(0,n(g.t)-cur):"—"}</td><td class="c">${act==null?"—":act.toFixed(1).replace("-0.0","0.0")}</td><td class="c"><span class="pill ${ok==null?"":ok?"p-ok":"p-bad"}">${need==null?"—":need.toFixed(1)}</span></td><td><input class="ag-note" style="min-width:320px" data-lg="${i}|acts" value="${esc(g.acts||"")}"></td></tr>`}).join("");
-  return `<div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>會員目標</h3><span class="note">每天增加：實際＝從第一次記錄到最近一次的平均；目標＝剩下人數 ÷ 到期限的天數。紅色＝目前速度不夠</span></div>
-  <div class="scroll"><table class="tight" style="min-width:880px"><thead><tr><th>帳號</th><th class="c">目標人數</th><th class="c">期限</th><th class="c">目前</th><th class="c">還差</th><th class="c">每天增加<br>實際</th><th class="c">每天增加<br>目標</th><th>搭配活動</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+   const left=g.due?Math.max(0,day(g.due)-td):null;const need=g.t&&left?Math.max(0,(n(g.t)-cur)/left):null;
+   const ok=act!=null&&need!=null?act>=need:null;const f=v=>v.toFixed(1).replace("-0.0","0.0");
+   const acts=accActs(k);
+   return `<tr><td style="white-space:nowrap">${esc(k.replace(/（.*?）/,""))}</td><td class="c"><input class="num-in" style="width:64px" inputmode="numeric" data-lg="${i}|t" value="${esc(g.t||"")}"></td><td class="c"><input class="num-in" style="width:64px" placeholder="月/日" data-lg="${i}|due" value="${esc(md(g.due))}"></td><td class="c">${left==null?"—":left+" 天"}</td><td class="c"><b>${cur||"—"}</b></td><td class="c">${g.t?Math.max(0,n(g.t)-cur):"—"}</td>
+   <td class="c" style="border-left:2px solid #c9dbef">${act==null?"—":f(act)}</td><td class="c" style="border-right:2px solid #c9dbef"><span class="pill ${ok==null?"":ok?"p-ok":"p-bad"}">${need==null?"—":f(need)}</span></td>
+   <td style="min-width:300px">${acts||`<span class="note" style="font-size:13px">目前沒有加好友活動</span>`}<input class="ag-note" style="min-width:280px;margin-top:4px;font-size:13px" placeholder="備註／建議" data-lg="${i}|acts" value="${esc(g.acts||"")}"></td></tr>`}).join("");
+  return `<div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>會員目標</h3><span class="note">目標人數、期限可以直接改（期限打 1/31 這樣就好）。紅色＝目前速度不夠。活動從「成效追蹤」自動帶入</span></div>
+  <div class="scroll"><table class="tight" style="min-width:980px"><thead><tr><th rowspan="2">帳號</th><th class="c" rowspan="2">目標人數</th><th class="c" rowspan="2">期限</th><th class="c" rowspan="2">剩餘</th><th class="c" rowspan="2">目前</th><th class="c" rowspan="2">還差</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th rowspan="2">加好友活動</th></tr><tr><th class="c" style="border-left:2px solid #c9dbef">實際</th><th class="c" style="border-right:2px solid #c9dbef">需要</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
+
 function growth(){
   const lineOf=(k,m)=>n(((S.lineM||{})[k]||{})[m]);
   const lm=revMonths(), lk=lm.slice(1).reverse().find(m=>LINE_ACCS.some(k=>lineOf(k,m)));
@@ -1200,7 +1219,7 @@ function bind(){
   document.querySelectorAll("[data-trf]").forEach(e=>e.onchange=()=>{const [id,k]=e.dataset.trf.split("|");S.track.find(x=>x.id==id)[k]=e.value.trim();save()});
   document.querySelectorAll("[data-trdel]").forEach(b=>b.onclick=()=>{if(!confirm("刪除這一列？"))return;S.track=S.track.filter(x=>x.id!=b.dataset.trdel);save();render()});
   const trF=document.querySelector("#trForm");if(trF)trF.onsubmit=e=>{e.preventDefault();const m=$("#tr-m").value;if(!m)return;S.track.push({id:Date.now(),m,sc:[$("#tr-sc").value],t:$("#tr-t").value.trim(),st:"提案",cost:"",goal:"",rev:"",acost:"",res:"",arev:"",next:"",log:"",files:[]});trM=m;save();render()};
-  document.querySelectorAll("[data-lg]").forEach(e=>e.onchange=()=>{const [i,f]=e.dataset.lg.split("|");const k=LINE_ACCS[+i];S.lineGoal=S.lineGoal||{};(S.lineGoal[k]=S.lineGoal[k]||{})[f]=e.value.trim();save();render()});
+  document.querySelectorAll("[data-lg]").forEach(e=>e.onchange=()=>{const [i,f]=e.dataset.lg.split("|");const k=LINE_ACCS[+i];S.lineGoal=S.lineGoal||{};let v=e.value.trim();if(f==="due"){const d=parseMD(v);if(v&&!d){alert("期限請打 月/日，例如 1/31");return}v=d}(S.lineGoal[k]=S.lineGoal[k]||{})[f]=v;save();render()});
   document.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{moreView=b.dataset.mv;try{localStorage.setItem(KEY+"-mv",moreView)}catch(e){}render()});
   const bc=$("#bkCopy");if(bc)bc.onclick=()=>{const t=$("#bk-out").value;navigator.clipboard.writeText(t).then(()=>{$("#bkOk").textContent="已複製"},()=>{$("#bk-out").select();$("#bkOk").textContent="已選取，請長按複製"})};
   const bi=$("#bkImport");if(bi)bi.onclick=()=>{try{const d=JSON.parse($("#bk-in").value);if(!d.stores)throw 0;S=d;save();$("#bkMsg").textContent="已匯入";render()}catch(e){$("#bkMsg").textContent="備份碼格式不對，請重新複製完整的一段"}};
