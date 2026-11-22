@@ -116,6 +116,7 @@ a.lnk:hover{opacity:.8}
 .linkbar{display:flex;flex-wrap:wrap;gap:8px}
 a.lbtn{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weight:700;color:var(--tea);background:var(--tea-soft);border-radius:7px;padding:6px 12px;text-decoration:none}
 .gtab{grid-column:1/-1;margin-top:6px}
+.stick{position:sticky;left:0;z-index:1;background:var(--surface);box-shadow:2px 0 0 rgba(0,0,0,.06)}
 .gtab table{font-size:.75rem}
 .gtab th,.gtab td{padding:4px 6px}
 .gtab td.nx{color:var(--muted)}
@@ -978,7 +979,7 @@ function accActs(k){
   rows.forEach(x=>{const c=actCol(x.t.replace(/（.*?）/g,""));if(!cell[c])return;const mine=x.sc.filter(id=>st.includes(id));
    const who=st.length===1||mine.length===st.length?"":mine.length===3&&mine.every(id=>/龍安/.test(id))?"龍安 3 家":mine.map(nm).join("、");
    cell[c].push(`${who?`<span class="note">${esc(who)}</span> `:""}${esc(x.t.replace(/（.*?）/g,"").replace(/^每月輪替：/,"輪替：").replace(/^店內放置/,""))}`)});
-  return ACT_COLS.map(c=>`<td style="font-size:13px;min-width:150px;vertical-align:top">${cell[c].length?cell[c].join("<div style='height:4px'></div>"):`<span class="note">—</span>`}</td>`).join("");
+  return ACT_COLS.map(c=>`<td style="font-size:13px;min-width:170px;vertical-align:top">${cell[c].length?cell[c].join("<div style='height:4px'></div>"):`<span class="note">—</span>`}</td>`).join("");
 }
 function lineGoalCard(){
   const G=S.lineGoal||{},D=S.lineD||{},M=S.lineM||{};const day=d=>Math.round(new Date(d+"T00:00:00")/864e5);
@@ -989,14 +990,11 @@ function lineGoalCard(){
    const left=g.due?Math.max(0,day(g.due)-td):null;const need=g.t&&left?Math.max(0,(n(g.t)-cur)/left):null;
    const ok=act!=null&&need!=null?act>=need:null;const f=v=>v.toFixed(1).replace("-0.0","0.0");
    const acts=accActs(k);
-   return `<tr><td style="white-space:nowrap">${esc(k.replace(/（.*?）/,""))}</td><td class="c"><input class="num-in" style="width:64px" inputmode="numeric" data-lg="${i}|t" value="${esc(g.t||"")}"></td><td class="c"><input class="num-in" style="width:64px" placeholder="月/日" data-lg="${i}|due" value="${esc(md(g.due))}"></td><td class="c">${left==null?"—":left+" 天"}</td><td class="c"><b>${cur||"—"}</b></td><td class="c">${g.t?Math.max(0,n(g.t)-cur):"—"}</td>
+   return `<tr><td class="stick" style="white-space:nowrap;vertical-align:top">${esc(k.replace(/（.*?）/,"").replace("、拾串關東煮","・拾串"))}</td><td class="c"><input class="num-in" style="width:64px" inputmode="numeric" data-lg="${i}|t" value="${esc(g.t||"")}"></td><td class="c"><input class="num-in" style="width:64px" placeholder="月/日" data-lg="${i}|due" value="${esc(md(g.due))}"></td><td class="c">${left==null?"—":left+" 天"}</td><td class="c"><b>${cur||"—"}</b></td><td class="c">${g.t?Math.max(0,n(g.t)-cur):"—"}</td>
    <td class="c" style="border-left:2px solid #c9dbef">${act==null?"—":f(act)}</td><td class="c" style="border-right:2px solid #c9dbef"><span class="pill ${ok==null?"":ok?"p-ok":"p-bad"}">${need==null?"—":f(need)}</span></td>
-   <td><input class="ag-note" style="min-width:220px;font-size:13px" placeholder="備註／建議" data-lg="${i}|acts" value="${esc(g.acts||"")}"></td></tr>`}).join("");
-  const mrows=LINE_ACCS.map(k=>`<tr><td style="white-space:nowrap;vertical-align:top">${esc(k.replace(/（.*?）/,""))}</td>${accActs(k)}</tr>`).join("");
+   ${accActs(k)}<td style="vertical-align:top"><textarea class="ag-note" style="min-width:180px;min-height:38px;font-size:13px" placeholder="備註／建議" data-lg="${i}|acts">${esc(g.acts||"")}</textarea></td></tr>`}).join("");
   return `<div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>會員目標</h3><span class="note">目標人數、期限可以直接改（期限打 1/31 這樣就好）。紅色＝目前速度不夠</span></div>
-  <div class="scroll"><table class="tight" style="min-width:980px"><thead><tr><th rowspan="2">帳號</th><th class="c" rowspan="2">目標人數</th><th class="c" rowspan="2">期限</th><th class="c" rowspan="2">剩餘</th><th class="c" rowspan="2">目前</th><th class="c" rowspan="2">還差</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th rowspan="2">備註／建議</th></tr><tr><th class="c" style="border-left:2px solid #c9dbef">實際</th><th class="c" style="border-right:2px solid #c9dbef">需要</th></tr></thead><tbody>${rows}</tbody></table></div></div>
-  <div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>各帳號活動一覽</h3><span class="note">從「成效追蹤」自動帶入；全部門市共同：Google 地圖放雲端點餐網址＋LINE QR</span></div>
-  <div class="scroll"><table class="tight" style="min-width:980px"><thead><tr><th>帳號</th>${ACT_COLS.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${mrows}</tbody></table></div></div>`;
+  <div class="scroll"><table class="tight" style="min-width:1700px"><thead><tr><th rowspan="2" class="stick">帳號</th><th class="c" rowspan="2">目標人數</th><th class="c" rowspan="2">期限</th><th class="c" rowspan="2">剩餘</th><th class="c" rowspan="2">目前</th><th class="c" rowspan="2">還差</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th class="c" colspan="${ACT_COLS.length}" style="border-bottom:1px solid #c9dbef">目前活動（從成效追蹤自動帶入；Google QR 全部門市都有）</th><th rowspan="2">備註／建議</th></tr><tr><th class="c" style="border-left:2px solid #c9dbef">實際</th><th class="c" style="border-right:2px solid #c9dbef">需要</th>${ACT_COLS.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
 function growth(){
