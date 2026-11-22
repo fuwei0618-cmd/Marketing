@@ -1230,9 +1230,11 @@ function bind(){
   document.querySelectorAll("[data-tg]").forEach(b=>b.onclick=()=>{trG=b.dataset.tg;try{localStorage.setItem(KEY+"-tg",trG)}catch(e){}render()});
   document.querySelectorAll("[data-trm]").forEach(b=>b.onclick=()=>{trM=b.dataset.trm;render()});
   document.querySelectorAll("[data-trst]").forEach(e=>e.onchange=()=>{S.track.find(x=>x.id==e.dataset.trst).st=e.value;save()});
+  document.querySelectorAll("[data-trf]").forEach(e=>e.oninput=()=>{const [id,k]=e.dataset.trf.split("|");const x=S.track.find(y=>y.id==id);if(x){x[k]=e.value;save()}});
   document.querySelectorAll("[data-trf]").forEach(e=>e.onchange=()=>{const [id,k]=e.dataset.trf.split("|");S.track.find(x=>x.id==id)[k]=e.value.trim();save()});
   document.querySelectorAll("[data-trdel]").forEach(b=>b.onclick=()=>{if(!confirm("刪除這一列？"))return;S.track=S.track.filter(x=>x.id!=b.dataset.trdel);save();render()});
   const trF=document.querySelector("#trForm");if(trF)trF.onsubmit=e=>{e.preventDefault();const m=$("#tr-m").value;if(!m)return;S.track.push({id:Date.now(),m,sc:[$("#tr-sc").value],t:$("#tr-t").value.trim(),st:"提案",cost:"",goal:"",rev:"",acost:"",res:"",arev:"",next:"",log:"",files:[]});trM=m;save();render()};
+  document.querySelectorAll("[data-lg$=\"|acts\"]").forEach(e=>e.oninput=()=>{const k=LINE_ACCS[+e.dataset.lg.split("|")[0]];S.lineGoal=S.lineGoal||{};(S.lineGoal[k]=S.lineGoal[k]||{}).acts=e.value;save()});
   document.querySelectorAll("[data-lg]").forEach(e=>e.onchange=()=>{const [i,f]=e.dataset.lg.split("|");const k=LINE_ACCS[+i];S.lineGoal=S.lineGoal||{};let v=e.value.trim();if(f==="due"){const d=parseMD(v);if(v&&!d){alert("期限請打 月/日，例如 1/31");return}v=d}(S.lineGoal[k]=S.lineGoal[k]||{})[f]=v;save();render()});
   document.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{moreView=b.dataset.mv;try{localStorage.setItem(KEY+"-mv",moreView)}catch(e){}render()});
   const bc=$("#bkCopy");if(bc)bc.onclick=()=>{const t=$("#bk-out").value;navigator.clipboard.writeText(t).then(()=>{$("#bkOk").textContent="已複製"},()=>{$("#bk-out").select();$("#bkOk").textContent="已選取，請長按複製"})};
