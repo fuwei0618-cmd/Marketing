@@ -622,6 +622,8 @@ if(!S.v1122a){const T={
  "韓式豆腐鍋-壽昌店":["上傳豆腐鍋 Logo（加 LINE 送紅茶券 DM 要用）","上傳招牌照片"],
  "韓殿炒泡麵-寶山店":["上傳韓殿 Logo、招牌照片"]};
  S.stores.forEach(s=>{(T[s.id]||[]).forEach(t=>{s.todos=s.todos||[];if(!s.todos.some(x=>x.text===t))s.todos.push({cat:"素材",text:t+"（傳給 Claude → 放進 App 素材庫）",done:false})})});S.v1122a=1}
+if(!S.v1122b){S.lineM=S.lineM||{};const O={"紅茶大苑-壽昌、國鼎店":"969","龍安美食（拾串、少帥、紅茶大苑、哨帥）":"392","韓殿炒泡麵、拾串關東煮（寶山店）":"1","李氏韓式豆腐鍋-桃園壽昌":"86","三顧茅廬 桃園寶山店":"1","三顧茅廬-桃園中平店":"527"};
+ Object.entries(O).forEach(([k,v])=>{(S.lineM[k]=S.lineM[k]||{})["2026-11"]=v});S.v1122b=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
