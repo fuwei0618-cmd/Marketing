@@ -248,7 +248,7 @@ const GROUPS=[
  {g:"現場",items:[["m_order","點餐"],["m_pay","Pay"],["m_pop","物料"]]}];
 const CHECKS=GROUPS.flatMap(x=>x.items);
 const ST=["待確認","待處理","完成","不適用"], STS=["?","待","✓","—"];
-const TODO_CATS=["Google","LINE","行銷"];
+const TODO_CATS=["Google","LINE","行銷","素材"];
 const GBP={ // 2026-10-11 Google 商家清單
  "紅茶大苑-國鼎店":{addr:"國鼎一街14號",v:"已驗證"},
  "紅茶大苑-壽昌店":{addr:"壽昌街20巷48號",v:"已驗證"},
@@ -613,6 +613,15 @@ if(!S.v1121k){const LA2=["拾串關東煮-龍安店","東北少帥麻辣拌-龍�
  [E({id:15,m:"2026-12",sc:LA2,t:"到店免等待：LINE 點餐 DM",st:"可以進行",cost:"印刷費",goal:"LINE 點餐筆數"}),
   E({id:16,m:"2026-12",sc:SG,t:"到店免等待：LINE 點餐 DM",st:"可以進行",cost:"印刷費",goal:"LINE 點餐筆數"})].forEach(r=>{if(!S.track.some(x=>x.id===r.id))S.track.push(r)});
  S.v1121k=1}
+if(!S.v1122a){const T={
+ "一口煎餃-龍安店":["上傳煎餃 Logo","上傳開幕招牌照片","上傳兩種格式廣告牌檔案"],
+ "拾串關東煮-龍安店":["上傳拾串 Logo 原檔（滿百 DM 定稿要用）"],
+ "東北少帥麻辣拌-龍安店":["上傳少帥 Logo 原檔（滿百 DM 定稿要用）","上傳哨帥招牌照片"],
+ "三顧茅廬滷味-中平店":["上傳三顧 Logo（到店免等待 DM 要用）","上傳中平店招牌照片"],
+ "三顧茅廬滷味-寶山店":["上傳寶山店招牌照片"],
+ "韓式豆腐鍋-壽昌店":["上傳豆腐鍋 Logo（加 LINE 送紅茶券 DM 要用）","上傳招牌照片"],
+ "韓殿炒泡麵-寶山店":["上傳韓殿 Logo、招牌照片"]};
+ S.stores.forEach(s=>{(T[s.id]||[]).forEach(t=>{s.todos=s.todos||[];if(!s.todos.some(x=>x.text===t))s.todos.push({cat:"素材",text:t+"（傳給 Claude → 放進 App 素材庫）",done:false})})});S.v1122a=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
