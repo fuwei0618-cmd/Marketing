@@ -644,6 +644,8 @@ if(!S.v1122e){const T=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅茶
   E({id:18,m:"2026-12",sc:["韓式豆腐鍋-壽昌店"],t:"雲端點餐，每消費 $100 送 $10 紅茶折價券",st:"進行中",cost:"兌換張數 × $10",goal:"雲端訂單筆數"}),
   E({id:19,m:"2026-12",sc:T,t:"LINE 每月 2 則群發（月中推雲端點餐、月底推新活動）",st:"進行中",cost:"0 元",goal:"推播後來客、兌換數"})
  ].forEach(r=>{if(!S.track.some(x=>x.id===r.id))S.track.push(r)});S.v1122e=1}
+if(!S.v1122f){S.track=S.track||[];const G=S.lineGoal||{};if(G["三顧茅廬 桃園寶山店"]&&G["三顧茅廬 桃園寶山店"].acts==="建議：QR 桌牌、店員開口")G["三顧茅廬 桃園寶山店"].acts="建議：店員結帳時開口";if(G["三顧茅廬-桃園中平店"]&&G["三顧茅廬-桃園中平店"].acts==="建議：QR 桌牌、紙本集點卡改 LINE 集點")G["三顧茅廬-桃園中平店"].acts="建議：紙本集點卡改 LINE 集點";
+ if(!S.track.some(x=>x.id===20))S.track.push({id:20,m:"2026-11",sc:["三顧茅廬滷味-中平店","三顧茅廬滷味-寶山店"],t:"店內放置加 LINE 好友 DM",st:"進行中",cost:"印刷費",goal:"LINE 好友數",rev:"",acost:"",res:"",arev:"",next:"",log:"",files:[]});S.v1122f=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
@@ -973,9 +975,10 @@ function accActs(k){
   const nm=id=>{const z=S.stores.find(y=>y.id===id);return z?SHORT(z):id};
   const out=rows.map(x=>{const mine=x.sc.filter(id=>st.includes(id));if(!x.sc.includes("all")&&/LINE 好友|加 LINE/.test(x.t))mine.forEach(id=>covered.add(id));
    const who=x.sc.includes("all")?"全部門市":mine.length===st.length&&st.length>1?"全帳號":mine.length===3&&mine.every(id=>/龍安/.test(id))?"龍安 3 家":mine.map(nm).join("、");
-   return `<div style="font-size:13px"><span class="note">${esc(who)}</span>　${esc(x.t.replace(/（.*?）/g,""))}</div>`});
-  st.filter(id=>!covered.has(id)).forEach(id=>out.push(`<div style="font-size:13px"><span class="note">${esc(nm(id))}</span>　<span class="note">暫時無活動</span></div>`));
-  return out.join("");
+   return [who,x.t.replace(/（.*?）/g,"")]});
+  st.filter(id=>!covered.has(id)).forEach(id=>out.push([nm(id),null]));
+  const grp=[];out.forEach(([w,t])=>{let g=grp.find(x=>x[0]===w);if(!g)grp.push(g=[w,[]]);if(t)g[1].push(t)});
+  return grp.map(([w,ts])=>`<div style="display:flex;gap:10px;font-size:13px;margin:2px 0"><span class="note" style="min-width:84px;white-space:nowrap">${esc(w)}</span><div>${ts.length?ts.map(esc).join("<br>"):`<span class="note">暫時無活動</span>`}</div></div>`).join("");
 }
 function lineGoalCard(){
   const G=S.lineGoal||{},D=S.lineD||{},M=S.lineM||{};const day=d=>Math.round(new Date(d+"T00:00:00")/864e5);
