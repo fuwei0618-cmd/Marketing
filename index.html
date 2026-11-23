@@ -136,6 +136,7 @@ a.lbtn{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weig
 .gm-line{margin-top:10px;font-size:14px}
 .gm-note{margin-top:10px;font-size:13px;opacity:.8;border-left:3px solid #c9dbef;padding-left:8px}
 .gm-acts{margin-top:8px}
+.gm-act td{min-width:0!important;font-size:12px!important;vertical-align:top}.gm-act .okb{width:18px;height:18px;font-size:11px}.gm-act .brandrow td{font-weight:700;font-size:13px!important}
 .gm-acc{margin-top:14px;padding:6px 10px;background:#16416c;color:#fff;border-radius:8px;font-weight:700;font-size:14px}
 .gm-num{width:100%;margin-top:8px;font-size:13px}.gm-num td,.gm-num th{padding:6px 3px}.gm-num tbody tr td{border-top:1px solid #e3eaf3}
 .gm-store{padding:10px 0;border-bottom:1px solid #e3eaf3}
@@ -1019,6 +1020,10 @@ function storeActs(id,mode){
     const h=w==="__OK__"?(fs.length?fs.map(f=>`<a href="${esc(f.u)}" target="_blank" rel="noopener" title="${esc(f.n)}">${ok}</a>`).join(" "):ok):fs.length?`<a class="dml" href="${esc(fs[0].u)}" target="_blank" rel="noopener" title="看 ${esc(fs[0].n)}">${esc(w)}</a>`+fs.slice(1).map(f=>`<a class="dmb" href="${esc(f.u)}" target="_blank" rel="noopener" title="${esc(f.n)}">DM</a>`).join(""):esc(w);
     cell[c].push({h,p:c==="雲端點餐"||/輪替/.test(t)})});
   const LB=`<span class="lineb" title="每月 LINE 推播">LINE</span>`;
+  if(mode==="t"){const J=c=>cell[c].map(e=>e.h+(push&&e.p?LB:""));const pre=(l,c)=>J(c).map(h=>`<div><span class="note">${l}</span> ${h}</div>`);
+   const a=[...pre("首次","首次"),...pre("滿百首次","滿百首次"),...J("店內 DM").map(h=>`<div><span class="note">店內 DM</span> ${h}</div>`)];
+   const td=x=>`<td>${x.length?x.join(""):`<span class="note">—</span>`}</td>`;
+   return td(a)+td(J("消費優惠").map(h=>`<div>${h}</div>`))+td(J("雲端點餐").map(h=>`<div>${h}</div>`))}
   if(mode==="m"){const L={"首次":"加好友・首次","滿百首次":"加好友・滿百首次","店內 DM":"店內加好友 DM","消費優惠":"消費優惠","雲端點餐":"雲端點餐滿百"};
    const r=ACT_COLS.filter(c=>cell[c].length).map(c=>`<div class="ma"><div class="ml">${L[c]}</div><div>${cell[c].map(e=>e.h+(push&&e.p?LB:"")).join("<br>")}</div></div>`).join("");
    return r||`<div class="note" style="font-size:13px">暫無活動</div>`}
@@ -1027,7 +1032,7 @@ function storeActs(id,mode){
 var gmI=0;try{gmI=+localStorage.getItem("storeops-v1-gm")||0}catch(e){}
 function gmSel(i){gmI=i;try{localStorage.setItem("storeops-v1-gm",i)}catch(e){}render()}
 function gmobHTML(mob){const i=gmI===1?1:0;return `<div class="gmob"><div class="gm-tabs">${["數字","活動・DM"].map((l,j)=>`<button class="${j===i?"on":""}" onclick="gmSel(${j})">${l}</button>`).join("")}</div>
- ${i===0?`<table class="tight gm-num"><thead><tr><th>帳號</th><th class="c">目前</th><th class="c">目標</th><th class="c">還差</th><th class="c">期限</th><th class="c" colspan="2">每天增加<br>實際｜需要</th></tr></thead><tbody>${mob.map(m=>m.row).join("")}</tbody></table>`:`<div class="gm-acts">${mob.map(m=>m.acts).join("")}</div>`}</div>`}
+ ${i===0?`<table class="tight gm-num"><thead><tr><th>帳號</th><th class="c">目前</th><th class="c">目標</th><th class="c">還差</th><th class="c">期限</th><th class="c" colspan="2">每天增加<br>實際｜需要</th></tr></thead><tbody>${mob.map(m=>m.row).join("")}</tbody></table>`:`<table class="tight gm-num gm-act"><thead><tr><th>門市</th><th>加 LINE 好友</th><th>消費優惠</th><th>雲端點餐滿百</th></tr></thead><tbody>${mob.map(m=>m.actT).join("")}</tbody></table>`}</div>`}
 function lineGoalCard(){
   const G=S.lineGoal||{},D=S.lineD||{},M=S.lineM||{};const day=d=>Math.round(new Date(d+"T00:00:00")/864e5);
   const td=day(new Date().toISOString().slice(0,10));const B="border-top:2px solid #c9dbef;";
@@ -1048,6 +1053,7 @@ function lineGoalCard(){
     const an=esc(k.replace(/（.*?）/,"").replace("、拾串關東煮","・拾串")).replace(/[-\s・]/,"<br>");
     const sn={"紅茶大苑-壽昌、國鼎店":"紅茶大苑<br><span class=note>壽昌・國鼎</span>","李氏韓式豆腐鍋-桃園壽昌":"豆腐鍋","三顧茅廬 桃園寶山店":"三顧<br><span class=note>寶山</span>","三顧茅廬-桃園中平店":"三顧<br><span class=note>中平</span>"}[k]||an;
     mob.push({row:`<tr><td style="line-height:1.3;white-space:nowrap">${sn}</td><td class="c"><b>${cur||"—"}</b></td><td class="c">${esc(g.t||"—")}</td><td class="c">${g.t?Math.max(0,n(g.t)-cur):"—"}</td><td class="c" style="line-height:1.3">${esc(md(g.due)||"—")}<br><span class="note" style="white-space:nowrap">${left==null?"":"剩"+left+"天"}</span></td><td class="c">${act==null?"—":f(act)}</td><td class="c"><span class="pill ${ok==null?"":ok?"p-ok":"p-bad"}">${need==null?"—":f(need)}</span></td></tr>${g.acts?`<tr><td colspan="7" class="note" style="font-size:12px;padding-top:0">${esc(g.acts)}</td></tr>`:""}`,
+     actT:`<tr class="brandrow"><td colspan="4">${esc(k.replace(/（.*?）/,"").replace("、拾串關東煮","・拾串"))}</td></tr>`+(()=>{const tg=[];(st.length?st:[null]).forEach(id=>{const h=id?storeActs(id,"t"):"<td></td><td></td><td></td>";const gg=tg.find(x=>x.h===h);gg?gg.ids.push(id):tg.push({h,ids:[id]})});return tg.map(gp=>`<tr><td style="line-height:1.3;white-space:nowrap!important">${gname(gp.ids)}</td>${gp.h}</tr>`).join("")})(),
      acts:`<div class="gm-acc">${esc(k.replace(/（.*?）/,"").replace("、拾串關東煮","・拾串"))}</div>${mg.map(x=>`<div class="gm-store">${mg.length>1||st.length>1?`<div class="gm-sn">${gname(x.ids).replace(/<br>/g,"、")}</div>`:""}${x.h}</div>`).join("")}`})}
    return grp.map((gp,j)=>{const top=j===0?B:"";const sCell=`<td style="min-width:80px;vertical-align:top;font-size:13px;${top}">${gname(gp.ids)}</td>`;
     const one=grp.length===1;const sp=one?` rowspan="2" `:" ";
