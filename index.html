@@ -120,6 +120,10 @@ a.lbtn{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weig
 .gnote{width:100%;border:0;background:transparent;resize:none;font:inherit;font-size:12px;color:inherit;opacity:.7;padding:2px 4px;min-height:20px;field-sizing:content;border-radius:4px}
 .gnote:focus{opacity:1;outline:1px solid #c9dbef;background:var(--surface)}
 .okb{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#1a9e55;color:#fff;font-size:12px;font-weight:700}
+.dmb{display:inline-block;margin-left:4px;padding:0 4px;border-radius:3px;border:1px solid #16416c;color:#16416c;font-size:10px;font-weight:700;line-height:14px;vertical-align:1px;text-decoration:none}
+.dmb:hover{background:#16416c;color:#fff}
+.dml{color:inherit;text-decoration:underline dotted 1.5px;text-underline-offset:3px}
+.dml:hover{text-decoration-style:solid}
 .stick{position:sticky;left:0;z-index:1;background:var(--surface);box-shadow:2px 0 0 rgba(0,0,0,.06)}
 .gtab table{font-size:.75rem}
 .gtab th,.gtab td{padding:4px 6px}
@@ -652,6 +656,13 @@ if(!S.v1122e){const T=["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅茶
 if(!S.v1122f){S.track=S.track||[];const G=S.lineGoal||{};if(G["三顧茅廬 桃園寶山店"]&&G["三顧茅廬 桃園寶山店"].acts==="建議：QR 桌牌、店員開口")G["三顧茅廬 桃園寶山店"].acts="建議：店員結帳時開口";if(G["三顧茅廬-桃園中平店"]&&G["三顧茅廬-桃園中平店"].acts==="建議：QR 桌牌、紙本集點卡改 LINE 集點")G["三顧茅廬-桃園中平店"].acts="建議：紙本集點卡改 LINE 集點";
  if(!S.track.some(x=>x.id===20))S.track.push({id:20,m:"2026-11",sc:["三顧茅廬滷味-中平店","三顧茅廬滷味-寶山店"],t:"店內放置加 LINE 好友 DM",st:"進行中",cost:"印刷費",goal:"LINE 好友數",rev:"",acost:"",res:"",arev:"",next:"",log:"",files:[]});S.v1122f=1}
 if(!S.v1122g){S.track=S.track||[];if(!S.track.some(x=>x.id===21))S.track.push({id:21,m:"2026-11",sc:["紅茶大苑-國鼎店","紅茶大苑-壽昌店","紅茶大苑-龍安店"],t:"全系列滿 5 送 1（原有活動）",st:"進行中",cost:"送出杯數 × 成本",goal:"兌換杯數",rev:"",acost:"",res:"",arev:"",next:"",log:"",files:[]});S.v1122g=1}
+if(!S.v1123a){const T=id=>(S.track||[]).find(x=>x.id===id);const add=(id,fs)=>{const x=T(id);if(!x)return;x.files=x.files||[];fs.forEach(f=>{if(!x.files.some(y=>y.u===f.u))x.files.push(f)})};
+ const t9=T(9);if(t9)(t9.files||[]).forEach(f=>{if(/gs/.test(f.u))f.s=["紅茶大苑-國鼎店","紅茶大苑-壽昌店"];if(/la/.test(f.u))f.s=["紅茶大苑-龍安店"]});
+ const D={n:"A4 DM",u:"dm/a4_doufu.png"};add(4,[D]);add(18,[D]);
+ const SZ={n:"中平 DM",u:"dm/preorder_sangu_zhongping.png",s:["三顧茅廬滷味-中平店"]},SB={n:"寶山 DM",u:"dm/preorder_sangu_baoshan.png",s:["三顧茅廬滷味-寶山店"]};add(20,[SZ,SB]);add(16,[SZ,SB]);
+ add(15,[{n:"拾串 DM",u:"dm/preorder_shichuan_la.png",s:["拾串關東煮-龍安店"]}]);
+ add(17,[{n:"拾串 A4 DM",u:"dm/la_shichuan_a4_v4.png",s:["拾串關東煮-龍安店"]},{n:"哨帥 A4 DM",u:"dm/la_shaoshuai_a4_v4.png",s:["東北少帥麻辣拌-龍安店"]}]);
+ S.v1123a=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
@@ -986,7 +997,10 @@ function storeActs(id){
     if(c==="推播"){push=true;return}let w=actWord(t,c);
     if(c==="LINE 好友"){if(/DM/.test(w)){c="店內 DM";w="__OK__"}else if(/^滿百/.test(w)){c="滿百首次";w=/首次/.test(w)?w.replace(/^滿百首次加好友/,""):w.replace(/^滿百/,"")}else{c="首次";w=w.replace(/^首次加好友/,"")}}
     else if(c==="雲端點餐")w=w.replace(/^滿百/,"");
-    if(!cell[c])return;cell[c].push({h:w==="__OK__"?`<span class="okb" title="有放">✔</span>`:esc(w),p:c==="雲端點餐"||/輪替/.test(t)})});
+    if(!cell[c])return;const fs=(x.files||[]).filter(f=>!f.s||f.s.includes(id));
+    const ok=`<span class="okb" title="有放">✔</span>`;
+    const h=w==="__OK__"?(fs.length?fs.map(f=>`<a href="${esc(f.u)}" target="_blank" rel="noopener" title="${esc(f.n)}">${ok}</a>`).join(" "):ok):fs.length?`<a class="dml" href="${esc(fs[0].u)}" target="_blank" rel="noopener" title="看 ${esc(fs[0].n)}">${esc(w)}</a>`+fs.slice(1).map(f=>`<a class="dmb" href="${esc(f.u)}" target="_blank" rel="noopener" title="${esc(f.n)}">DM</a>`).join(""):esc(w);
+    cell[c].push({h,p:c==="雲端點餐"||/輪替/.test(t)})});
   const LB=`<span class="lineb" title="每月 LINE 推播">LINE</span>`;
   return ACT_COLS.map(c=>`<td style="font-size:13px;min-width:${/首次|DM/.test(c)?"60px":"90px"};vertical-align:top${/首次/.test(c)?";white-space:nowrap":""}${c==="店內 DM"?";text-align:center":""}">${cell[c].length?cell[c].map(e=>push&&e.p?`<span style="white-space:nowrap">${e.h}${LB}</span>`:e.h).join("<div style='height:4px'></div>"):`<span class="note">—</span>`}</td>`).join("");
 }
@@ -1011,8 +1025,8 @@ function lineGoalCard(){
     const acts=gp.h.replace(/<td style="/g,`<td${sp}style="${top}`);
     const hd=head.replace(/__RS__/g,` rowspan="${1+Math.max(1,grp.length-1)}"`);
     return `<tr>${j===0?hd:j===1?noteTd(grp.length-1):""}${sCell.replace("<td ","<td"+sp)}${acts}</tr>`}).join("")+(grp.length===1?`<tr>${noteTd(1)}</tr>`:"")}).join("");
-  return `<div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>會員目標</h3><span class="note">目標人數、期限可以直接改（期限打 1/31 這樣就好）。紅色＝目前速度不夠</span></div>
-  <div class="scroll"><table class="tight" style="width:100%"><thead><tr><th rowspan="3" class="stick">帳號</th><th class="c" rowspan="3">目前</th><th class="c" rowspan="3">目標人數</th><th class="c" rowspan="3">還差</th><th class="c" rowspan="3">期限</th><th class="c" rowspan="3">剩餘</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th class="c" colspan="${ACT_COLS.length+1}" style="border-bottom:1px solid #c9dbef">目前活動（從成效追蹤自動帶入；Google QR 全部門市都有；<span class="lineb" style="margin:0">LINE</span>＝每月 LINE 推播）</th></tr><tr><th class="c" rowspan="2" style="border-left:2px solid #c9dbef">實際</th><th class="c" rowspan="2" style="border-right:2px solid #c9dbef">需要</th><th rowspan="2">門市</th><th class="c" colspan="3" style="border-bottom:1px solid #c9dbef">加 LINE 好友</th><th rowspan="2">消費優惠</th><th rowspan="2">雲端點餐<br>滿百</th></tr><tr><th>首次</th><th>滿百首次</th><th class="c">店內 DM</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  return `<div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>會員目標</h3><span class="note">紅色＝速度不夠；<span class="lineb" style="margin:0">LINE</span>＝每月 LINE 推播；<span class="dml">有底線</span>的活動和 ✔ 點了看 DM。活動從成效追蹤帶入，DM 也是在那邊加</span></div>
+  <div class="scroll"><table class="tight" style="width:100%"><thead><tr><th rowspan="3" class="stick">帳號</th><th class="c" rowspan="3">目前</th><th class="c" rowspan="3">目標人數</th><th class="c" rowspan="3">還差</th><th class="c" rowspan="3">期限</th><th class="c" rowspan="3">剩餘</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th class="c" colspan="${ACT_COLS.length+1}" style="border-bottom:1px solid #c9dbef">目前活動（Google QR 全部門市都有）</th></tr><tr><th class="c" rowspan="2" style="border-left:2px solid #c9dbef">實際</th><th class="c" rowspan="2" style="border-right:2px solid #c9dbef">需要</th><th rowspan="2">門市</th><th class="c" colspan="3" style="border-bottom:1px solid #c9dbef">加 LINE 好友</th><th rowspan="2">消費優惠</th><th rowspan="2">雲端點餐<br>滿百</th></tr><tr><th>首次</th><th>滿百首次</th><th class="c">店內 DM</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
 function growth(){
