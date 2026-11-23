@@ -720,7 +720,7 @@ const n=v=>Number(String(v).replace(/,/g,""))||0;
 let tab="home";try{tab=localStorage.getItem(KEY+"-tab")||"home"}catch(e){}
 function renderTabs(){
   $("#tabs").innerHTML=TABS.map(([k,l])=>`<button role="tab" id="tab-${k}" aria-selected="${k===tab}" data-t="${k}">${l}</button>`).join("");
-  $("#tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;try{localStorage.setItem(KEY+"-tab",tab)}catch(e){}renderTabs();render()});
+  $("#tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;GOALONLY=false;try{localStorage.setItem(KEY+"-tab",tab)}catch(e){}renderTabs();render()});
 }
 
 const revMonths=()=>{const out=[];let [y,m]=[2026,10];const end=ym()>"2026-11"?ym():"2026-11";while(true){const k=y+"-"+String(m).padStart(2,"0");out.push(k);if(k>=end)break;m++;if(m>12){m=1;y++}}return out};
@@ -1025,7 +1025,7 @@ function lineGoalCard(){
     const acts=gp.h.replace(/<td style="/g,`<td${sp}style="${top}`);
     const hd=head.replace(/__RS__/g,` rowspan="${1+Math.max(1,grp.length-1)}"`);
     return `<tr>${j===0?hd:j===1?noteTd(grp.length-1):""}${sCell.replace("<td ","<td"+sp)}${acts}</tr>`}).join("")+(grp.length===1?`<tr>${noteTd(1)}</tr>`:"")}).join("");
-  return `<div class="card"><div class="brandhead" style="margin:0 0 6px"><h3>會員目標</h3><span class="note">紅色＝速度不夠；<span class="lineb" style="margin:0">LINE</span>＝每月 LINE 推播；<span class="dml">有底線</span>的活動和 ✔ 點了看 DM。活動從成效追蹤帶入，DM 也是在那邊加</span></div>
+  return `<div class="card"><div class="brandhead" style="margin:0 0 6px;flex-wrap:wrap"><h3 style="white-space:nowrap">會員目標</h3><span class="note">紅色＝速度不夠；<span class="lineb" style="margin:0">LINE</span>＝每月 LINE 推播；<span class="dml">有底線</span>的活動和 ✔ 點了看 DM。活動從成效追蹤帶入，DM 也是在那邊加</span></div>
   <div class="scroll"><table class="tight" style="width:100%"><thead><tr><th rowspan="3" class="stick">帳號</th><th class="c" rowspan="3">目前</th><th class="c" rowspan="3">目標人數</th><th class="c" rowspan="3">還差</th><th class="c" rowspan="3">期限</th><th class="c" rowspan="3">剩餘</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th class="c" colspan="${ACT_COLS.length+1}" style="border-bottom:1px solid #c9dbef">目前活動（Google QR 全部門市都有）</th></tr><tr><th class="c" rowspan="2" style="border-left:2px solid #c9dbef">實際</th><th class="c" rowspan="2" style="border-right:2px solid #c9dbef">需要</th><th rowspan="2">門市</th><th class="c" colspan="3" style="border-bottom:1px solid #c9dbef">加 LINE 好友</th><th rowspan="2">消費優惠</th><th rowspan="2">雲端點餐<br>滿百</th></tr><tr><th>首次</th><th>滿百首次</th><th class="c">店內 DM</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
@@ -1198,7 +1198,7 @@ function more(){
   return `<div style="margin-top:20px">${seg}</div>${body}`;
 }
 
-const VIEWS={home,stores,info,campaign,material,video,growth,more};
+const VIEWS={home,stores,info,campaign,material,video,growth:()=>typeof GOALONLY!=="undefined"&&GOALONLY?`<section class="panel"><div><h2>LINE 會員目標</h2><p class="hint">每個 LINE 帳號的目前人數、目標、需要的速度，以及正在進行的活動</p></div>${lineGoalCard()}</section>`:growth(),more};
 function render(){$("#main").innerHTML=VIEWS[tab]();bind()}
 function bind(){
   document.querySelectorAll(".cell[data-k]").forEach(b=>b.onclick=()=>{const s=S.stores[b.dataset.i];s.st[b.dataset.k]=((s.st[b.dataset.k]||0)+1)%4;save();render()});
@@ -1289,6 +1289,7 @@ function bind(){
   const r=$("#reset");if(r)r.onclick=()=>{$("#resetConfirm").innerHTML=`確定清空？ <button class="btn ghost" id="yes">確定</button>`;$("#yes").onclick=()=>{S=seed();save();render()}};
 }
 {const v=(new URLSearchParams(location.search).get("v")||location.hash.slice(1));if(["decide","meeting","plan","track","assets","service","vault"].includes(v)){tab="more";moreView=v}}
+var GOALONLY=false;{const v=(new URLSearchParams(location.search).get("v")||location.hash.slice(1));if(v==="goal"){tab="growth";GOALONLY=true}}
 renderTabs();render();renderGoal();
 </script>
 
