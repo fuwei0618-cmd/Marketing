@@ -124,6 +124,21 @@ a.lbtn{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weig
 .dmb:hover{background:#16416c;color:#fff}
 .dml{color:inherit;text-decoration:underline dotted 1.5px;text-underline-offset:3px}
 .dml:hover{text-decoration-style:solid}
+.gmob{display:none}
+@media (max-width:700px){.gdesk{display:none}.gmob{display:block}}
+.gm-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+.gm-tabs button{flex:0 0 auto;border:1px solid #c9dbef;background:transparent;color:inherit;border-radius:999px;padding:5px 12px;font:inherit;font-size:14px}
+.gm-tabs button.on{background:#16416c;color:#fff;border-color:#16416c}
+.gm-card{margin-top:8px}.gm-card h4{margin:4px 0 10px;font-size:17px}
+.gm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gm-stats div{border:1px solid #c9dbef;border-radius:10px;padding:8px;text-align:center}
+.gm-stats span{display:block;font-size:12px;opacity:.7}.gm-stats b{font-size:22px}
+.gm-line{margin-top:10px;font-size:14px}
+.gm-note{margin-top:10px;font-size:13px;opacity:.8;border-left:3px solid #c9dbef;padding-left:8px}
+.gm-acts{margin-top:12px;border-top:2px solid #c9dbef}
+.gm-store{padding:10px 0;border-bottom:1px solid #e3eaf3}
+.gm-sn{font-weight:700;font-size:14px;margin-bottom:6px}
+.ma{display:flex;gap:10px;font-size:14px;padding:3px 0}.ml{flex:0 0 112px;font-size:12px;opacity:.65;padding-top:2px}
 .stick{position:sticky;left:0;z-index:1;background:var(--surface);box-shadow:2px 0 0 rgba(0,0,0,.06)}
 .gtab table{font-size:.75rem}
 .gtab th,.gtab td{padding:4px 6px}
@@ -990,7 +1005,7 @@ const actWord=(t,c)=>{t=t.replace(/^(每月)?輪替[：:].*$/,"每月優惠飲�
   t=t.replace(/^雲端(訂餐|點餐)[，,]?\s*/,"").replace(/^加 LINE 好友[，,]\s*/,"").replace(/加 LINE 好友/,"加好友").replace(/首次加 LINE 好友/,"首次加好友").replace(/首次加 LINE\s*/,"首次加好友");
   t=t.replace(/(每消費\s*\$?100|滿\s*\$?100)\s*/g,"滿百").replace(/滿百送紅茶\s*\$(\d+)\s*折價券/,"滿百送 $$$1 紅茶").replace(/滿百送\s*\$(\d+)\s*紅茶折價券/,"滿百送 $$$1 紅茶").replace(/滿百送\s*\$(\d+)$/,"滿百送 $$$1");
   return t};
-function storeActs(id){
+function storeActs(id,mode){
   const seen=new Set();const cell={};ACT_COLS.forEach(c=>cell[c]=[]);let push=false;
   (S.track||[]).filter(x=>["進行中","可以進行"].includes(x.st)&&!/到店免等待|認領|驗證/.test(x.t)&&!x.sc.includes("all")&&x.sc.includes(id))
    .sort((a,b)=>b.m.localeCompare(a.m)).forEach(x=>{const t=x.t.replace(/（.*?）/g,"");if(seen.has(t))return;seen.add(t);let c=actCol(t);
@@ -1002,12 +1017,18 @@ function storeActs(id){
     const h=w==="__OK__"?(fs.length?fs.map(f=>`<a href="${esc(f.u)}" target="_blank" rel="noopener" title="${esc(f.n)}">${ok}</a>`).join(" "):ok):fs.length?`<a class="dml" href="${esc(fs[0].u)}" target="_blank" rel="noopener" title="看 ${esc(fs[0].n)}">${esc(w)}</a>`+fs.slice(1).map(f=>`<a class="dmb" href="${esc(f.u)}" target="_blank" rel="noopener" title="${esc(f.n)}">DM</a>`).join(""):esc(w);
     cell[c].push({h,p:c==="雲端點餐"||/輪替/.test(t)})});
   const LB=`<span class="lineb" title="每月 LINE 推播">LINE</span>`;
+  if(mode==="m"){const L={"首次":"加好友・首次","滿百首次":"加好友・滿百首次","店內 DM":"店內加好友 DM","消費優惠":"消費優惠","雲端點餐":"雲端點餐滿百"};
+   const r=ACT_COLS.filter(c=>cell[c].length).map(c=>`<div class="ma"><div class="ml">${L[c]}</div><div>${cell[c].map(e=>e.h+(push&&e.p?LB:"")).join("<br>")}</div></div>`).join("");
+   return r||`<div class="note" style="font-size:13px">暫無活動</div>`}
   return ACT_COLS.map(c=>`<td style="font-size:13px;min-width:${/首次|DM/.test(c)?"60px":"90px"};vertical-align:top${/首次/.test(c)?";white-space:nowrap":""}${c==="店內 DM"?";text-align:center":""}">${cell[c].length?cell[c].map(e=>push&&e.p?`<span style="white-space:nowrap">${e.h}${LB}</span>`:e.h).join("<div style='height:4px'></div>"):`<span class="note">—</span>`}</td>`).join("");
 }
+var gmI=0;try{gmI=+localStorage.getItem("storeops-v1-gm")||0}catch(e){}
+function gmSel(i){gmI=i;try{localStorage.setItem("storeops-v1-gm",i)}catch(e){}render()}
+function gmobHTML(mob){const i=Math.min(gmI,mob.length-1);return `<div class="gmob"><div class="gm-tabs">${mob.map((m,j)=>`<button class="${j===i?"on":""}" onclick="gmSel(${j})">${esc(m.nm.replace(/[-\s].*$/,"").replace(/^李氏韓式/,"").replace("韓殿炒泡麵・拾串","韓殿・拾串"))}${/三顧/.test(m.nm)?(/寶山/.test(m.nm)?" 寶山":" 中平"):""}</button>`).join("")}</div><div class="gm-card"><h4>${esc(mob[i].nm)}</h4>${mob[i].html}</div></div>`}
 function lineGoalCard(){
   const G=S.lineGoal||{},D=S.lineD||{},M=S.lineM||{};const day=d=>Math.round(new Date(d+"T00:00:00")/864e5);
   const td=day(new Date().toISOString().slice(0,10));const B="border-top:2px solid #c9dbef;";
-  const rows=LINE_ACCS.map((k,i)=>{const g=G[k]||{};const ms=Object.keys(M[k]||{}).filter(m=>n(M[k][m])).sort();const last=ms[ms.length-1],first=ms[0];
+  const mob=[];const rows=LINE_ACCS.map((k,i)=>{const g=G[k]||{};const ms=Object.keys(M[k]||{}).filter(m=>n(M[k][m])).sort();const last=ms[ms.length-1],first=ms[0];
    const cur=last?n(M[k][last]):0;const dL=last?(D[last]||last+"-28"):null,dF=first?(D[first]||first+"-28"):null;
    const act=last&&first&&last!==first?((cur-n(M[k][first]))/Math.max(1,day(dL)-day(dF))):null;
    const left=g.due?Math.max(0,day(g.due)-td):null;const need=g.t&&left?Math.max(0,(n(g.t)-cur)/left):null;
@@ -1020,13 +1041,19 @@ function lineGoalCard(){
    const grp=[];(st.length?st:[null]).forEach(id=>{const h=id?storeActs(id):"";const gg=grp.find(x=>x.h===h);gg?gg.ids.push(id):grp.push({h,ids:[id]})});
    const loc=x=>x.split(" ").slice(1).join(" "),brd=x=>x.split(" ")[0];const oneLoc=st.length&&new Set(st.map(id=>loc(nm(id)))).size===1;
    const gname=ids=>{if(!ids[0])return "—";const ns=ids.map(nm);if(oneLoc)return [...new Set(ns.map(brd))].map(esc).join("<br>");const b=brd(ns[0]);return ns.length>1&&ns.every(x=>brd(x)===b)?esc(b)+"<br>"+esc(ns.map(loc).join("、")):ns.length>1?ns.map(x=>esc(x.replace(" ",""))).join("<br>"):esc(ns[0]).replace(" ","<br>")};
+   {const mg=[];(st.length?st:[null]).forEach(id=>{const h=id?storeActs(id,"m"):"";const gg=mg.find(x=>x.h===h);gg?gg.ids.push(id):mg.push({h,ids:[id]})});
+    mob.push({nm:k.replace(/（.*?）/,"").replace("、拾串關東煮","・拾串"),html:`<div class="gm-stats"><div><span>目前</span><b>${cur||"—"}</b></div><div><span>目標</span><b>${esc(g.t||"—")}</b></div><div><span>還差</span><b>${g.t?Math.max(0,n(g.t)-cur):"—"}</b></div></div>
+     <div class="gm-line">期限 <b>${esc(md(g.due)||"—")}</b>　剩 <b>${left==null?"—":left}</b> 天</div>
+     <div class="gm-line">每天增加　實際 <b>${act==null?"—":f(act)}</b>　需要 <span class="pill ${ok==null?"":ok?"p-ok":"p-bad"}">${need==null?"—":f(need)}</span></div>
+     ${g.acts?`<div class="gm-note">${esc(g.acts)}</div>`:""}
+     <div class="gm-acts">${mg.map(x=>`<div class="gm-store">${mg.length>1||st.length>1?`<div class="gm-sn">${gname(x.ids).replace(/<br>/g,"、")}</div>`:""}${x.h}</div>`).join("")}</div>`})}
    return grp.map((gp,j)=>{const top=j===0?B:"";const sCell=`<td style="min-width:80px;vertical-align:top;font-size:13px;${top}">${gname(gp.ids)}</td>`;
     const one=grp.length===1;const sp=one?` rowspan="2" `:" ";
     const acts=gp.h.replace(/<td style="/g,`<td${sp}style="${top}`);
     const hd=head.replace(/__RS__/g,` rowspan="${1+Math.max(1,grp.length-1)}"`);
     return `<tr>${j===0?hd:j===1?noteTd(grp.length-1):""}${sCell.replace("<td ","<td"+sp)}${acts}</tr>`}).join("")+(grp.length===1?`<tr>${noteTd(1)}</tr>`:"")}).join("");
   return `<div class="card"><div class="brandhead" style="margin:0 0 6px;flex-wrap:wrap"><h3 style="white-space:nowrap">會員目標</h3><span class="note">紅色＝速度不夠；<span class="lineb" style="margin:0">LINE</span>＝每月 LINE 推播；<span class="dml">有底線</span>的活動和 ✔ 點了看 DM。活動從成效追蹤帶入，DM 也是在那邊加</span></div>
-  <div class="scroll"><table class="tight" style="width:100%"><thead><tr><th rowspan="3" class="stick">帳號</th><th class="c" rowspan="3">目前</th><th class="c" rowspan="3">目標人數</th><th class="c" rowspan="3">還差</th><th class="c" rowspan="3">期限</th><th class="c" rowspan="3">剩餘</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th class="c" colspan="${ACT_COLS.length+1}" style="border-bottom:1px solid #c9dbef">目前活動（Google QR 全部門市都有）</th></tr><tr><th class="c" rowspan="2" style="border-left:2px solid #c9dbef">實際</th><th class="c" rowspan="2" style="border-right:2px solid #c9dbef">需要</th><th rowspan="2">門市</th><th class="c" colspan="3" style="border-bottom:1px solid #c9dbef">加 LINE 好友</th><th rowspan="2">消費優惠</th><th rowspan="2">雲端點餐<br>滿百</th></tr><tr><th>首次</th><th>滿百首次</th><th class="c">店內 DM</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  <div class="scroll gdesk"><table class="tight" style="width:100%"><thead><tr><th rowspan="3" class="stick">帳號</th><th class="c" rowspan="3">目前</th><th class="c" rowspan="3">目標人數</th><th class="c" rowspan="3">還差</th><th class="c" rowspan="3">期限</th><th class="c" rowspan="3">剩餘</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th class="c" colspan="${ACT_COLS.length+1}" style="border-bottom:1px solid #c9dbef">目前活動（Google QR 全部門市都有）</th></tr><tr><th class="c" rowspan="2" style="border-left:2px solid #c9dbef">實際</th><th class="c" rowspan="2" style="border-right:2px solid #c9dbef">需要</th><th rowspan="2">門市</th><th class="c" colspan="3" style="border-bottom:1px solid #c9dbef">加 LINE 好友</th><th rowspan="2">消費優惠</th><th rowspan="2">雲端點餐<br>滿百</th></tr><tr><th>首次</th><th>滿百首次</th><th class="c">店內 DM</th></tr></thead><tbody>${rows}</tbody></table></div>${gmobHTML(mob)}</div>`;
 }
 
 function growth(){
