@@ -1008,7 +1008,7 @@ const actWord=(t,c)=>{t=t.replace(/^(每月)?輪替[：:].*$/,"每月優惠飲�
   t=t.replace(/^雲端(訂餐|點餐)[，,]?\s*/,"").replace(/^加 LINE 好友[，,]\s*/,"").replace(/加 LINE 好友/,"加好友").replace(/首次加 LINE 好友/,"首次加好友").replace(/首次加 LINE\s*/,"首次加好友");
   t=t.replace(/(每消費\s*\$?100|滿\s*\$?100)\s*/g,"滿百").replace(/滿百送紅茶\s*\$(\d+)\s*折價券/,"滿百送 $$$1 紅茶").replace(/滿百送\s*\$(\d+)\s*紅茶折價券/,"滿百送 $$$1 紅茶").replace(/滿百送\s*\$(\d+)$/,"滿百送 $$$1");
   return t};
-const DMU=f=>/^(dm|assets|img)\/.*\.(png|jpe?g)$/i.test(f.u)?esc(`dm.html?f=${encodeURIComponent(f.u)}&n=${encodeURIComponent(f.n)}`):esc(f.u);
+const DMU=f=>/^(dm|assets|img)\/.*\.(png|jpe?g)$/i.test(f.u)?esc(`dm.html?f=${encodeURIComponent(f.u)}&n=${encodeURIComponent(f.n)}&r=3`):esc(f.u);
 function storeActs(id,mode){
   const seen=new Set();const cell={};ACT_COLS.forEach(c=>cell[c]=[]);let push=false;
   (S.track||[]).filter(x=>["進行中","可以進行"].includes(x.st)&&!/到店免等待|認領|驗證/.test(x.t)&&!x.sc.includes("all")&&x.sc.includes(id))
