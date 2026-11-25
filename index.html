@@ -1008,6 +1008,7 @@ const actWord=(t,c)=>{t=t.replace(/^(每月)?輪替[：:].*$/,"每月優惠飲�
   t=t.replace(/^雲端(訂餐|點餐)[，,]?\s*/,"").replace(/^加 LINE 好友[，,]\s*/,"").replace(/加 LINE 好友/,"加好友").replace(/首次加 LINE 好友/,"首次加好友").replace(/首次加 LINE\s*/,"首次加好友");
   t=t.replace(/(每消費\s*\$?100|滿\s*\$?100)\s*/g,"滿百").replace(/滿百送紅茶\s*\$(\d+)\s*折價券/,"滿百送 $$$1 紅茶").replace(/滿百送\s*\$(\d+)\s*紅茶折價券/,"滿百送 $$$1 紅茶").replace(/滿百送\s*\$(\d+)$/,"滿百送 $$$1");
   return t};
+const DMU=f=>/^(dm|assets|img)\/.*\.(png|jpe?g)$/i.test(f.u)?esc(`dm.html?f=${encodeURIComponent(f.u)}&n=${encodeURIComponent(f.n)}`):esc(f.u);
 function storeActs(id,mode){
   const seen=new Set();const cell={};ACT_COLS.forEach(c=>cell[c]=[]);let push=false;
   (S.track||[]).filter(x=>["進行中","可以進行"].includes(x.st)&&!/到店免等待|認領|驗證/.test(x.t)&&!x.sc.includes("all")&&x.sc.includes(id))
@@ -1017,7 +1018,7 @@ function storeActs(id,mode){
     else if(c==="雲端點餐")w=w.replace(/^滿百/,"");
     if(!cell[c])return;const fs=(x.files||[]).filter(f=>!f.s||f.s.includes(id));
     const ok=`<span class="okb" title="有放">✔</span>`;
-    const h=w==="__OK__"?(fs.length?fs.map(f=>`<a href="${esc(f.u)}" target="_blank" rel="noopener" title="${esc(f.n)}">${ok}</a>`).join(" "):ok):fs.length?`<a class="dml" href="${esc(fs[0].u)}" target="_blank" rel="noopener" title="看 ${esc(fs[0].n)}">${esc(w)}</a>`+fs.slice(1).map(f=>`<a class="dmb" href="${esc(f.u)}" target="_blank" rel="noopener" title="${esc(f.n)}">DM</a>`).join(""):esc(w);
+    const h=w==="__OK__"?(fs.length?fs.map(f=>`<a href="${DMU(f)}" target="_blank" rel="noopener" title="${esc(f.n)}">${ok}</a>`).join(" "):ok):fs.length?`<a class="dml" href="${DMU(fs[0])}" target="_blank" rel="noopener" title="看 ${esc(fs[0].n)}">${esc(w)}</a>`+fs.slice(1).map(f=>`<a class="dmb" href="${DMU(f)}" target="_blank" rel="noopener" title="${esc(f.n)}">DM</a>`).join(""):esc(w);
     cell[c].push({h,p:c==="雲端點餐"||/輪替/.test(t)})});
   const LB=`<span class="lineb" title="每月 LINE 推播">LINE</span>`;
   if(mode==="t"){const J=c=>cell[c].map(e=>e.h+(push&&e.p?LB:""));const pre=(l,c)=>J(c).map(h=>`<div><span class="note">${l}</span> ${h}</div>`);
@@ -1187,7 +1188,7 @@ function planView(){
   <h3 style="margin-top:10px">要老闆決定</h3><ul class="todo"><li><span class="tx">各店過去 12 個月營業額（跟去年同月比）</span></li><li><span class="tx">每家店每月最多能讓利多少</span></li><li><span class="tx">廣告每月總預算上限、先試哪一區</span></li><li><span class="tx">三顧加盟合約允不允許自己辦活動</span></li></ul></div></section>`;
 }
 
-const fileList=(x,del)=>(x.files||[]).map((f,i)=>`<div style="white-space:nowrap;font-size:13px">📎 <a class="lnk" href="${esc(f.u)}" target="_blank" rel="noopener">${esc(f.n)}</a>${del?` <button class="btn ghost" style="padding:0 6px" data-trlx="${x.id}|${i}" aria-label="移除">×</button>`:""}</div>`).join("");
+const fileList=(x,del)=>(x.files||[]).map((f,i)=>`<div style="white-space:nowrap;font-size:13px">📎 <a class="lnk" href="${DMU(f)}" target="_blank" rel="noopener">${esc(f.n)}</a>${del?` <button class="btn ghost" style="padding:0 6px" data-trlx="${x.id}|${i}" aria-label="移除">×</button>`:""}</div>`).join("");
 const TR_ST=["提案","可以進行","進行中","完成","停止"];
 const TR_F=[["cost","預估花費"],["goal","目標（幾人／幾份）"],["rev","預估帶來營業額"],["acost","實際花費"],["res","實際結果（幾人／幾份）"],["arev","實際帶來營業額"],["next","結論／下一步"]];
 let trM="",trG="品牌",trV="表格";try{trG=localStorage.getItem(KEY+"-tg")||"品牌"}catch(e){}

@@ -1,0 +1,22 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DM 列印</title>
+<style>
+:root{--bg:#f3f4f2;--ink:#16416c}
+html,body{margin:0;background:var(--bg);font-family:system-ui,"PingFang TC","Noto Sans TC",sans-serif;color:var(--ink)}
+.bar{position:sticky;top:0;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 16px;background:#fff;border-bottom:1px solid #dde3ea}
+.bar b{font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar div{display:flex;gap:8px}
+button,a.btn{font:inherit;font-size:15px;border-radius:999px;padding:8px 18px;border:1px solid var(--ink);background:#fff;color:var(--ink);text-decoration:none;cursor:pointer}
+button.pri{background:var(--ink);color:#fff}
+.wrap{display:flex;justify-content:center;padding:16px}
+img{max-width:min(100%,640px);height:auto;box-shadow:0 2px 12px rgba(0,0,0,.12);background:#fff}
+@page{size:A4 portrait;margin:0}
+@media print{.bar{display:none}html,body{background:#fff}.wrap{padding:0}img{width:210mm;height:297mm;max-width:none;object-fit:contain;box-shadow:none}}
+</style></head><body>
+<div class="bar"><b id="t">DM</b><div><a class="btn" id="dl" download>下載</a><button class="pri" onclick="print()">列印 A4</button></div></div>
+<div class="wrap"><img id="im" alt=""></div>
+<script>
+const q=new URLSearchParams(location.search),f=q.get("f")||"";
+if(/^(dm|assets|img)\/[\w.\-\/]+$/.test(f)){document.getElementById("im").src=f;document.getElementById("dl").href=f}
+const n=q.get("n");if(n){document.getElementById("t").textContent=n;document.title=n}
+</script></body></html>
