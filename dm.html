@@ -13,10 +13,15 @@ img{max-width:min(100%,640px);height:auto;box-shadow:0 2px 12px rgba(0,0,0,.12);
 @page{size:A4 portrait;margin:8mm}
 @media print{.bar{display:none}html,body{background:#fff;height:auto;overflow:hidden}.wrap{padding:0;display:block}img{display:block;margin:0 auto;width:auto;height:auto;max-width:100%;max-height:270mm;box-shadow:none;page-break-inside:avoid;break-inside:avoid}}
 </style></head><body>
-<div class="bar"><a class="btn" href="index.html?v=goal" id="back" onclick="if(history.length>1&&document.referrer){history.back();return false}">← 上一頁</a><b id="t">DM</b><div><a class="btn" id="dl" download target="_blank" rel="noopener">下載</a><button class="pri" onclick="print()">列印 A4</button></div></div>
+<div class="bar"><a class="btn" href="index.html?v=goal" id="back" onclick="if(history.length>1&&document.referrer){history.back();return false}">← 上一頁</a><b id="t">DM</b><div><button id="dl">下載</button><button class="pri" onclick="print()">列印 A4</button></div></div>
 <div class="wrap"><img id="im" alt=""></div>
 <script>
 const q=new URLSearchParams(location.search),f=q.get("f")||"";
-if(/^(dm|assets|img)\/[\w.\-\/]+$/.test(f)){document.getElementById("im").src=f;document.getElementById("dl").href=f}
+if(/^(dm|assets|img)\/[\w.\-\/]+$/.test(f)){document.getElementById("im").src=f}
 const n=q.get("n");if(n){document.getElementById("t").textContent=n;document.title=n}
+
+document.getElementById("dl").onclick=async()=>{try{const r=await fetch(f);const bl=await r.blob();const name=(n||f.split("/").pop().replace(/\.\w+$/,""))+"."+(f.split(".").pop());
+ const file=new File([bl],name,{type:bl.type||"image/png"});
+ if(navigator.canShare&&navigator.canShare({files:[file]})&&/iPad|iPhone|Macintosh/.test(navigator.userAgent)&&"ontouchend" in document){await navigator.share({files:[file]});return}
+ const u=URL.createObjectURL(bl);const a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}catch(e){if(e&&e.name!=="AbortError")alert("下載失敗，請長按圖片儲存")}};
 </script></body></html>
