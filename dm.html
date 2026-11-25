@@ -13,7 +13,7 @@ img{max-width:min(100%,640px);height:auto;box-shadow:0 2px 12px rgba(0,0,0,.12);
 @page{size:A4 portrait;margin:8mm}
 @media print{.bar{display:none}html,body{background:#fff;height:auto;overflow:hidden}.wrap{padding:0;display:block}img{display:block;margin:0 auto;width:auto;height:auto;max-width:100%;max-height:270mm;box-shadow:none;page-break-inside:avoid;break-inside:avoid}}
 </style></head><body>
-<div class="bar"><a class="btn" href="./?v=goal" id="back">← 回 App</a><b id="t">DM</b><div><button class="pri" onclick="print()">列印 A4</button></div></div>
+<div class="bar"><a class="btn" href="index.html?v=goal" id="back" onclick="if(history.length>1&&document.referrer){history.back();return false}">← 上一頁</a><b id="t">DM</b><div><button class="pri" onclick="print()">列印 A4</button></div></div>
 <div class="wrap"><img id="im" alt=""></div>
 <script>
 const q=new URLSearchParams(location.search),f=q.get("f")||"";
