@@ -1220,7 +1220,7 @@ const ASSETS=[
  {b:"韓殿炒泡麵",items:[],need:"Logo、招牌照片"}];
 function assetsView(){
   S.assets=S.assets||[];
-  const box=(n,u,del)=>`<a href="${esc(u)}" target="_blank" rel="noopener" style="display:block;width:140px;text-decoration:none;color:inherit"><div style="width:140px;height:110px;border:1px solid #ddd;border-radius:10px;background:#fff center/contain no-repeat url('${esc(u)}')"></div><div style="font-size:12px;margin-top:4px">${esc(n)}</div></a>${del!=null?`<button class="btn ghost" style="padding:0 6px" data-asx="${del}">移除</button>`:""}`;
+  const box=(n,u,del)=>`<a href="${DMU({u,n})}" target="_blank" rel="noopener" style="display:block;width:140px;text-decoration:none;color:inherit"><div style="width:140px;height:110px;border:1px solid #ddd;border-radius:10px;background:#fff center/contain no-repeat url('${esc(u)}')"></div><div style="font-size:12px;margin-top:4px">${esc(n)}</div></a>${del!=null?`<button class="btn ghost" style="padding:0 6px" data-asx="${del}">移除</button>`:""}`;
   const isImg=u=>/\.(png|jpe?g|gif|webp)$/i.test(u)&&!/^https?:/.test(u)||/\.(png|jpe?g|gif|webp)(\?|$)/i.test(u);
   const cards=ASSETS.map(g=>{const mine=S.assets.map((a,i)=>[a,i]).filter(([a])=>a.b===g.b);
    return `<div class="card"><h3>${esc(g.b)}</h3><div style="display:flex;flex-wrap:wrap;gap:12px">${g.items.map(([n,u])=>`<div>${box(n,u)}</div>`).join("")}${mine.map(([a,i])=>`<div>${isImg(a.u)?box(a.n,a.u,i):`📎 <a class="lnk" href="${esc(a.u)}" target="_blank" rel="noopener">${esc(a.n)}</a> <button class="btn ghost" style="padding:0 6px" data-asx="${i}">移除</button>`}</div>`).join("")}</div>${g.need?`<p class="note" style="margin-top:8px">還缺：${esc(g.need)}</p>`:""}</div>`}).join("");
