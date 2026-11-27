@@ -681,6 +681,13 @@ if(!S.v1123a){const T=id=>(S.track||[]).find(x=>x.id===id);const add=(id,fs)=>{c
  add(15,[{n:"拾串 DM",u:"dm/preorder_shichuan_la.png",s:["拾串關東煮-龍安店"]}]);
  add(17,[{n:"拾串 A4 DM",u:"dm/la_shichuan_a4_v4.png",s:["拾串關東煮-龍安店"]},{n:"哨帥 A4 DM",u:"dm/la_shaoshuai_a4_v4.png",s:["東北少帥麻辣拌-龍安店"]}]);
  S.v1123a=1}
+if(!S.v1127a){S.track=S.track||[];const E=o=>({st:"進行中",rev:"",acost:"",res:"",arev:"",next:"",log:"",...o});
+ const ZP="三顧茅廬滷味-中平店",BS="三顧茅廬滷味-寶山店",A="拾串關東煮-龍安店",B="東北少帥麻辣拌-龍安店",C="拾串關東煮-寶山店",H="韓殿炒泡麵-寶山店";
+ [E({id:22,m:"2026-11",sc:[ZP,BS],t:"高麗菜 2 包 $50",cost:"高麗菜成本",goal:"售出包數",files:[{n:"中平 DM",u:"dm/cabbage_sangu_zp.png",s:[ZP]},{n:"寶山 DM",u:"dm/cabbage_sangu_bs.png",s:[BS]}]}),
+  E({id:23,m:"2026-11",sc:[A,B,C,H],t:"滿 $100 高麗菜 1 包 $10；滿 $200 送高麗菜 1 包",cost:"高麗菜成本",goal:"兌換包數",files:[{n:"拾串 DM",u:"dm/cabbage_shichuan_la.png",s:[A]},{n:"哨帥 DM",u:"dm/cabbage_shaoshuai_la.png",s:[B]},{n:"拾串 DM",u:"dm/cabbage_shichuan_bs.png",s:[C]},{n:"韓殿 DM",u:"dm/cabbage_handian_bs.png",s:[H]}]})
+ ].forEach(r=>{if(!S.track.some(x=>x.id===r.id))S.track.push(r)});
+ const G=(S.lineGoal||{})["韓殿炒泡麵、拾串關東煮（寶山店）"];if(G&&/不做活動/.test(G.acts||""))G.acts="";
+ S.v1127a=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
@@ -1018,7 +1025,7 @@ function storeActs(id,mode){
     else if(c==="雲端點餐")w=w.replace(/^滿百/,"");
     if(!cell[c])return;const fs=(x.files||[]).filter(f=>!f.s||f.s.includes(id));
     const ok=`<span class="okb" title="有放">✔</span>`;
-    const h=w==="__OK__"?(fs.length?fs.map(f=>`<a href="${DMU(f)}" title="${esc(f.n)}">${ok}</a>`).join(" "):ok):fs.length?`<a class="dml" href="${DMU(fs[0])}" title="看 ${esc(fs[0].n)}">${esc(w)}</a>`+fs.slice(1).map(f=>`<a class="dmb" href="${DMU(f)}" title="${esc(f.n)}">DM</a>`).join(""):esc(w);
+    const h=w==="__OK__"?(fs.length?fs.map(f=>`<a href="${DMU(f)}" title="${esc(f.n)}">${ok}</a>`).join(" "):ok):fs.length?`<a class="dml" href="${DMU(fs[0])}" title="看 ${esc(fs[0].n)}">${esc(w).replace(/；/g,"<br>")}</a>`+fs.slice(1).map(f=>`<a class="dmb" href="${DMU(f)}" title="${esc(f.n)}">DM</a>`).join(""):esc(w);
     cell[c].push({h,p:c==="雲端點餐"||/輪替/.test(t)})});
   const LB=`<span class="lineb" title="每月 LINE 推播">LINE</span>`;
   if(mode==="t"){const J=c=>cell[c].map(e=>e.h+(push&&e.p?LB:""));const pre=(l,c)=>J(c).map(h=>`<div><span class="note">${l}</span> ${h}</div>`);
@@ -1212,12 +1219,12 @@ function trackView(){
 
 const ASSETS=[
  {b:"紅茶大苑",items:[["Logo（白底）","assets/tea_logo.png"],["Logo（透明背景）","assets/tea_logo_transparent.png"],["LINE 加好友 QR（國鼎・壽昌）","assets/line_qr_guoding_shouchang.png"],["LINE 加好友 QR（龍安美食）","assets/line_qr_longan.png"],["雲端點餐 QR（國鼎）","assets/order_qr_guoding.png"],["每月輪替活動圖 1–6","img/rot1.jpg"]]},
- {b:"拾串關東煮",items:[["龍安招牌照片（有反光）","assets/shichuan_sign_photo.png"]],need:"Logo 原檔"},
- {b:"東北少帥麻辣拌",items:[],need:"Logo 原檔、招牌照片"},
+ {b:"拾串關東煮",items:[["龍安招牌照片（有反光）","assets/shichuan_sign_photo.png"],["高麗菜 DM（龍安店）","dm/cabbage_shichuan_la.png"],["高麗菜 DM（寶山店）","dm/cabbage_shichuan_bs.png"],["A4 營業時間","dm/a4_hours.png"]],need:"Logo 原檔"},
+ {b:"東北少帥麻辣拌",items:[["高麗菜 DM（龍安店）","dm/cabbage_shaoshuai_la.png"]],need:"Logo 原檔、招牌照片"},
  {b:"一口煎餃",items:[],need:"Logo、開幕招牌、兩種格式廣告牌"},
- {b:"三顧茅廬滷味",items:[["Logo 參考（小圖，要原檔）","assets/sangu_logo_ref_small.png"],["LINE 加好友 QR（中平店）","assets/line_qr_sangu_zhongping.png"],["到店免等待 DM（中平店）","dm/preorder_sangu_zhongping.png"],["LINE 加好友 QR（寶山店）","assets/line_qr_sangu_baoshan.png"],["到店免等待 DM（寶山店）","dm/preorder_sangu_baoshan.png"]],need:"Logo、招牌照片"},
+ {b:"三顧茅廬滷味",items:[["Logo 參考（小圖，要原檔）","assets/sangu_logo_ref_small.png"],["LINE 加好友 QR（中平店）","assets/line_qr_sangu_zhongping.png"],["到店免等待 DM（中平店）","dm/preorder_sangu_zhongping.png"],["LINE 加好友 QR（寶山店）","assets/line_qr_sangu_baoshan.png"],["到店免等待 DM（寶山店）","dm/preorder_sangu_baoshan.png"],["高麗菜 DM（中平店）","dm/cabbage_sangu_zp.png"],["高麗菜 DM（寶山店）","dm/cabbage_sangu_bs.png"]],need:"Logo、招牌照片"},
  {b:"李氏韓式豆腐鍋",items:[["LINE 加好友 QR","assets/line_qr_doufu.png"],["A4 活動 DM（加好友＋雲端點餐）","dm/a4_doufu.png"]],need:"Logo、招牌照片"},
- {b:"韓殿炒泡麵",items:[],need:"Logo、招牌照片"}];
+ {b:"韓殿炒泡麵",items:[["高麗菜 DM（寶山店）","dm/cabbage_handian_bs.png"]],need:"Logo、招牌照片"}];
 function assetsView(){
   S.assets=S.assets||[];
   const box=(n,u,del)=>`<a href="${DMU({u,n})}" style="display:block;width:140px;text-decoration:none;color:inherit"><div style="width:140px;height:110px;border:1px solid #ddd;border-radius:10px;background:#fff center/contain no-repeat url('${esc(u)}')"></div><div style="font-size:12px;margin-top:4px">${esc(n)}</div></a>${del!=null?`<button class="btn ghost" style="padding:0 6px" data-asx="${del}">移除</button>`:""}`;
