@@ -12,7 +12,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;-webkit-text-size-adjust:100%}[hidden]{display:none!important}</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;-webkit-text-size-adjust:100%}[hidden]{display:none!important}.gbi{display:inline-block;width:17px;height:17px;border-radius:50%;background:#4285f4;color:#fff!important;font:700 11px/17px sans-serif;text-align:center;text-decoration:none;margin-right:3px;vertical-align:middle}.gbi.off{background:#c8ccd2}
+</style>
 </head>
 <body>
 
@@ -688,6 +689,14 @@ if(!S.v1127a){S.track=S.track||[];const E=o=>({st:"進行中",rev:"",acost:"",re
  ].forEach(r=>{if(!S.track.some(x=>x.id===r.id))S.track.push(r)});
  const G=(S.lineGoal||{})["韓殿炒泡麵、拾串關東煮（寶山店）"];if(G&&/不做活動/.test(G.acts||""))G.acts="";
  S.v1127a=1}
+if(!S.v1128a){S.track=S.track||[];const T=id=>S.track.find(x=>x.id===id);const A="拾串關東煮-龍安店",B="東北少帥麻辣拌-龍安店",C="拾串關東煮-寶山店";
+ [1,2].forEach(i=>{const x=T(i);if(x){x.st="停止";x.next="11/28 老闆改成：首次加 LINE 好友送高麗菜（不用滿百）"}});
+ const NA={n:"拾串 A4 DM",u:"dm/a4_cab_shichuan_la.png",s:[A]},NB={n:"哨帥 A4 DM",u:"dm/a4_cab_shaoshuai_la.png",s:[B]},NC={n:"拾串寶山 A4 DM",u:"dm/a4_cab_shichuan_bs.png",s:[C]};
+ if(!T(24))S.track.push({id:24,m:"2026-11",sc:[A,B,C],t:"首次加 LINE 好友送高麗菜 1 包",st:"進行中",cost:"高麗菜成本 × 兌換數",goal:"LINE 好友數",rev:"",acost:"",res:"",arev:"",next:"",log:"11/28 老闆決定，取代滿百送火鍋料／肉片",files:[NA,NB,NC]});
+ const t17=T(17);if(t17){t17.files=(t17.files||[]).filter(f=>!/la_(shichuan|shaoshuai)_a4_v4/.test(f.u));[NA,NB].forEach(f=>{if(!t17.files.some(y=>y.u===f.u))t17.files.push(f)})}
+ const t6=T(6);if(t6){t6.res="11/28 完成 8 家（國鼎 11/21）；哨帥等明信片驗證、煎餃地圖二選一未定";t6.files=t6.files||[];
+  [["紅茶大苑-壽昌店","shouchang"],["紅茶大苑-龍安店","tea_la"],["韓式豆腐鍋-壽昌店","doufu"],["韓殿炒泡麵-寶山店","handian"],["拾串關東煮-寶山店","shichuan_bs"],["拾串關東煮-龍安店","shichuan_la"],["三顧茅廬滷味-中平店","sangu_zp"],["三顧茅廬滷味-寶山店","sangu_bs"]].forEach(([id,k])=>{const u="dm/gbp_qr_"+k+".png";if(!t6.files.some(y=>y.u===u))t6.files.push({n:"Google QR",u,s:[id]})});t6.files.forEach(f=>{if(f.u==="dm/gbp_qr_guoding.png")f.s=["紅茶大苑-國鼎店"]})}
+ S.v1128a=1}
 if(!S.v1014b){const O="韓式炒泡麵-寶山店",N="韓殿炒泡麵-寶山店";
  S.stores.forEach(st=>{if(st.brand==="韓式炒泡麵")st.brand="韓殿炒泡麵";if(st.id===O)st.id=N});
  (S.materials||[]).forEach(m=>{if(m.store===O)m.store=N});(S.campaigns||[]).forEach(c=>{if(c.brand==="韓式炒泡麵")c.brand="韓殿炒泡麵";if(c.exclude)c.exclude=c.exclude.map(x=>x===O?N:x)});
@@ -816,6 +825,18 @@ function stores(){
 }
 function infoText(ids){return ids.map(id=>{const x=INFO[id];return `【${x.name}】\n地址：${x.addr}\n電話：${x.phone}\n營業時間：${x.hours}${x.svc?`\n服務：${x.svc}`:""}\n價位：${x.price}${x.web?`\n網站：${x.web}`:""}`}).join("\n\n")+"\n\n以上是 Google 地圖上目前寫的資料，麻煩幫我看哪裡要改，回我正確的就好，謝謝！"}
 let infoG="品牌";
+function gbpCard(){
+  const cb=(t,l)=>`<button class="btn ghost" style="padding:2px 8px;font-size:12px" data-copy="${esc(t)}">${l}</button>`;
+  const rows=S.stores.filter(x=>GMAP[x.id]).map(x=>{const g=GMAP[x.id],id=x.id;const web=g.web==="order"?WEB_ORDER[id]:g.web;
+   const st=g.d?`<span class="pill p-ok">${esc(g.d)} 完成</span>`:`<span class="pill p-warn">${esc(g.why||"還沒做")}</span>`;
+   const img=g.img||g.img2;
+   return `<tr><td style="white-space:nowrap"><b>${esc(x.brand.replace(/滷味|麻辣拌|關東煮|炒泡麵/,""))}</b> ${esc(x.branch)}</td><td>${st}${g.todo?`<div class="iflag">⚠ ${esc(g.todo)}</div>`:""}</td>
+    <td style="font-size:12px">${web?`${g.web==="order"?"雲端點餐":"LINE 加好友"} ${cb(web,"複製")}`:"—"}</td>
+    <td>${img?`<a href="${DMU({u:img,n:"Google QR"})}"><img src="${esc(img)}" style="width:72px;border:1px solid #ddd;border-radius:6px;display:block"></a>`:"—"}</td>
+    <td style="font-size:12px">${g.post?`<details><summary>看貼文</summary><div style="white-space:pre-line;margin:6px 0;line-height:1.5">${esc(g.post)}</div></details>${cb(g.post,"複製貼文")} ${cb(g.line,"複製按鈕網址")}`:"—"}</td></tr>`}).join("");
+  return `<div class="card"><h3 style="margin:0 0 4px">Google 地圖：網站欄・QR 相片・貼文</h3><p class="note" style="margin:0 0 8px">每家做三件事：網站欄放雲端點餐（沒有就放 LINE 加好友）、上傳 QR 相片、發貼文（按鈕選「瞭解詳情」貼按鈕網址）。</p>
+  <div class="scroll"><table class="info-t"><thead><tr><th>門市</th><th>狀態</th><th>網站欄</th><th>QR 相片</th><th>貼文</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
 function info(){
   S.info=S.info||{};
   const ids=S.stores.map(s=>s.id).filter(id=>INFO[id]), miss=S.stores.filter(s=>!INFO[s.id]);
@@ -829,6 +850,7 @@ function info(){
    ${list.map(id=>{const x=INFO[id],m=S.info[id]||{},st=stOf(id);const sn=infoG==="品牌"?id.split("-")[1]:(()=>{const t=S.stores.find(y=>y.id===id);return t.brand.replace("滷味","").replace("麻辣拌","").replace("關東煮","")+" "+t.branch})();return `<tr><td><b>${esc(sn)}</b>${x.flag?`<div class="iflag">⚠ ${esc(x.flag)}</div>`:""}${st==="要改"?`<input id="if-${esc(id)}" class="ask-in" style="margin-top:4px;font-size:.78rem;padding:3px 6px" data-infofix="${esc(id)}" placeholder="要改成什麼" value="${esc(m.fix||"")}">`:""}</td><td class="tabnum" style="white-space:nowrap">${esc(x.phone)}</td><td>${esc(x.hours)}</td><td>${esc(x.addr.replace("桃園區",""))}</td><td class="c"><button class="infost" data-infost="${esc(id)}"><span class="pill ${cls[st]}">${st}</span></button></td></tr>`}).join("")}`}).join("")}
   </tbody></table></div>
   <p class="note">服務、價位、網站按「複製給店長」時會一起帶進訊息。</p>
+  ${gbpCard()}
   </section>`;
 }
 function accounts(){
@@ -1015,6 +1037,24 @@ const actWord=(t,c)=>{t=t.replace(/^(每月)?輪替[：:].*$/,"每月優惠飲�
   t=t.replace(/^雲端(訂餐|點餐)[，,]?\s*/,"").replace(/^加 LINE 好友[，,]\s*/,"").replace(/加 LINE 好友/,"加好友").replace(/首次加 LINE 好友/,"首次加好友").replace(/首次加 LINE\s*/,"首次加好友");
   t=t.replace(/(每消費\s*\$?100|滿\s*\$?100)\s*/g,"滿百").replace(/滿百送紅茶\s*\$(\d+)\s*折價券/,"滿百送 $$$1 紅茶").replace(/滿百送\s*\$(\d+)\s*紅茶折價券/,"滿百送 $$$1 紅茶").replace(/滿百送\s*\$(\d+)$/,"滿百送 $$$1");
   return t};
+const LINE_U={tg:"https://lin.ee/p25p2i0",la:"https://lin.ee/PQPGOHf",zp:"https://lin.ee/ZTeaIaC",bs3:"https://lin.ee/WjWDW0s",bs:"https://lin.ee/ply5QWc",df:"https://lin.ee/w57TDaE"};
+const CABP="\n\n冬季好禮\n滿 $100 高麗菜 1 包 $10\n或\n滿 $200 送高麗菜 1 包";
+const TEAP="加入紅茶大苑 LINE 好友🎉\n首次加入送紅茶鮮奶（L）一杯！\n每月新品、優惠活動第一時間通知你\n雲端點餐滿 $100 送 $30，免排隊直接取餐";
+const SGP="加入三顧茅廬 LINE 好友🎉\n最新優惠、活動第一時間通知你\n傳 LINE 訊息就能先點餐，到店免等待\n\n冬季加購\n高麗菜 2 包 $50";
+const CABF=n=>`加入${n} LINE 好友🎉\n首次加入就送高麗菜 1 包！\n最新優惠、活動第一時間通知你`+CABP;
+var GMAP={ // Google 地圖：網站欄、QR 相片、貼文（按鈕「瞭解詳情」連到 line）
+ "紅茶大苑-國鼎店":{d:"11/21",web:"order",img:"dm/gbp_qr_guoding.png",post:TEAP,line:LINE_U.tg},
+ "紅茶大苑-壽昌店":{d:"11/28",web:"order",img:"dm/gbp_qr_shouchang.png",post:TEAP,line:LINE_U.tg},
+ "紅茶大苑-龍安店":{d:"11/28",web:"order",img:"dm/gbp_qr_tea_la.png",post:TEAP,line:LINE_U.la},
+ "韓式豆腐鍋-壽昌店":{d:"11/28",web:"order",img:"dm/gbp_qr_doufu.png",post:"加入李氏韓式豆腐鍋 LINE 好友🎉\n加好友後每消費 $100，送 $20 紅茶大苑折價券！\n雲端點餐每消費 $100，送 $10 紅茶大苑折價券，免排隊直接取餐\n折價券壽昌、國鼎、龍安紅茶大苑皆可使用",line:LINE_U.df},
+ "韓殿炒泡麵-寶山店":{d:"11/28",web:"order",img:"dm/gbp_qr_handian.png",post:"加入韓殿 LINE 好友🎉\n最新優惠、活動第一時間通知你\n雲端點餐免排隊，到店直接取餐"+CABP,line:LINE_U.bs},
+ "拾串關東煮-寶山店":{d:"11/28",web:LINE_U.bs,img:"dm/gbp_qr_shichuan_bs.png",post:CABF("拾串"),line:LINE_U.bs,todo:"貼文要改成「首次加入就送高麗菜」版"},
+ "拾串關東煮-龍安店":{d:"11/28",web:LINE_U.la,img:"dm/gbp_qr_shichuan_la.png",post:CABF("拾串"),line:LINE_U.la,todo:"貼文要改成「首次加入就送高麗菜」版"},
+ "東北少帥麻辣拌-龍安店":{d:"",why:"等明信片驗證",web:LINE_U.la,img:"",img2:"dm/gbp_qr_shaoshuai.png",post:CABF("哨帥"),line:LINE_U.la},
+ "三顧茅廬滷味-中平店":{d:"11/28",web:LINE_U.zp,img:"dm/gbp_qr_sangu_zp.png",post:SGP,line:LINE_U.zp},
+ "三顧茅廬滷味-寶山店":{d:"11/28",web:LINE_U.bs3,img:"dm/gbp_qr_sangu_bs.png",post:SGP,line:LINE_U.bs3},
+ "一口煎餃-龍安店":{d:"",why:"地圖二選一未定"}};
+const gIco=ids=>ids.filter(Boolean).map(id=>{const g=GMAP[id];return g&&g.img?`<a class="gbi" href="${DMU({u:g.img,n:"Google QR"})}" title="Google 地圖 QR（${esc(g.d)} 完成）">G</a>`:`<span class="gbi off" title="Google：${esc(g&&g.why||"還沒做")}">G</span>`}).join("");
 const DMU=f=>/^(dm|assets|img)\/.*\.(png|jpe?g)$/i.test(f.u)?esc(`dm.html?f=${encodeURIComponent(f.u)}&n=${encodeURIComponent(f.n)}&r=9`):esc(f.u);
 function storeActs(id,mode){
   const seen=new Set();const cell={};ACT_COLS.forEach(c=>cell[c]=[]);let push=false;
@@ -1061,15 +1101,15 @@ function lineGoalCard(){
     const an=esc(k.replace(/（.*?）/,"").replace("、拾串關東煮","・拾串")).replace(/[-\s・]/,"<br>");
     const sn={"紅茶大苑-壽昌、國鼎店":"紅茶大苑<br><span class=note>壽昌・國鼎</span>","李氏韓式豆腐鍋-桃園壽昌":"豆腐鍋","三顧茅廬 桃園寶山店":"三顧<br><span class=note>寶山</span>","三顧茅廬-桃園中平店":"三顧<br><span class=note>中平</span>"}[k]||an;
     mob.push({row:`<tr><td style="line-height:1.3;white-space:nowrap">${sn}</td><td class="c"><b>${cur||"—"}</b></td><td class="c">${esc(g.t||"—")}</td><td class="c">${g.t?Math.max(0,n(g.t)-cur):"—"}</td><td class="c" style="line-height:1.3">${esc(md(g.due)||"—")}<br><span class="note" style="white-space:nowrap">${left==null?"":"剩"+left+"天"}</span></td><td class="c">${act==null?"—":f(act)}</td><td class="c"><span class="pill ${ok==null?"":ok?"p-ok":"p-bad"}">${need==null?"—":f(need)}</span></td></tr>${g.acts?`<tr><td colspan="7" class="note" style="font-size:12px;padding-top:0">${esc(g.acts)}</td></tr>`:""}`,
-     actT:`<tr class="brandrow"><td colspan="4">${esc(k.replace(/（.*?）/,"").replace("、拾串關東煮","・拾串"))}</td></tr>`+(()=>{const tg=[];(st.length?st:[null]).forEach(id=>{const h=id?storeActs(id,"t"):"<td></td><td></td><td></td>";const gg=tg.find(x=>x.h===h);gg?gg.ids.push(id):tg.push({h,ids:[id]})});return tg.map(gp=>`<tr><td style="line-height:1.3;white-space:nowrap!important">${gname(gp.ids)}</td>${gp.h}</tr>`).join("")})(),
+     actT:`<tr class="brandrow"><td colspan="4">${esc(k.replace(/（.*?）/,"").replace("、拾串關東煮","・拾串"))}</td></tr>`+(()=>{const tg=[];(st.length?st:[null]).forEach(id=>{const h=id?storeActs(id,"t"):"<td></td><td></td><td></td>";const gg=tg.find(x=>x.h===h);gg?gg.ids.push(id):tg.push({h,ids:[id]})});return tg.map(gp=>`<tr><td style="line-height:1.3;white-space:nowrap!important">${gname(gp.ids)}<div>${gIco(gp.ids)}</div></td>${gp.h}</tr>`).join("")})(),
      acts:`<div class="gm-acc">${esc(k.replace(/（.*?）/,"").replace("、拾串關東煮","・拾串"))}</div>${mg.map(x=>`<div class="gm-store">${mg.length>1||st.length>1?`<div class="gm-sn">${gname(x.ids).replace(/<br>/g,"、")}</div>`:""}${x.h}</div>`).join("")}`})}
-   return grp.map((gp,j)=>{const top=j===0?B:"";const sCell=`<td style="min-width:80px;vertical-align:top;font-size:13px;${top}">${gname(gp.ids)}</td>`;
+   return grp.map((gp,j)=>{const top=j===0?B:"";const sCell=`<td style="min-width:80px;vertical-align:top;font-size:13px;${top}">${gname(gp.ids)}<div style="margin-top:3px">${gIco(gp.ids)}</div></td>`;
     const one=grp.length===1;const sp=one?` rowspan="2" `:" ";
     const acts=gp.h.replace(/<td style="/g,`<td${sp}style="${top}`);
     const hd=head.replace(/__RS__/g,` rowspan="${1+Math.max(1,grp.length-1)}"`);
     return `<tr>${j===0?hd:j===1?noteTd(grp.length-1):""}${sCell.replace("<td ","<td"+sp)}${acts}</tr>`}).join("")+(grp.length===1?`<tr>${noteTd(1)}</tr>`:"")}).join("");
   return `<div class="card"><div class="brandhead" style="margin:0 0 6px;flex-wrap:wrap"><h3 style="white-space:nowrap">會員目標</h3><span class="note">紅色＝速度不夠；<span class="lineb" style="margin:0">LINE</span>＝每月 LINE 推播；<span class="dml">有底線</span>的活動和 ✔ 點了看 DM。活動從成效追蹤帶入，DM 也是在那邊加</span></div>
-  <div class="scroll gdesk"><table class="tight" style="width:100%"><thead><tr><th rowspan="3" class="stick">帳號</th><th class="c" rowspan="3">目前</th><th class="c" rowspan="3">目標人數</th><th class="c" rowspan="3">還差</th><th class="c" rowspan="3">期限</th><th class="c" rowspan="3">剩餘</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th class="c" colspan="${ACT_COLS.length+1}" style="border-bottom:1px solid #c9dbef">目前活動（Google QR 全部門市都有）</th></tr><tr><th class="c" rowspan="2" style="border-left:2px solid #c9dbef">實際</th><th class="c" rowspan="2" style="border-right:2px solid #c9dbef">需要</th><th rowspan="2">門市</th><th class="c" colspan="3" style="border-bottom:1px solid #c9dbef">加 LINE 好友</th><th rowspan="2">消費優惠</th><th rowspan="2">雲端點餐<br>滿百</th></tr><tr><th>首次</th><th>滿百首次</th><th class="c">店內 DM</th></tr></thead><tbody>${rows}</tbody></table></div>${gmobHTML(mob)}</div>`;
+  <div class="scroll gdesk"><table class="tight" style="width:100%"><thead><tr><th rowspan="3" class="stick">帳號</th><th class="c" rowspan="3">目前</th><th class="c" rowspan="3">目標人數</th><th class="c" rowspan="3">還差</th><th class="c" rowspan="3">期限</th><th class="c" rowspan="3">剩餘</th><th class="c" colspan="2" style="border-left:2px solid #c9dbef;border-right:2px solid #c9dbef;border-bottom:1px solid #c9dbef">每天增加人數</th><th class="c" colspan="${ACT_COLS.length+1}" style="border-bottom:1px solid #c9dbef">目前活動（<span class="gbi" style="cursor:default">G</span>＝Google 地圖 QR，灰色＝還沒做）</th></tr><tr><th class="c" rowspan="2" style="border-left:2px solid #c9dbef">實際</th><th class="c" rowspan="2" style="border-right:2px solid #c9dbef">需要</th><th rowspan="2">門市</th><th class="c" colspan="3" style="border-bottom:1px solid #c9dbef">加 LINE 好友</th><th rowspan="2">消費優惠</th><th rowspan="2">雲端點餐<br>滿百</th></tr><tr><th>首次</th><th>滿百首次</th><th class="c">店內 DM</th></tr></thead><tbody>${rows}</tbody></table></div>${gmobHTML(mob)}</div>`;
 }
 
 function growth(){
@@ -1219,8 +1259,8 @@ function trackView(){
 
 const ASSETS=[
  {b:"紅茶大苑",items:[["Logo（白底）","assets/tea_logo.png"],["Logo（透明背景）","assets/tea_logo_transparent.png"],["LINE 加好友 QR（國鼎・壽昌）","assets/line_qr_guoding_shouchang.png"],["LINE 加好友 QR（龍安美食）","assets/line_qr_longan.png"],["雲端點餐 QR（國鼎）","assets/order_qr_guoding.png"],["每月輪替活動圖 1–6","img/rot1.jpg"]]},
- {b:"拾串關東煮",items:[["龍安招牌照片（有反光）","assets/shichuan_sign_photo.png"],["高麗菜 DM（龍安店）","dm/cabbage_shichuan_la.png"],["高麗菜 DM（寶山店）","dm/cabbage_shichuan_bs.png"],["A4 營業時間","dm/a4_hours.png"]],need:"Logo 原檔"},
- {b:"東北少帥麻辣拌",items:[["高麗菜 DM（龍安店）","dm/cabbage_shaoshuai_la.png"]],need:"Logo 原檔、招牌照片"},
+ {b:"拾串關東煮",items:[["龍安招牌照片（有反光）","assets/shichuan_sign_photo.png"],["高麗菜 DM（龍安店）","dm/cabbage_shichuan_la.png"],["高麗菜 DM（寶山店）","dm/cabbage_shichuan_bs.png"],["A4 營業時間","dm/a4_hours.png"],["A4 加好友送高麗菜（龍安）","dm/a4_cab_shichuan_la.png"],["A4 加好友送高麗菜（寶山）","dm/a4_cab_shichuan_bs.png"],["舊版 A4：滿百送 $25 火鍋料","dm/la_shichuan_a4_v4.png"]],need:"Logo 原檔"},
+ {b:"東北少帥麻辣拌",items:[["高麗菜 DM（龍安店）","dm/cabbage_shaoshuai_la.png"],["A4 加好友送高麗菜","dm/a4_cab_shaoshuai_la.png"],["Google QR（等驗證）","dm/gbp_qr_shaoshuai.png"],["舊版 A4：滿百送肉片","dm/la_shaoshuai_a4_v4.png"]],need:"Logo 原檔、招牌照片"},
  {b:"一口煎餃",items:[],need:"Logo、開幕招牌、兩種格式廣告牌"},
  {b:"三顧茅廬滷味",items:[["Logo 參考（小圖，要原檔）","assets/sangu_logo_ref_small.png"],["LINE 加好友 QR（中平店）","assets/line_qr_sangu_zhongping.png"],["到店免等待 DM（中平店）","dm/preorder_sangu_zhongping.png"],["LINE 加好友 QR（寶山店）","assets/line_qr_sangu_baoshan.png"],["到店免等待 DM（寶山店）","dm/preorder_sangu_baoshan.png"],["高麗菜 DM（中平店）","dm/cabbage_sangu_zp.png"],["高麗菜 DM（寶山店）","dm/cabbage_sangu_bs.png"]],need:"Logo、招牌照片"},
  {b:"李氏韓式豆腐鍋",items:[["LINE 加好友 QR","assets/line_qr_doufu.png"],["A4 活動 DM（加好友＋雲端點餐）","dm/a4_doufu.png"]],need:"Logo、招牌照片"},
